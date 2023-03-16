@@ -1,7 +1,9 @@
 import Layout from "@/components/Layout";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import {FiEdit2} from 'react-icons/fi';
-import {IoMdAddCircleOutline, IoMdArrowDropdown} from 'react-icons/io';
+import {IoMdArrowDropdown} from 'react-icons/io';
+import {IoAddCircleOutline} from 'react-icons/io5';
 
 export default function Jobs () {
     const [departmentList, setDepartmentList] = useState<any[]>([]);
@@ -39,9 +41,9 @@ export default function Jobs () {
                                 <button className={`text-primary_blue`}><FiEdit2/></button>
                             </div>
                             <div className={'flex gap-[18px] items-center'}>
-                                <button><IoMdAddCircleOutline /></button>
+                                <Link href="/jobs/add-new-position"className={`text-[31px] font-thin`}><IoAddCircleOutline /></Link>
                                 <div className={`w-[181px] h-[31px] rounded-[68px] py-[6px] px-[48px] bg-semantic_blue_100`}>{department.numberOfPosition} positions</div>
-                                <button><IoMdArrowDropdown /></button>
+                                <button className={` text-[30px]`}><IoMdArrowDropdown /></button>
                             </div>
                         </div>
                     ))}

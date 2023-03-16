@@ -3,6 +3,10 @@ import Layout from '../components/Layout'
 
 export default function TalentPool () {
     return (
-        <Layout></Layout>
+        <Layout>
+            <section></section>
+            <section></section>
+
+        </Layout>
     )
 }
