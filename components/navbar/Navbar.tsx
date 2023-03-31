@@ -31,8 +31,8 @@ export default function Navbar(): JSX.Element {
                         <Link href="/jobs">
                             <p>JOBS</p>
                         </Link>
-                        <Link href="/reserved">
-                            <p>RESERVED</p>
+                        <Link href="/resolved">
+                            <p>RESOLVED</p>
                         </Link>
                         <Link href="/trash">
                             <p>TRASH</p>

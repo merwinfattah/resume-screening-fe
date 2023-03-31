@@ -2,15 +2,19 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '@/styles/Home.module.css'
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import Layout from './../components/Layout';
 import { BsFillTrashFill} from 'react-icons/bs';
 import { AiOutlineSearch } from 'react-icons/ai';
 import {IoMdArrowDropdown} from 'react-icons/io';
 import {GrClose} from 'react-icons/gr';
+import { getItem } from '@/utils/sessionStorage';
 
 
 
 export default function Home() {
+  
+  const formDataList = getItem("formDataList") || [];
   return (
     <Layout>
       <section className={`bg-light_neutral_200 flex gap-[230px]   w-full py-[18px] px-[31px] border-[1px] border-mid_neutral_100`}>
@@ -71,6 +75,15 @@ export default function Home() {
                   <p>No group applied </p>
                   <select></select>
                </div>
+               <ul>
+                {Array.isArray(formDataList) && formDataList.map((formData: any, index: number) => (
+                  <li key={index}>
+                    <div className={`flex items-center gap-[6px]`}>
+                      <p>{formData.position}</p>
+                    </div>
+                  </li>
+                ))}
+               </ul>
           </div>
         </div>
       </section>
