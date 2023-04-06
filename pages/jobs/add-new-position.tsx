@@ -22,13 +22,6 @@ interface FormData {
     description: string;
   }
 
-const departmentOptions = [
-    { value: 'HR', label: 'HR' },
-    { value: 'Finance', label: 'Finance' },
-    { value: 'IT', label: 'IT' },
-    { value: 'Marketing', label: 'Marketing' },
-]
-
 const educationOptions = [
     { value: 'SMA', label: 'SMA' },
     { value: 'S1', label: 'S1' },
@@ -48,7 +41,19 @@ export default function AddNewPosition () {
       });
 
     const [formDataList, setFormDataList] = useState<FormData[]>([]);
-   
+    // Retrieve department list data from session storage
+    const departmentListInStorage = sessionStorage.getItem("department list");
+    const existingList = departmentListInStorage ? JSON.parse(departmentListInStorage) : [];
+
+    // Create a new list of objects with name and label properties
+    const departmentOptions = existingList.map((department: any) => {
+    return {
+        name: department.name,
+        label: department.name,
+    };
+    });
+
+
     const handlePositionInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prevState) => ({
         ...prevState,
@@ -86,10 +91,10 @@ export default function AddNewPosition () {
 
     const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const existingFormDataList = JSON.parse(sessionStorage.getItem("formDataList") || "[]");
+        const existingFormDataList = getItem("formDataList")
         const newFormDataList = [...existingFormDataList, formData];
         setFormDataList(newFormDataList);
-        setItem("formDataList", JSON.stringify(newFormDataList))
+        setItem("formDataList", newFormDataList)
         {/*const existingFormDataList = JSON.parse(getItem("formDataList")) || []
         if (existingFormDataList) {       
             const updatedFormDataList = [...existingFormDataList, formData];

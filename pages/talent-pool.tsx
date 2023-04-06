@@ -21,7 +21,7 @@ export default function TalentPool () {
         noKeyboard: true
       });
 
-    const formDataList = JSON.parse(sessionStorage.getItem("formDataList") || "[]");
+    const formDataList = getItem('formDataList');
 
     return (
         <Layout>
