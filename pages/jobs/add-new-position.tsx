@@ -3,87 +3,86 @@ import SelectItems from "@/components/SelectItems"
 import Link from "next/link"
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { useState, useEffect} from "react";
+import { useState} from "react";
 import {BiArrowBack} from 'react-icons/bi';
 import {GrClose} from 'react-icons/gr';
-import 'react-quill/dist/quill.snow.css';
+import {MdArrowDropUp, MdArrowDropDown} from 'react-icons/md';
 import { getItem, setItem } from '@/utils/sessionStorage';
-
-
+import { educationOptions }  from '@/components/SelectOptions';
+import PositionData from "@/interfaces/PositionData";
+import 'react-quill/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
-
-interface FormData {
-    department: string;
-    position: string;
-    education: string;
-    location: string;
-    description: string;
-  }
-
-const educationOptions = [
-    { value: 'SMA', label: 'SMA' },
-    { value: 'S1', label: 'S1' },
-    { value: 'S2', label: 'S2' },
-    { value: 'S3', label: 'S3' },
-]
-
-
 export default function AddNewPosition () {
     const router = useRouter();
-    const [formData, setFormData] = useState<FormData>({
+    const [positionData, setPositionData] = useState<PositionData>({
         department: '',
         position: '',
         education: '',
         location: '',
         description: '',
+        minimumExperience: '',
+        uploadedCV: [],
+        filteredCV: [],
+        potentialCandidates: [],
+        qualifiedCandidates: [],
+        lastCandidatesUpdated: new Date(),
+        isResolved: false,
       });
-
-    const [formDataList, setFormDataList] = useState<FormData[]>([]);
     // Retrieve department list data from session storage
     const departmentListInStorage = sessionStorage.getItem("department list");
     const existingList = departmentListInStorage ? JSON.parse(departmentListInStorage) : [];
-
+    const [experience, setExperience] = useState('');
     // Create a new list of objects with name and label properties
     const departmentOptions = existingList.map((department: any) => {
     return {
-        name: department.name,
+        value: department.name,
         label: department.name,
     };
     });
 
-
     const handlePositionInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prevState) => ({
+    setPositionData((prevState) => ({
         ...prevState,
         position: event.target.value,
     }));
     };
     
     const handleLocationInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prevState) => ({
+    setPositionData((prevState) => ({
         ...prevState,
         location: event.target.value,
     }));
     };
 
     const handleDepartmentInputChange = (selectedOption: any) => {
-    setFormData((prevState) => ({
-        ...prevState,
-        department: selectedOption.value,
-    }));
+        if (selectedOption) {
+        setPositionData((prevState) => ({
+            ...prevState,
+            department: selectedOption.value,
+        }));}
     };
 
     const handleEducationInputChange = (selectedOption: any) => {
-        setFormData((prevState) => ({
+        if (selectedOption) {
+            setPositionData((prevState) => ({
+                ...prevState,
+                education: selectedOption.value,
+            }));
+        }
+    };
+
+    const handleExperienceInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setExperience((event.target.value));
+        setPositionData((prevState) => ({
             ...prevState,
-            education: selectedOption.value,
+            minimumExperience: event.target.value,
         }));
         };
 
     const handleRichTextInputChange = (value: string) => {
-        setFormData((prevState) => ({
+        setPositionData((prevState) => ({
             ...prevState,
             description: value.replace(/<\/?p>/g, ""),
         }));
@@ -91,10 +90,10 @@ export default function AddNewPosition () {
 
     const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const existingFormDataList = getItem("formDataList")
-        const newFormDataList = [...existingFormDataList, formData];
-        setFormDataList(newFormDataList);
-        setItem("formDataList", newFormDataList)
+        const existingPositionDataList = getItem("positionDataList")
+        const existingDepartment = getItem("department list")
+        const newPositionDataList = [...existingPositionDataList, positionData];
+        setItem("positionDataList", newPositionDataList)
         {/*const existingFormDataList = JSON.parse(getItem("formDataList")) || []
         if (existingFormDataList) {       
             const updatedFormDataList = [...existingFormDataList, formData];
@@ -103,27 +102,68 @@ export default function AddNewPosition () {
             const initialFormDataList = [formData];
             sessionStorage.setItem("formDataList", JSON.stringify(initialFormDataList));
         }*/}
-        setFormData({
+        setPositionData({
             department: '',
             position: '',
             education: '',
             location: '',
             description: '',
+            minimumExperience: '',
+            uploadedCV: [],
+            filteredCV: [],
+            potentialCandidates: [],
+            qualifiedCandidates: [],
+            lastCandidatesUpdated: new Date(),
+            isResolved: false,
         });
         router.push('/talent-pool');
+        console.log(departmentOptions)
         };
-      
 
-    
+    const addExperince = () => {
+        if (experience) {
+            setExperience((parseInt(experience) + 1).toString());
+            setPositionData(prevState => ({
+                ...prevState,
+                minimumExperience: (parseInt(prevState.minimumExperience) + 1).toString()
+              }));
+        }
+        else {
+            setExperience('0');
+            setPositionData(prevState => ({
+                ...prevState,
+                minimumExperience: '0'
+              }));
+        }
+        
+    }    
+
+    const minusExperince = () => {
+        if (experience) {
+            setExperience((parseInt(experience) - 1).toString());
+            setPositionData(prevState => ({
+                ...prevState,
+                minimumExperience: (parseInt(prevState.minimumExperience) - 1).toString()
+              }));
+        }
+        else {
+            setExperience('0');
+            setPositionData(prevState => ({
+                ...prevState,
+                minimumExperience: '0'
+              }));
+        }
+        
+    }     
     return (
         <Layout>
-            <section className={` pt-[19px]`}>
-                <div className={`mx-[190px] items-center flex  justify-between w-[1646px] h-[75px] py-[14px] px-4 rounded-md bg-light_neutral_200 drop-shadow z-10`}>
+            <section className={`flex justify-center pt-[19px]`}>
+                <div className={` items-center flex  justify-between w-[1646px] h-[75px] py-[14px] px-4 rounded-md bg-light_neutral_200 drop-shadow z-10`}>
                     <div>
-                        <button className={`flex gap-[18px] items-center`}>
+                        <div className={`flex gap-[18px] items-center`}>
                             <Link href="/jobs" className={` text-[32px]`}><BiArrowBack/></Link>
                             <p>CREATE NEW POSITION</p>
-                        </button>
+                        </div>
                     </div>
                     <div className={`flex gap-[18px] text-dark_neutral_200`}>
                         <button className={`bg-primary_white py-[14px] px-[10px] text-primary_blue border border-primary_blue rounded`}>Save Draft</button>
@@ -131,7 +171,7 @@ export default function AddNewPosition () {
                     </div>
                 </div>  
             </section>
-            <section className={`container mx-auto flex flex-row mt-[17px] gap-[18px]`}>
+            <section className={`flex flex-row mt-[17px] gap-[18px] justify-center`}>
                 <div className={` w-[339px] h-[378px] bg-light_neutral_200 py-6 px-[18px] z-10`}>
                     <div className={`p-[18px] bg-semantic_blue_50 rounded`}>
                         <h2 className={`font-semibold`}>Job Details</h2>
@@ -150,93 +190,97 @@ export default function AddNewPosition () {
                         </p>
                     </div>
                 </div>
-                <div className={`w-[1289px] h-[1080px] rounded-md pb-[40px] bg-light_neutral_200 `}>
-                    <div className={`bg-light_neutral_300 border border-b-mid_neutral_600 py-[21px] pl-6`}>
-                        <h2 className={`text-2xl font-semibold`}>Job Detail</h2>
-                    </div>
-                    <div className={`px-[40px] pt-8`}>
-                    <form className={`flex flex-col gap-6`} id="job-detail" onSubmit={handleFormSubmit}>
+                <div className={`w-[1289px]  rounded-md  bg-light_neutral_200 `}>
+                    <div className={`pb-[40px]`}>
+                        <div className={`bg-light_neutral_300 border border-b-mid_neutral_600 py-[21px] pl-6`}>
+                            <h2 className={`text-2xl font-semibold`}>Job Detail</h2>
+                        </div>
+                        <div className={`px-[40px] pt-8`}>
+                        <form className={`flex flex-col gap-6`} id="job-detail" onSubmit={handleFormSubmit}>
+                                <div className={` h-auto flex justify-between py-[10px] px-[12px] rounded text-semantic_purple_600  bg-semantic_purple_100 border border-semantic_purple_600`}>
+                                    <p>Notes: It will be seen as Job Position - Department on talent pool</p>
+                                    <div className={`flex gap-3 `}>
+                                        <p className={`underline`}>don’t show again</p>
+                                        <button><GrClose /></button>
+                                    </div>
+                                </div>
+                                <div className={`flex gap-[49px]`}>
+                                    <div className={` w-1/2 h-[113px]`}>
+                                        <label htmlFor="department" className={`text-xl font-medium text-primary_dark`}><span className={`text-secondary_red`}>*</span>Department</label>
+                                        <div className={`flex justify-between items-center mt-[18px] mb-2 `}>
+                                            <SelectItems options={departmentOptions} id="department" inputName="department" placeholder="Select Department, ex : Human Resource" width="580px" handleChange={handleDepartmentInputChange}/>
+                                        </div>
+                                        <p className={`text-dark_neutral_300`}>80 characters left. No special characters.</p>
+                                    </div>
+                                    <div className={` w-1/2 h-[113px]`}>
+                                        <label htmlFor="job-position" className={`text-xl font-medium text-primary_dark`}> Job Position </label>
+                                        <div className={`flex justify-between items-center mt-[18px] mb-2 py-3 px-4 rounded-md w-[580px] h-[44px] border border-dark_neutral_200`}>
+                                            <input id="job-position" name="job-position" placeholder="Example : Associate Manager" className={`bg-transparent w-full outline-none`} onChange={handlePositionInputChange}/>
+                                        </div>
+                                        <p className={`text-dark_neutral_300`}>80 characters left. No special characters.</p>
+                                    </div>
+                                </div>
+                                <div className={` h-auto flex justify-between py-[10px] px-[12px] rounded text-semantic_purple_600  bg-semantic_purple_100 border border-semantic_purple_600`}>
+                                    <p className={`w-[749px]`}>
+                                    Education and job location is optional and you can choose to not fill it.
+                                    If you fill it, the system will sort out the candidates with the required education and / or job location
+                                    </p>
+                                    <div className={`flex gap-3 items-center`}>
+                                        <p className={`underline`}>don’t show again</p>
+                                        <button><GrClose /></button>
+                                    </div>
+                                </div>
+                                <div className={`flex gap-[49px]`}>
+                                    <div className={` w-1/2 h-[113px]`}>
+                                        <label htmlFor="education" className={`text-xl font-medium text-primary_dark`}>Education</label>
+                                        <div className={`flex justify-between items-center mt-[18px] mb-2 `}>
+                                            <SelectItems options={educationOptions} id="education" inputName="education" placeholder="Select Education" width="580px" handleChange={handleEducationInputChange}/>
+                                        </div>
+                                        <p className={`text-dark_neutral_300`}>Minimum education for the position</p>
+                                    </div>
+                                    <div className={` w-1/2 h-[113px]`}>
+                                        <label htmlFor="job-position" className={`text-xl font-medium text-primary_dark`}> Job Location </label>
+                                        <div className={`flex justify-between items-center mt-[18px] mb-2 py-3 px-4 rounded-md w-[580px] h-[44px] border border-dark_neutral_200`}>
+                                            <input id="location" name="location" placeholder="Example : Jakarta, Bogor, atau Bandung" className={`bg-transparent w-full outline-none`} onChange={handleLocationInputChange}/>
+                                        </div>
+                                        <p className={`text-dark_neutral_300`}>Include the location for the job</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label htmlFor="minimum-experience" className={`text-xl font-medium text-primary_dark`}>Minimum Works Experience</label>
+                                    <div className={`flex items-center gap-[12px] mt-[18px]`}>
+                                        <div className={`flex  w-[90px] h-[52px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}>
+                                            <input type="text" value={experience} onChange={handleExperienceInputChange} placeholder="Fill.." className={`w-[44px] bg-transparent  outline-none `} />
+                                            <div className={``}>
+                                                <div onClick={addExperince} className={`   hover: cursor-pointer text-dark_neutral_400 text-lg `}><MdArrowDropUp /></div>
+                                                <div onClick={minusExperince} className={` hover: cursor-pointer text-dark_neutral_400 text-lg `}><MdArrowDropDown/></div>
+                                            </div>
+                                        </div>
+                                        <p className={` text-dark_neutral_500`}>Year(s)</p>
+                                    </div>
+                                 </div>
+                            </form>          
+                        </div>
+                        <div className={`bg-light_neutral_300 border border-b-mid_neutral_600 py-[21px] pl-6 mt-8`}>
+                            <h2 className={`text-2xl font-semibold`}>Job Description</h2>
+                        </div>
+                        <div className={`flex flex-col gap-6 px-10 pt-[32px]`}>
                             <div className={` h-auto flex justify-between py-[10px] px-[12px] rounded text-semantic_purple_600  bg-semantic_purple_100 border border-semantic_purple_600`}>
-                                <p>Notes: It will be seen as Job Position - Department on talent pool</p>
+                                <p>The system will filter your candidate based on the level of suitability of candidates CV with this job requirements.</p>
                                 <div className={`flex gap-3 `}>
                                     <p className={`underline`}>don’t show again</p>
                                     <button><GrClose /></button>
                                 </div>
                             </div>
-                            <div className={`flex gap-[49px]`}>
-                                <div className={` w-1/2 h-[113px]`}>
-                                    <label htmlFor="department" className={`text-xl font-medium`}><span className={`text-secondary_red`}>*</span>Department</label>
-                                    <div className={`flex justify-between items-center mt-[18px] mb-2 `}>
-                                        {/*<input list="options" onChange={(e) => setSelectedOption(e.target.value)} value={selectedOption} className={`w-full h-full bg-transparent outline-none`} type="text" name="department" id="department" placeholder="Select Department" />
-                                        <datalist id="options">
-                                            {options.map((op) => <option key={op.label}>{op.value}</option>)}
-                                        </datalist>*/}
-                                        <SelectItems options={departmentOptions} inputName="department" placeholder="Select Department, ex : Human Resource"  handleChange={handleDepartmentInputChange}/>
-                                       
-                                    </div>
-                                    <p className={`text-dark_neutral_300`}>80 characters left. No special characters.</p>
-                                </div>
-                                <div className={` w-1/2 h-[113px]`}>
-                                    <label htmlFor="job-position" className={`text-xl font-medium`}> Job Position </label>
-                                    <div className={`flex justify-between items-center mt-[18px] mb-2 py-3 px-4 rounded-md w-[580px] h-[44px] border border-dark_neutral_200`}>
-                                        <input id="job-position" name="job-position" placeholder="Example : Associate Manager" className={`bg-transparent w-full outline-none`} onChange={handlePositionInputChange}/>
-                                    </div>
-                                    <p className={`text-dark_neutral_300`}>80 characters left. No special characters.</p>
-                                </div>
+                            <div className={`flex flex-col gap-[18px]`}>
+                                <label htmlFor="job-description" className={`text-xl font-medium`} ><span>*</span>Job Requirement</label>
+                                <div>
+                                    <ReactQuill  onChange={handleRichTextInputChange} className={` h-[225px] w-[1209px] `} />
+                                </div>         
                             </div>
-                            <div className={` h-auto flex justify-between py-[10px] px-[12px] rounded text-semantic_purple_600  bg-semantic_purple_100 border border-semantic_purple_600`}>
-                                <p className={`w-[749px]`}>
-                                   Education and job location is optional and you can choose to not fill it.
-                                   If you fill it, the system will sort out the candidates with the required education and / or job location
-                                </p>
-                                <div className={`flex gap-3 items-center`}>
-                                    <p className={`underline`}>don’t show again</p>
-                                    <button><GrClose /></button>
-                                </div>
-                            </div>
-                            <div className={`flex gap-[49px]`}>
-                                <div className={` w-1/2 h-[113px]`}>
-                                    <label htmlFor="education" className={`text-xl font-medium`}>Education</label>
-                                    <div className={`flex justify-between items-center mt-[18px] mb-2 `}>
-                                        {/*<input list="options" onChange={(e) => setSelectedOption(e.target.value)} value={selectedOption} className={`w-full h-full bg-transparent outline-none`} type="text" name="department" id="department" placeholder="Select Department" />
-                                        <datalist id="options">
-                                            {options.map((op) => <option key={op.label}>{op.value}</option>)}
-                                        </datalist>*/}
-                                        <SelectItems options={educationOptions} inputName="education" placeholder="Select Education"  handleChange={handleEducationInputChange}/>
-
-                                    </div>
-                                    <p className={`text-dark_neutral_300`}>Minimum education for the position</p>
-                                </div>
-                                <div className={` w-1/2 h-[113px]`}>
-                                    <label htmlFor="job-position" className={`text-xl font-medium`}> Job Location </label>
-                                    <div className={`flex justify-between items-center mt-[18px] mb-2 py-3 px-4 rounded-md w-[580px] h-[44px] border border-dark_neutral_200`}>
-                                        <input id="location" name="location" placeholder="Example : Jakarta, Bogor, atau Bandung" className={`bg-transparent w-full outline-none`} onChange={handleLocationInputChange}/>
-                                    </div>
-                                    <p className={`text-dark_neutral_300`}>Include the location for the job</p>
-                                </div>
-                            </div>
-                        </form>          
+                        </div>  
                     </div>
-                    <div className={`bg-light_neutral_300 border border-b-mid_neutral_600 py-[21px] pl-6 mt-8`}>
-                        <h2 className={`text-2xl font-semibold`}>Job Description</h2>
-                    </div>
-                    <div className={`flex flex-col gap-6 px-10 pt-[32px]`}>
-                        <div className={` h-auto flex justify-between py-[10px] px-[12px] rounded text-semantic_purple_600  bg-semantic_purple_100 border border-semantic_purple_600`}>
-                            <p>The system will filter your candidate based on the level of suitability of candidates CV with this job requirements.</p>
-                            <div className={`flex gap-3 `}>
-                                <p className={`underline`}>don’t show again</p>
-                                <button><GrClose /></button>
-                            </div>
-                        </div>
-                        <div className={`flex flex-col gap-[18px]`}>
-                            <label htmlFor="job-description" className={`text-xl font-medium`} ><span>*</span>Job Requirement</label>
-                            <div>
-                              {/* Rich Text Editor */}
-                              <ReactQuill  onChange={handleRichTextInputChange} className={` h-[225px] w-[1209px] `} />
-                            </div>         
-                        </div>
-                    </div>  
-                </div>       
+                </div>                   
             </section>
         </Layout>
     )

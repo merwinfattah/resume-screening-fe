@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import Navbar from './navbar/Navbar';
+import Navbar from './Navbar';
 
 const Layout = ({ children }: any) => {
     return (
@@ -13,7 +13,7 @@ const Layout = ({ children }: any) => {
             <header>
                 <Navbar />
             </header>
-            <main className={`bg-light_neutral_400 h-screen overflow-scroll`}>
+            <main className={`bg-light_neutral_400 h-screen overflow-scroll pb-[40px]`}>
                 {children}
             </main>
         </>

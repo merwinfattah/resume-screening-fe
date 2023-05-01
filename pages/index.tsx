@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import Layout from './../components/Layout';
 import { BsFillTrashFill} from 'react-icons/bs';
@@ -7,13 +6,23 @@ import {GrClose} from 'react-icons/gr';
 import {FiEdit2} from 'react-icons/fi';
 import {RxDotsVertical} from 'react-icons/rx';
 import { getItem } from '@/utils/sessionStorage';
+import dynamic from 'next/dynamic';
 
-
+const Link = dynamic(() => import('next/link'));
 
 export default function Home() {
-  const formDataList = getItem("formDataList")
+  const [formDataList, setFormDataList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getItem('positionDataList');
+      setFormDataList(data);
+    };
+    fetchData();
+  }, []);
+
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
     if (event.target.value.trim() === '') {
@@ -23,8 +32,15 @@ export default function Home() {
     }
   };
 
-  const filteredData = formDataList && formDataList.filter((formData: any) => {
-    return formData.position.toLowerCase().includes(searchTerm.toLowerCase()) || formData.department.toLowerCase().includes(searchTerm.toLowerCase());
+  const handleKeyPress = async (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      // Show loading or searching condition
+      setIsSearching(true);
+    }}
+  
+  const filteredData = formDataList && formDataList.filter((positionData: any) => {
+    return positionData.position.toLowerCase().includes(searchTerm.toLowerCase()) || positionData.department.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (
@@ -33,7 +49,7 @@ export default function Home() {
           <div className={`w-[80%] flex justify-end`}>
             <form className={` flex items-center justify-between w-[676px] h-[47px] border border-dark_neutral_100  rounded`}>
               <input placeholder='Search department, position' className={`  outline-none mx-[10px] my-[12.5px] bg-light_neutral_200 w-full`} value={searchTerm} onChange={handleSearchChange}/>
-              <button className={`w-[46px] h-[47px]  rounded-r rounded-b bg-light_neutral_500 p-[14.12px] text-[18.5px] text-dark_neutral_200 border border-dark_neutral_100`}><AiOutlineSearch/></button>
+              <button onKeyDown={handleKeyPress} className={`w-[46px] h-[47px]  rounded-r rounded-b bg-light_neutral_500 p-[14.12px] text-[18.5px] text-dark_neutral_200 border border-dark_neutral_100`}><AiOutlineSearch/></button>
             </form>
           </div>
         <div className={`flex gap-[18px] `}>
@@ -77,26 +93,23 @@ export default function Home() {
           <div className={`flex gap-6 text-lg`}> 
                 <div className={`flex items-center gap-[6px]`}> 
                   <p>All departments</p> 
-                  <select></select>
                 </div>
                 <div className={`flex items-center gap-[6px]`}> 
                   <p>All positions</p> 
-                  <select></select>
                 </div>
                <div className={`flex items-center gap-[6px]`}> 
                   <p>No group applied </p>
-                  <select></select>
                </div>
           </div>
         </div>
         <div className={`container mx-auto w-[1184px] mt-6`}>
           {isSearching? (
-            <ul className={`flex flex-col gap-6`}>
-              {Array.isArray(filteredData) && filteredData.map((formData: any, index: number) => (
-               <li key={index}>
+            <div className={`flex flex-col gap-6`}>
+              {Array.isArray(filteredData) && filteredData.map((positionData: any, index: number) => (
+               <div key={index}>
                 <div className={`flex flex-col gap-8 bg-primary_white h-[262.27px] rounded-md py-6 px-8`}>
                   <div className={`flex justify-between`}>
-                    <p className={`flex items-center gap-[18px] text-xl text-dark_neutral_100`}><span className={`text-2xl text-primary_dark font-semibold`}>{formData.position}</span><span>-</span><span>{formData.department}</span></p>
+                    <p className={`flex items-center gap-[18px] text-xl text-dark_neutral_100`}><span className={`text-2xl text-primary_dark font-semibold`}>{positionData.position}</span><span>-</span><span>{positionData.department}</span></p>
                     <div className={`flex items-center gap-[18px]`}>
                       <button className={`flex items-center w-[108px] h-[47px] border border-primary_blue text-primary_blue rounded py-[14px] px-[10px] justify-between`}><FiEdit2/>Edit Job</button>
                       <button className={`bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center`}>+ Add New Candidates</button>
@@ -133,15 +146,15 @@ export default function Home() {
                       
                     </div>
               </div>
-             </li> ))}
-            </ul>
+             </div> ))}
+            </div>
           ) : (
-            <ul className={`flex flex-col gap-6`}>
-                {Array.isArray(formDataList) && formDataList.map((formData: any, index: number) => (
-                  <li key={index}>
+            <div className={`flex flex-col gap-6`}>
+                {Array.isArray(formDataList) && formDataList.map((positionData: any, index: number) => (
+                  <div key={index}>
                     <div className={`flex flex-col gap-8 bg-primary_white h-[262.27px] rounded-md py-6 px-8`}>
                       <div className={`flex justify-between`}>
-                        <p className={`flex items-center gap-[18px] text-xl text-dark_neutral_100`}><span className={`text-2xl text-primary_dark font-semibold`}>{formData.position}</span><span>-</span><span>{formData.department}</span></p>
+                        <p className={`flex items-center gap-[18px] text-xl text-dark_neutral_100`}><span className={`text-2xl text-primary_dark font-semibold`}>{positionData.position}</span><span>-</span><span>{positionData.department}</span></p>
                         <div className={`flex items-center gap-[18px]`}>
                           <button className={`flex items-center w-[108px] h-[47px] border border-primary_blue text-primary_blue rounded py-[14px] px-[10px] justify-between`}><FiEdit2/>Edit Job</button>
                           <button className={`bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center`}>+ Add New Candidates</button>
@@ -179,9 +192,9 @@ export default function Home() {
                           
                         </div>
                     </div>
-                  </li>
+                  </div>
                 ))}
-               </ul>
+               </div>
           )}              
           </div>
       </section>

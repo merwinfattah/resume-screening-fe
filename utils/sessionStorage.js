@@ -1,5 +1,5 @@
 export const registerSessionKeys = () => {
-    const keys = ["formDataList"];
+    const keys = ["positionDataList"];
     keys.forEach((key) => {
       if (!sessionStorage.getItem(key)) {
         sessionStorage.setItem(key, JSON.stringify([]));

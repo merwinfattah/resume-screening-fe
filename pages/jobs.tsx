@@ -7,10 +7,11 @@ import {GrAdd} from 'react-icons/gr';
 import { Disclosure, Transition } from '@headlessui/react';
 import EditorInput from "@/components/EditorInput";
 import { BsFillTrashFill} from 'react-icons/bs';
+import { useRouter } from 'next/router';
 
 export default function Jobs () {
     const [departmentList, setDepartmentList] = useState<any[]>([]);
-
+    
     useEffect(() => {
         const departmentListInStorage = sessionStorage.getItem("department list");
         if (departmentListInStorage) {
@@ -46,7 +47,6 @@ export default function Jobs () {
         const newDepartmentList = [...departmentList]; // Create a new copy of departmentList
         newDepartmentList[index] = {...newDepartmentList[index], name: newName}; // Update the name of the department at the specified index
         setDepartmentList(newDepartmentList); // Update the state with the new departmentList
-
         sessionStorage.setItem("department list", JSON.stringify(newDepartmentList));
     };
 
@@ -82,11 +82,11 @@ export default function Jobs () {
                                             {department.positions.length > 0? 
                                             (
                                             <>
-                                                <Link href="/jobs/add-new-position"className={`text-[31px] font-thin`}><IoAddCircleOutline /></Link>
+                                                <Link href={{ pathname: '/jobs/add-new-position', query: {departmentName: department.name}  }} className={`text-[31px] font-thin`}><IoAddCircleOutline /></Link>
                                                 <div className={`w-[181px] h-[31px] rounded-[68px] py-[6px] px-[48px] bg-semantic_blue_100`}>{department.positions.length} positions</div>
                                             </>
                                             )
-                                            :(<Link href="/jobs/add-new-position" className={`flex w-[198.4px] h-[31px] py-[6px] justify-center rounded-[68px] font-bold items-center gap-[10px] border border-dark_neutral_400 text-dark_neutral_400`}><GrAdd /> Add Position</Link>)}
+                                            :(<Link href={{ pathname: '/jobs/add-new-position', query: department.name }} className={`flex w-[198.4px] h-[31px] py-[6px] justify-center rounded-[68px] font-bold items-center gap-[10px] border border-dark_neutral_400 text-dark_neutral_400`}><GrAdd /> Add Position</Link>)}
                                             <Disclosure.Button className={` text-[30px] `} ><IoMdArrowDropdown className={`${open? 'rotate-180 transform': ''}`}/></Disclosure.Button>
                                         </div>
                                     </div>

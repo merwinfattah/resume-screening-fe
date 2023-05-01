@@ -7,20 +7,23 @@ const Select = dynamic(() => import("react-select"), { ssr: false });
 type Props = {
     handleChange: (selectedOption: { value: string; label: string }) => void
     options: any[]
+    id: string
     inputName: string
     placeholder: string
+    width: string
+    value?: { value: any, label: any }
   };
 
-const SelectItems: React.FC<Props> = ({handleChange, options, inputName, placeholder}) =>  {
-    const [isSearchable, setIsSearchable] = useState(true);
-    const [isClearable, setIsClearable] = useState(true);
-    const [isDisabled, setIsDisabled] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isRtl, setIsRtl] = useState(false);
+const SelectItems: React.FC<Props> = ({handleChange, id, options, inputName, placeholder, width, value}) =>  {
+    const [isSearchable] = useState(true);
+    const [isClearable] = useState(true);
+    const [isDisabled] = useState(false);
+    const [isLoading] = useState(false);
+    const [isRtl] = useState(false);
     const customStyles = {
         control: (provided: any, state: any) => ({
             ...provided,
-            width: "580px",
+            width: width,
             height: "44px",
             backgroundColor: "transparent",
             borderRadius: "6px",
@@ -49,18 +52,20 @@ const SelectItems: React.FC<Props> = ({handleChange, options, inputName, placeho
     return (
         <>
             <Select
-                className="basic-single"
+                className="basic-single "
                 classNamePrefix="select"
                 isDisabled={isDisabled}
                 isLoading={isLoading}
                 isClearable={isClearable}
                 isRtl={isRtl}
                 isSearchable={isSearchable}
+                id={id}
                 name={inputName}
                 options={options}
                 styles={customStyles}
                 placeholder={placeholder}
                 onChange={handleSelectChange}
+                value={value}
             /> 
         </>                    
     );
