@@ -1,25 +1,14 @@
-import Layout from '../components/Layout'
-import { useState, useCallback, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { AiOutlineSearch } from 'react-icons/ai';
-import {GrFormAdd} from 'react-icons/gr';
-import {FiEdit2} from 'react-icons/fi';
-import {MdOutlineDriveFolderUpload} from 'react-icons/md';
-import {TfiUpload} from 'react-icons/tfi';
-import { useDropzone } from "react-dropzone";
-import { getItem } from '@/utils/sessionStorage';
-import {BiArrowBack} from 'react-icons/bi';
-import {RxDragHandleDots2} from 'react-icons/rx';
-import {IoStarOutline, IoStarSharp} from 'react-icons/io5';
-import {MdPersonAddAlt1 } from 'react-icons/md';
-import {HiOutlineMail} from 'react-icons/hi';
-import EditorInput from '@/components/EditorInput';
-import { useDispatch } from 'react-redux';
-import { uploadFile } from "../redux/store/actions/uploadActions";
-import PositionData from './../interfaces/PositionData';
-
-
+import Layout from "@/components/Layout";
+import { AiOutlineSearch } from "react-icons/ai";
+import { GrFormAdd } from "react-icons/gr";
+import { FiEdit2 } from "react-icons/fi";
+import { RxDragHandleDots2 } from 'react-icons/rx';
+import Link from "next/link";
+import { getItem } from "@/utils/sessionStorage";
+import { useState } from "react";
+import { IoStarOutline } from "react-icons/io5";
+import { MdPersonAddAlt1 } from "react-icons/md";
+import { HiOutlineMail } from "react-icons/hi";
 
 
 
@@ -72,71 +61,19 @@ const sortItems = (applicants: ApplicantData[], option: SortingOption, direction
 };
 
 
-export default function TalentPool () {
-    const [positionDataList, setPositionDataList] = useState<PositionData[]>([]);
-    const fetchData = useCallback(async () => {
-        const data = await getItem('positionDataList');
-        setPositionDataList(data);
-      }, []);
-    
-      useEffect(() => {
-        fetchData();
-      }, [fetchData]);
-    const [activeIndex, setActiveIndex] = useState(0);
-    const [sortingOption, setSortingOption] = useState<SortingOption>(sortingOptions[0]);
-    const [sortingDirection] = useState<'asc' | 'desc'>('asc');
-    const [list, setList] = useState<ApplicantData[]>([...applicants]);
-    const [positionParam, setPositionParam] = useState('');
-    const [departmentParam, setDepartmentParam] = useState('');
-  
-    useEffect(() => {
-      if (positionDataList && positionDataList.length > 0) {
-        let undeletedPositionDataList = positionDataList.filter((positionData) => !positionData.isTrash.isInTrash);
-        setPositionParam(undeletedPositionDataList[0]?.position || '');
-        setDepartmentParam(undeletedPositionDataList[0]?.department || '');
-      }
-    }, [positionDataList]);
-    
-    const router = useRouter();
-    const dispatch = useDispatch();
-    const onDrop = (acceptedFiles: File[]) => {
-        console.log(acceptedFiles);
-        dispatch(uploadFile(acceptedFiles));
-        router.push({
-            pathname: '/talent-pool/upload-cv',
-            query: { position: positionParam, department: departmentParam },
-        });
-      };
-    const { open, getRootProps, getInputProps } = useDropzone({
-        accept: {'application/pdf': ['.pdf']},
-        onDrop ,
-        noClick: true,
-        noKeyboard: true
-      });
+export default function Resolved() {
+const positionDataList = [...getItem('positionDataList')];
+const [activeIndex, setActiveIndex] = useState(0);
+const [sortingOption, setSortingOption] = useState<SortingOption>(sortingOptions[0]);
+const [sortingDirection] = useState<'asc' | 'desc'>('asc');
+const sortedItems = sortItems(applicants, sortingOption, sortingDirection);
+const handleTabClick = (index: number) => {
+    setActiveIndex(index);
+  }
 
-    const sortedItems = sortItems(applicants, sortingOption, sortingDirection);
-
-    const handleTabClick = (index: number, position: string, department: string) => {
-      setActiveIndex(index);
-      setPositionParam(position);
-      setDepartmentParam(department);
-    }
-
-    {/*}
-    const handleNameChange = (newName: string, index: number) => {
-        const newDepartmentList = [...departmentList]; // Create a new copy of departmentList
-        newDepartmentList[index] = {...newDepartmentList[index], name: newName}; // Update the name of the department at the specified index
-        setDepartmentList(newDepartmentList); // Update the state with the new departmentList
-
-        sessionStorage.setItem("department list", JSON.stringify(newDepartmentList));
-    };
-*/}
-
-
-    return (
-        <Layout>       
-                {positionDataList[activeIndex]?.uploadedCV.length > 0 ? (
-                    <article className={`flex h-full`}>
+  return (
+    <Layout>
+        <article className={`flex h-full`}>
                         <section className={`w-[236px] bg-light_neutral_200  border-r-2 border-semantic_blue_100`}>
                             <aside>
                                 <div className={`flex items-center py-4 pr-4 pl-[33px] justify-between border-b border-mid_neutral_400`}>
@@ -147,8 +84,8 @@ export default function TalentPool () {
                                     <button className={`w-[19px] h-[19px] text-dark_neutral_200`}><GrFormAdd /></button>
                                 </div>
                                 <ul>
-                                    {Array.isArray(positionDataList) && positionDataList.filter(position => position.isTrash.isInTrash === false).map((formData: any, index: number) => (
-                                        <li key={`position-${index}`} className={` hover: cursor-pointer flex items-center gap-[6px] py-4 pr-4 pl-[33px] border-b-2 border-semantic_blue_100 ${activeIndex === index? 'bg-primary_blue': ''} `} onClick={()=> handleTabClick(index, formData.position, formData.department)}>
+                                    {Array.isArray(positionDataList) && positionDataList.map((formData: any, index: number) => (
+                                        <li key={`position-${index}`} className={` hover: cursor-pointer flex items-center gap-[6px] py-4 pr-4 pl-[33px] border-b-2 border-semantic_blue_100 ${activeIndex === index? 'bg-primary_blue': ''} `} onClick={()=> handleTabClick(index)}>
                                             <p className={`w-[154px] text-center  ${activeIndex === index? 'text-primary_white': 'text-dark_neutral_400'}`}>{formData.position}<span> - </span>{formData.department}</p>
                                         </li>
                                     ))}
@@ -271,87 +208,6 @@ export default function TalentPool () {
                             </div>
                         </section>
                     </article>  
-                    ) : (
-                        <article className={`flex h-full`}>
-                            <section className={`w-[236px] bg-light_neutral_200  border-r-2 border-semantic_blue_100`}>
-                            <aside>
-                                <div className={`flex items-center py-4 pr-4 pl-[33px] justify-between border-b border-mid_neutral_400`}>
-                                    <div className={`flex items-center gap-[6px]`}>
-                                        <AiOutlineSearch className={`text-dark_neutral_200`} />
-                                        <h2 className={`text-primary_dark`}>Job List</h2>
-                                    </div>
-                                    <button className={`w-[19px] h-[19px] text-dark_neutral_200`}><GrFormAdd /></button>
-                                </div>
-                                <ul>
-                                    {Array.isArray(positionDataList) && positionDataList.filter(position => position.isTrash.isInTrash === false).map((formData: any, index: number) => (
-                                        <li key={`position-${index}`} className={` hover: cursor-pointer flex items-center gap-[6px] py-4 pr-4 pl-[33px] border-b-2 border-semantic_blue_100 ${activeIndex === index? 'bg-primary_blue': ''} `} onClick={()=> handleTabClick(index, formData.position, formData.department)}>
-                                            <p className={`w-[154px] text-center  ${activeIndex === index? 'text-primary_white': 'text-dark_neutral_400'}`}>{formData.position}<span> - </span>{formData.department}</p>
-                                        </li>
-                                    ))}
-                                </ul>       
-                            </aside>
-                        </section>
-                        <section className={` flex flex-col gap-[18px] w-[1648px] p-[18px]`}>
-                          {positionDataList.filter(position => position.isTrash.isInTrash === false).length > 0 && <>
-                            <div className={`flex gap-[18px] `}>
-                                <div className={` z-10 drop-shadow-md py-3 px-[19px] w-[611px] h-[78px] bg-light_neutral_200 rounded-md flex gap-[10px] items-center justify-between`}>
-                                    <button className={`flex items-center text-primary_blue w-[108px] h-[47px] rounded gap-[6px] border border-primary_blue px-[10px] py-[14px]`}>
-                                        <FiEdit2 className={`text-dark_neutral_400`}/>
-                                        Edit Job
-                                    </button>
-                                    <div className={` w-[6px] h-[19px]  text-dark_neutral_100`}>|</div>
-                                    <div className={`w-[196px] h-[54px] py-[6px] px-12 rounded-[68px] text-center font-medium text-dark_neutral_400`}>
-                                        0 {/*diganti variabel*/}
-                                        <p>Upload Files</p>
-                                    </div>
-                                    <div className={` w-[6px] h-[19px]  text-dark_neutral_100`}>|</div>
-                                    <div className={` w-[161px] h-[47px] py-[14px] px-[10px] rounded bg-light_neutral_500 text-dark_neutral_200 font-semibold text-center`}>
-                                        Score CV
-                                    </div>
-                                </div>
-                                <div className={`z-10 drop-shadow-md flex justify-between w-[1019px] h-[78px] rounded-lg bg-light_neutral_200 py-3 px-4 items-center`}>
-                                    <div className={`w-[236px] h-[54px] py-[6px] px-12 rounded-[68px] text-center text-sm font-bold text-dark_neutral_400`}>
-                                        0 {/*diganti variabel*/}
-                                        <p className={`font-medium`}>Potential Candidates</p>
-                                    </div>
-                                    <div className={` w-[6px] h-[19px]  text-dark_neutral_100`}>|</div>
-                                    <div className={`w-[236px] h-[54px] py-[6px] px-12 rounded-[68px] text-center text-sm font-bold text-dark_neutral_400`}>
-                                        0 {/*diganti variabel*/}
-                                        <p className={`font-medium`}>Qualified Candidates</p>
-                                    </div>
-                                    <div className={` w-[6px] h-[19px]  text-dark_neutral_100`}>|</div>
-                                    <button className={`flex justify-center w-[207px] h-[47px] bg-primary_blue text-primary_white rounded px-[10px] py-[14px] hover:text-primary_blue hover:bg-primary_white border border-primary_blue items-center `}>
-                                        <p><span className={`mr-[6px] text-[19px]`}>+</span>Add New Candidates</p>
-                                    </button>
-                                    <div className={` w-[6px] h-[19px]  text-dark_neutral_100`}>|</div>
-                                    <Link href="/resolved" className={`w-[146px] h-[47px] py-[14px] px-[10px] rounded bg-semantic_green_600 text-center text-primary_white`}>
-                                        Resolve Position
-                                    </Link>
-                                </div>
-                            </div>   
-                            <div className={` bg-light_neutral_200 h-[813px] w-full rounded-md pt-[184px] px-[638px]`}>
-                                <p className={`text-center font-bold mb-[30px] pl-[32px]`}>
-                                Start upload your CV to start automate your
-                                screening process! 
-                                </p>
-                                <div {...getRootProps({className: 'dropzone flex flex-col gap-[18px] py-[60.5px] px-[58.5px] w-[372px] h-[288px] text-center rounded-md border-[3px] border-dashed border-semantic_blue_600 bg-semantic_blue_50'})} >
-                                    <input {...getInputProps()} />
-                                    <div className={`flex flex-col gap-[18px]`}>
-                                        <MdOutlineDriveFolderUpload className={`container mx-auto text-3xl `}/>
-                                        <p>Drag and drop <span className={`font-bold`}>.pdf</span> files to upload</p>
-                                    </div>
-                                    <p className={`font-bold`}>or</p>
-                                    <button type="button" onClick={open} className={`container mx-auto flex gap-[6px] items-center w-[139px] h-[47px] py-[14px] px-[10px] rounded bg-primary_blue text-primary_white`}>
-                                        <TfiUpload/>
-                                        Upload Files
-                                    </button>     
-                                </div>
-                            </div> 
-                          </>
-                          }
-                        </section>
-                        </article>
-                    )}       
-        </Layout>
-    )
+    </Layout>
+  );
 }

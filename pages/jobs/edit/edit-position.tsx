@@ -3,7 +3,7 @@ import SelectItems from "@/components/SelectItems"
 import Link from "next/link"
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { useState} from "react";
+import { useEffect, useState} from "react";
 import {BiArrowBack} from 'react-icons/bi';
 import {GrClose} from 'react-icons/gr';
 import {MdArrowDropUp, MdArrowDropDown} from 'react-icons/md';
@@ -14,14 +14,15 @@ import 'react-quill/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
-export default function AddNewPosition () {
+export default function EditPosition () {
     const router = useRouter();
-    const {departmentName} = router.query;
-    const dpName = Array.isArray(departmentName) ? '' : departmentName ?? '';
-    const currentTotalPage = parseInt(JSON.parse(sessionStorage.getItem('totalPosition') || ''));
+    const {positionId, selectedDepartment, selectedEducation} = router.query;
+    const pssId = parseInt(Array.isArray(positionId) ? '' : positionId ?? '');
+    const slcDepartment = Array.isArray(selectedDepartment) ? '' : selectedDepartment ?? '';
+    const slcEdu = Array.isArray(selectedEducation) ? '' : selectedEducation ?? ''
     const [positionData, setPositionData] = useState<PositionData>({
-        id: currentTotalPage + 1,
-        department: dpName ?? '',
+        id : 0,
+        department: '',
         position: '',
         education: '',
         location: '',
@@ -38,6 +39,20 @@ export default function AddNewPosition () {
             removedDate: undefined,
         },
       });
+    
+    useEffect(() => {
+        const fethInitialData = async () => {
+            const existingPositionDataList = await getItem("positionDataList")
+            for (let i = 0; i < existingPositionDataList.length; i++) {
+                if (existingPositionDataList[i].id === pssId) {
+                    setPositionData(existingPositionDataList[i]);
+                    break
+                }
+            }
+        }
+        fethInitialData();
+    }, [pssId]);
+
     // Retrieve department list data from session storage
     const departmentListInStorage = sessionStorage.getItem("department list");
     const existingList = departmentListInStorage ? JSON.parse(departmentListInStorage) : [];
@@ -63,8 +78,8 @@ export default function AddNewPosition () {
     }));
     };
 
-    const handleDepartmentInputChange = (selectedOption: any ) => {
-        if (selectedOption ) {
+    const handleDepartmentInputChange = (selectedOption: any) => {
+        if (selectedOption) {
         setPositionData((prevState) => ({
             ...prevState,
             department: selectedOption.value,
@@ -97,11 +112,17 @@ export default function AddNewPosition () {
     const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const existingPositionDataList = await getItem("positionDataList")
-        const newPositionDataList = [...existingPositionDataList, positionData];
-        await setItem("positionDataList", newPositionDataList)
-        sessionStorage.setItem("totalPosition", JSON.stringify(currentTotalPage + 1))
+        let newPositionDataList = [...existingPositionDataList];
+        for (let i=0; i<newPositionDataList.length; i++) {
+            if (newPositionDataList[i].id === pssId) {
+                newPositionDataList[i] = positionData;
+                break
+            }
+
+        }
+        setItem("positionDataList", newPositionDataList)
         setPositionData({
-            id: 0,
+            id : 0,
             department: '',
             position: '',
             education: '',
@@ -206,14 +227,14 @@ export default function AddNewPosition () {
                                     <div className={` w-1/2 h-[113px]`}>
                                         <label htmlFor="department" className={`text-xl font-medium text-primary_dark`}><span className={`text-secondary_red`}>*</span>Department</label>
                                         <div className={`flex justify-between items-center mt-[18px] mb-2 `}>
-                                            <SelectItems options={departmentOptions} id="department" inputName="department" placeholder="Select Department, ex : Human Resource" width="580px" handleChange={handleDepartmentInputChange} value={dpName}/>
+                                            <SelectItems options={departmentOptions} id="department" inputName="department" placeholder="Select Department, ex : Human Resource" width="580px" handleChange={handleDepartmentInputChange} value={slcDepartment} />
                                         </div>
                                         <p className={`text-dark_neutral_300`}>80 characters left. No special characters.</p>
                                     </div>
                                     <div className={` w-1/2 h-[113px]`}>
                                         <label htmlFor="job-position" className={`text-xl font-medium text-primary_dark`}> Job Position </label>
                                         <div className={`flex justify-between items-center mt-[18px] mb-2 py-3 px-4 rounded-md w-[580px] h-[44px] border border-dark_neutral_200`}>
-                                            <input id="job-position" name="job-position" placeholder="Example : Associate Manager" className={`bg-transparent w-full outline-none `} onChange={handlePositionInputChange}/>
+                                            <input id="job-position" name="job-position" placeholder="Example : Associate Manager" className={`bg-transparent w-full outline-none `} onChange={handlePositionInputChange} value={positionData.position}/>
                                         </div>
                                         <p className={`text-dark_neutral_300`}>80 characters left. No special characters.</p>
                                     </div>
@@ -232,14 +253,14 @@ export default function AddNewPosition () {
                                     <div className={` w-1/2 h-[113px]`}>
                                         <label htmlFor="education" className={`text-xl font-medium text-primary_dark`}>Education</label>
                                         <div className={`flex justify-between items-center mt-[18px] mb-2 `}>
-                                            <SelectItems options={educationOptions} id="education" inputName="education" placeholder="Select Education" width="580px" handleChange={handleEducationInputChange}/>
+                                            <SelectItems options={educationOptions} id="education" inputName="education" placeholder="Select Education" width="580px" handleChange={handleEducationInputChange} value={slcEdu} />
                                         </div>
                                         <p className={`text-dark_neutral_300`}>Minimum education for the position</p>
                                     </div>
                                     <div className={` w-1/2 h-[113px]`}>
                                         <label htmlFor="job-position" className={`text-xl font-medium text-primary_dark`}> Job Location </label>
                                         <div className={`flex justify-between items-center mt-[18px] mb-2 py-3 px-4 rounded-md w-[580px] h-[44px] border border-dark_neutral_200`}>
-                                            <input id="location" name="location" placeholder="Example : Jakarta, Bogor, atau Bandung" className={`bg-transparent w-full outline-none`} onChange={handleLocationInputChange} />
+                                            <input id="location" name="location" placeholder="Example : Jakarta, Bogor, atau Bandung" className={`bg-transparent w-full outline-none`} onChange={handleLocationInputChange} value={positionData.location}/>
                                         </div>
                                         <p className={`text-dark_neutral_300`}>Include the location for the job</p>
                                     </div>

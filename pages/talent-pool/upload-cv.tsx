@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import SelectItems from "@/components/SelectItems";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {useRouter} from 'next/router';
 import { useSelector } from "react-redux";
 import {BiArrowBack} from 'react-icons/bi';
@@ -11,10 +11,17 @@ import {BiSort} from 'react-icons/bi';
 import {GrClose} from 'react-icons/gr';
 import { domicileOptions } from "@/components/SelectOptions";
 import Candidate from "@/interfaces/Candidate";
+import  {Viewer}  from '@react-pdf-viewer/core';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+
 
 export default function UploadCV() {
   const acceptedFiles = useSelector((state: any) => state.upload.acceptedFiles);
+  const newPlugin = defaultLayoutPlugin();
   const [activeFileIndex, setActiveFileIndex] = useState(0);
+  const [viewPdf, setViewPdf] = useState("");
   const [candidateData, setCandidateData] = useState<Candidate[]>([{
     name: '',
     cv: null,
@@ -27,11 +34,44 @@ export default function UploadCV() {
     isQualified: false,
     isFavorite: false
     }]);
+  const [listSelectedDomicile, setListSelectedDomicile] = useState<any>([]);
   const dispatch = useDispatch();
   const router = useRouter();
   const { position, department } = router.query;
+  console.log(position, department);
+  
+  useEffect(() => {
+    let selectedFile = acceptedFiles[activeFileIndex];
+    console.log('file', selectedFile)
+    let blobSelectedFile = new Blob([selectedFile], { type: 'application/pdf' });
+    if (blobSelectedFile) {
+       let url = URL.createObjectURL(blobSelectedFile);
+
+        // const toBase64 = (file: any) => new Promise((resolve, reject) => {
+        //     const reader = new FileReader();
+        //     reader.readAsDataURL(file);
+        //     reader.onload = () => resolve(reader.result);
+        //     reader.onerror = reject;
+        // });
+       console.log(typeof(url))
+       setViewPdf(url);
+    //   if (blobSelectedFile && blobSelectedFile.type.match('application/pdf')) {
+    //   let fileReader = new FileReader();
+    //   fileReader.readAsDataURL(blobSelectedFile);
+    //   fileReader.onload = (e: any) => {
+    //     setViewPdf(e.target.result);
+    //   };   }
+    //   else {
+    //     setViewPdf("");
+    //   }
+    // }
+    // else {
+    //   console.error("Selected file is not a Blob object");
+     }
+  }, [acceptedFiles, activeFileIndex]);
+  
   const handleBackButtonClick = () => {
-    dispatch(clearUpload());
+    console.log(acceptedFiles.pop());
     router.push('/talent-pool');
   };
 
@@ -57,8 +97,17 @@ export default function UploadCV() {
     setCandidateData(newCandidateData);
   };
 
-  const handleEducationInputChange = (e: any) => {
-    console.log(e.target.value);
+  const handleCandidateDomicileInputChange = (domicileSelected: any, index: number) => {
+    const newCandidateData = [...candidateData];
+    newCandidateData[index] = {
+      ...newCandidateData[index],
+      domicile: domicileSelected
+    };
+    setCandidateData(newCandidateData);
+    
+    const newSelectedDomicile = [...listSelectedDomicile];
+    newSelectedDomicile[index] = domicileSelected;
+    setListSelectedDomicile(newSelectedDomicile);
   }
 
   const handleCandidatePhoneInputChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
@@ -69,6 +118,9 @@ export default function UploadCV() {
     };
     setCandidateData(newCandidateData);
   };
+
+
+  console.log(viewPdf);
 
   return (
     <Layout>
@@ -85,7 +137,7 @@ export default function UploadCV() {
         </div>
       </section>
       <section className={`flex gap-[19px] mt-[17px] justify-center`}>
-        <div className={`w-[429px] bg-light_neutral_200 rounded-t-[6px]`}>
+        <div className={`w-[429px] h-fit bg-light_neutral_200 rounded-t-[6px]`}>
           <div className={`flex items-center h-[72px] justify-between pl-[33px] pr-[23px] border-b-[1px] border-mid_neutral_100`}>
             <div className={`flex items-center gap-[16px]`}>
               <select></select>
@@ -103,8 +155,8 @@ export default function UploadCV() {
           ))}
           </ul>
         </div>
-        <div className={`w-[1198px] bg-light_neutral_200 rounded-md overflow-hidden`}>
-          <div className={`h-[72px] border-b-[1px] border-mid_neutral_600 bg-light_neutral_300 py-[21.5px] pl-[24px] text-left`}>
+        <div className={`w-[1198px] bg-light_neutral_200 rounded-md `}>
+          <div className={`h-[72px] border-b-[1px] border-mid_neutral_600 rounded-md bg-light_neutral_300 py-[21.5px] pl-[24px] text-left`}>
             <h2 className={`font-semibold text-primary_dark text-2xl`}>Candidate Information</h2>
           </div>
           <div className={` py-[32px] px-[40px]`}>
@@ -143,7 +195,7 @@ export default function UploadCV() {
                 <div className={` w-1/2 h-[113px]`}>
                     <label htmlFor={`domicile_${activeFileIndex}`} className={`text-xl font-medium text-primary_dark`}> Domicile </label>
                     <div className={`flex wjustify-between items-center mt-[18px] mb-2 `}>
-                        <SelectItems options={domicileOptions} id={`domicile_${activeFileIndex}`} inputName="domicile" placeholder="Select Domicile" width="550px"  handleChange={handleEducationInputChange}/>
+                        <SelectItems options={domicileOptions} id={`domicile_${activeFileIndex}`} inputName="domicile" value={listSelectedDomicile[activeFileIndex]} placeholder="Select Domicile" width="550px"  handleChange={(selectedOption)=>handleCandidateDomicileInputChange(selectedOption,activeFileIndex)}/>
                     </div>
                     <p className={`text-dark_neutral_300`}>80 characters left. No special characters.</p>
                 </div>
@@ -159,6 +211,9 @@ export default function UploadCV() {
           <div>
             <div className={`bg-light_neutral_300 h-[72px] py-[21.5px] border-b-[1px] border-mid_neutral_600`}>
               <h2 className={`font-semibold text-primary_dark text-2xl pl-[24px]`}>Candidate CV Preview</h2>
+            </div>
+            <div>
+              <Viewer fileUrl={viewPdf} plugins={[newPlugin]}/>
             </div>
           </div>
         </div>

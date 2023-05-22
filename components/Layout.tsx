@@ -1,7 +1,10 @@
 import Head from 'next/head';
 import Navbar from './Navbar';
+import { useContext } from 'react';
+import  ModalContext  from '@/components/Modal'
 
 const Layout = ({ children }: any) => {
+    const {isOpen} = useContext(ModalContext);
     return (
         <>
             <Head>
@@ -13,7 +16,7 @@ const Layout = ({ children }: any) => {
             <header>
                 <Navbar />
             </header>
-            <main className={`bg-light_neutral_400 h-screen overflow-scroll pb-[40px]`}>
+            <main className={`${isOpen? ' opacity-75 absolute inset-0' : ''}bg-light_neutral_400 h-screen overflow-scroll  pb-[40px]`}>
                 {children}
             </main>
         </>

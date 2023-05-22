@@ -5,13 +5,14 @@ import dynamic from "next/dynamic";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 type Props = {
-    handleChange: (selectedOption: { value: string; label: string }) => void
+    handleChange: (selectedOption: { value: string; label: string }) => void | 
+    ((selectedOption: { value: string; label: string }, index: number) => void)
     options: any[]
     id: string
     inputName: string
     placeholder: string
     width: string
-    value?: { value: any, label: any }
+    value?: string | undefined
   };
 
 const SelectItems: React.FC<Props> = ({handleChange, id, options, inputName, placeholder, width, value}) =>  {
@@ -20,6 +21,7 @@ const SelectItems: React.FC<Props> = ({handleChange, id, options, inputName, pla
     const [isDisabled] = useState(false);
     const [isLoading] = useState(false);
     const [isRtl] = useState(false);
+    const defaultValue = options.find((option) => option.value === value);
     const customStyles = {
         control: (provided: any, state: any) => ({
             ...provided,
@@ -49,6 +51,8 @@ const SelectItems: React.FC<Props> = ({handleChange, id, options, inputName, pla
         handleChange(selectedOption);
         };
 
+   
+
     return (
         <>
             <Select
@@ -65,7 +69,7 @@ const SelectItems: React.FC<Props> = ({handleChange, id, options, inputName, pla
                 styles={customStyles}
                 placeholder={placeholder}
                 onChange={handleSelectChange}
-                value={value}
+                defaultValue={defaultValue}
             /> 
         </>                    
     );

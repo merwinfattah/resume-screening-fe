@@ -11,16 +11,10 @@ const initialState: UploadState = {
 export const uploadReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case UPLOAD_FILE:
-      const filesCopy = action.payload.map((file: File) => ({
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified,
-        lastModifiedDate: new Date(file.lastModified.toString()),
-      }));
+      console.log('payload', action.payload);
       return {
         ...state,
-        acceptedFiles: filesCopy,
+        acceptedFiles: action.payload,
       };
     case CLEAR_UPLOAD:
       return {

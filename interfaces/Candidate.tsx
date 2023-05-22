@@ -1,6 +1,6 @@
 export default interface Candidate {
     name: string;
-    cv: File | null;
+    cv: string | null;
     email: string;
     phone: string;
     domicile: string;
