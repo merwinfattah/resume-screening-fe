@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import SelectItems from "@/components/SelectItems";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import {useRouter} from 'next/router';
 import { useSelector } from "react-redux";
 import {BiArrowBack} from 'react-icons/bi';
@@ -15,16 +15,22 @@ import  {Viewer}  from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { getItem, setItem } from "@/utils/sessionStorage";
+import PositionData from "@/interfaces/PositionData";
 
 
 export default function UploadCV() {
   const acceptedFiles = useSelector((state: any) => state.upload.acceptedFiles);
+  const router = useRouter();
+  const { id, position, department } = router.query;
   const newPlugin = defaultLayoutPlugin();
   const [activeFileIndex, setActiveFileIndex] = useState(0);
   const [viewPdf, setViewPdf] = useState("");
-  const [candidateData, setCandidateData] = useState<Candidate[]>([{
+  const [candidateData, setCandidateData] = useState<Candidate[]>( new Array(acceptedFiles.length).fill({
+    id: Math.floor(Math.random() * 1000),
     name: '',
-    cv: null,
+    cv: acceptedFiles[0].type === 'application/pdf'? URL.createObjectURL(new Blob([acceptedFiles[0]], { type: 'application/pdf' })) :
+    URL.createObjectURL(new Blob([acceptedFiles[0]], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })),
     email: '',
     phone: '',
     domicile: '',
@@ -32,51 +38,39 @@ export default function UploadCV() {
     notes: '',
     score: 0,
     isQualified: false,
-    isFavorite: false
-    }]);
+    isFavorite: false,
+    idPosition: Number(id),
+    createdDate: new Date()
+    }));
+  const [positionDataList, setPositionDataList] = useState<PositionData[]>([]);
   const [listSelectedDomicile, setListSelectedDomicile] = useState<any>([]);
-  const dispatch = useDispatch();
-  const router = useRouter();
-  const { position, department } = router.query;
-  console.log(position, department);
-  
+  const dispatch = useDispatch(); 
   useEffect(() => {
     let selectedFile = acceptedFiles[activeFileIndex];
-    console.log('file', selectedFile)
     let blobSelectedFile = new Blob([selectedFile], { type: 'application/pdf' });
     if (blobSelectedFile) {
        let url = URL.createObjectURL(blobSelectedFile);
-
-        // const toBase64 = (file: any) => new Promise((resolve, reject) => {
-        //     const reader = new FileReader();
-        //     reader.readAsDataURL(file);
-        //     reader.onload = () => resolve(reader.result);
-        //     reader.onerror = reject;
-        // });
-       console.log(typeof(url))
+       console.log('ini string bukan sih',typeof(url))
        setViewPdf(url);
-    //   if (blobSelectedFile && blobSelectedFile.type.match('application/pdf')) {
-    //   let fileReader = new FileReader();
-    //   fileReader.readAsDataURL(blobSelectedFile);
-    //   fileReader.onload = (e: any) => {
-    //     setViewPdf(e.target.result);
-    //   };   }
-    //   else {
-    //     setViewPdf("");
-    //   }
-    // }
-    // else {
-    //   console.error("Selected file is not a Blob object");
-     }
-  }, [acceptedFiles, activeFileIndex]);
+    }
+  }, [acceptedFiles, activeFileIndex, candidateData]);
   
   const handleBackButtonClick = () => {
-    console.log(acceptedFiles.pop());
+    dispatch({ type: 'CLEAR_UPLOAD'});
     router.push('/talent-pool');
   };
 
   const handleFileTabClick = (index: number) => {
     setActiveFileIndex(index);
+    const newCandidateData = [...candidateData];
+    newCandidateData[index] = {
+      ...newCandidateData[index],
+      id: Math.floor(Math.random() * 1000),
+      cv: acceptedFiles[index].type === 'application/pdf'? URL.createObjectURL(new Blob([acceptedFiles[index]], { type: 'application/pdf' })) :
+      URL.createObjectURL(new Blob([acceptedFiles[index]], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })),
+    };
+    setCandidateData(newCandidateData);
+    console.log('ini kandidat', candidateData)
   }
 
   const handleCandidateNameInputChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
@@ -101,7 +95,7 @@ export default function UploadCV() {
     const newCandidateData = [...candidateData];
     newCandidateData[index] = {
       ...newCandidateData[index],
-      domicile: domicileSelected
+      domicile: domicileSelected.value
     };
     setCandidateData(newCandidateData);
     
@@ -119,8 +113,17 @@ export default function UploadCV() {
     setCandidateData(newCandidateData);
   };
 
+  const handleCandidatesSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    let newCandidateList = await getItem('candidateDataList');
+    newCandidateList = [...newCandidateList, ...candidateData];
+    await setItem('candidateDataList', newCandidateList);
+    router.push('/talent-pool');
+  }
 
-  console.log(viewPdf);
+
+
+
 
   return (
     <Layout>
@@ -160,7 +163,7 @@ export default function UploadCV() {
             <h2 className={`font-semibold text-primary_dark text-2xl`}>Candidate Information</h2>
           </div>
           <div className={` py-[32px] px-[40px]`}>
-            <form id="candidates-information" className={ `flex flex-col gap-[24px]`}>
+            <form id="candidates-information" className={ `flex flex-col gap-[24px]`} onSubmit={handleCandidatesSubmit}>
               <div className={` h-auto flex justify-between py-[10px] px-[12px] rounded text-semantic_purple_600  bg-semantic_purple_100 border border-semantic_purple_600`}>
                   <p>Make sure to fill all the columns below with the <span className={`font-bold`}>candidate informations</span> from the related CV</p>
                   <div className={`flex gap-3 `}>

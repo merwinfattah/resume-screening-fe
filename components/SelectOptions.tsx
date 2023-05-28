@@ -49,4 +49,13 @@ const domicileOptions = [
     { value: 'Biak', label: 'Biak' },
 ]
 
-export { educationOptions, domicileOptions }
+const companyOptions = [
+    { value: 'PT. Astra International Tbk', label: 'PT. Astra International Tbk' },
+    { value: 'PT. Astra Honda Motor', label: 'PT. Astra Honda Motor' },
+    { value: 'PT. Astra Otoparts Tbk', label: 'PT. Astra Otoparts Tbk' },
+    { value: 'PT. Federal International Finance', label: 'PT. Federal International Finance' },
+    { value: 'PT. Toyota Astra Financial Services', label: 'PT. Toyota Astra Financial Services' },
+    { value: 'PT. Toyota Motor Manufacturing Indonesia', label: 'PT. Toyota Motor Manufacturing Indonesia' },
+]
+
+export { educationOptions, domicileOptions, companyOptions }

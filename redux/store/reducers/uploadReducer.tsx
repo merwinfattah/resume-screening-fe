@@ -17,11 +17,10 @@ export const uploadReducer = (state = initialState, action: any) => {
         acceptedFiles: action.payload,
       };
     case CLEAR_UPLOAD:
-      return {
-        ...state,
-        acceptedFiles: [],
-      }
+      return initialState;
     default:
       return state;
   }
 };
+
+

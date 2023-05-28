@@ -26,19 +26,19 @@ export default function Navbar(): JSX.Element {
                     </div>
                     <div className={`flex gap-16   text-sm`}>
                         <Link href="/" >
-                            {router.pathname === '/' ? (<p className={`font-bold uppercase w-[75px] h-[37px] py-[10px] text-center rounded-[32px] bg-primary_white text-primary_blue`}>Home</p>): (<p className={`font-bold uppercase w-[75px] h-[37px] py-[10px] text-center rounded-[32px] `}>Home</p>)}
+                            {router.pathname === '/' ? (<p className={`flex font-bold uppercase w-[100px]  h-[37px] items-center justify-center  rounded-[32px] bg-primary_white text-primary_blue`}>BERANDA</p>): (<p className={`font-bold uppercase w-[75px] h-[37px] py-[10px] text-center rounded-[32px] `}>BERANDA</p>)}
                         </Link>
                         <Link href="/talent-pool" >
                             {router.pathname === '/talent-pool' || router.pathname === '/talent-pool/upload-cv' ? (<p className={`font-bold uppercase w-[129px] h-[37px] py-[10px] text-center rounded-[32px] bg-primary_white text-primary_blue`}>Talent Pool</p>): (<p className={`font-bold uppercase w-[129px] h-[37px] py-[10px] text-center rounded-[32px] `}>Talent Pool</p>)}
                         </Link>
                         <Link href="/jobs" >
-                            {router.pathname === '/jobs' || router.pathname === '/jobs/add-new-position' ? (<p className={` font-bold w-[70px] h-[37px] py-[10px] text-center rounded-[32px] bg-primary_white text-primary_blue`}>JOBS</p>): (<p className={`font-bold w-[70px] h-[37px] py-[10px] text-center rounded-[32px]`}>JOBS</p>)}
+                            {router.pathname === '/jobs' || router.pathname === '/jobs/add-new-position' ? (<p className={` font-bold w-[70px] h-[37px] py-[10px] text-center rounded-[32px] bg-primary_white text-primary_blue`}>POSISI</p>): (<p className={`font-bold w-[70px] h-[37px] py-[10px] text-center rounded-[32px]`}>POSISI</p>)}
                         </Link>
                         <Link href="/resolved" >
-                            {router.pathname === '/resolved' ? (<p className={`font-bold w-[106px] h-[37px] py-[10px] text-center rounded-[32px] bg-primary_white text-primary_blue`}>RESOLVED</p>): (<p className={`font-bold w-[106px] h-[37px] py-[10px] text-center rounded-[32px]`}>RESOLVED</p>)}
+                            {router.pathname === '/resolved' ? (<p className={`font-bold w-[106px] h-[37px] py-[10px] text-center rounded-[32px] bg-primary_white text-primary_blue`}>ARSIP</p>): (<p className={`font-bold w-[106px] h-[37px] py-[10px] text-center rounded-[32px]`}>ARSIP</p>)}
                         </Link>
                         <Link href="/trash" >
-                            {router.pathname === '/trash' ? (<p className={`font-bold w-[81px] h-[37px] py-[10px] text-center rounded-[32px] bg-primary_white text-primary_blue`}>TRASH</p>): (<p className={`font-bold w-[81px] h-[37px] py-[10px] text-center rounded-[32px]`}>TRASH</p>)}
+                            {router.pathname === '/trash' ? (<p className={`font-bold w-[81px] h-[37px] py-[10px] text-center rounded-[32px] bg-primary_white text-primary_blue`}>SAMPAH</p>): (<p className={`font-bold w-[81px] h-[37px] py-[10px] text-center rounded-[32px]`}>SAMPAH</p>)}
                         </Link>
                     </div>
                 </div>

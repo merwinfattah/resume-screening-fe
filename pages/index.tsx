@@ -125,17 +125,20 @@ export default function Home() {
 
   return (
     <Layout>
-      {isDelete?
+    {isDelete?
       (<>
       <section className={`bg-light_neutral_200 flex items-center justify-between pl-[320px] w-full py-[18px] px-[31px] border-[1px] border-mid_neutral_100`}>
-        <p>{positionChecked} Selected</p>
-        {positionChecked > 0? (<button onClick={handleCheckedDelete} className={`w-[181px] h-[47px] bg-semantic_red_500 text-primary_white rounded flex  items-center px-[10px] py-[14px] gap-[6px] justify-center hover:text-semantic_red_500 hover:bg-primary_white border border-semantic_red_500`}> <BsFillTrashFill/> Delete Position</button>) 
-        : (<button  onClick={handleNavigateDelete} className={`hover:border-2 w-[98px] h-[47px] rounded text-semantic_red_500 border border-semantic_red_500`}>X cancel</button>)}
-        
+        <p className={`text-dark_neutral_400 text-[24px]`}>
+          <span className={`font-bold`}>{positionChecked}</span> Dipilih
+        </p>
+        {positionChecked > 0? 
+        (<button onClick={handleCheckedDelete} className={`w-[181px] h-[47px] bg-semantic_red_500 text-primary_white rounded flex  items-center px-[10px] py-[14px] gap-[6px] justify-center hover:text-semantic_red_500 hover:bg-primary_white border border-semantic_red_500`}> <BsFillTrashFill/> Delete Position</button>) 
+        : 
+        (<button  onClick={handleNavigateDelete} className={`hover:border-2 w-[98px] h-[47px] rounded text-semantic_red_500 border border-semantic_red_500`}>X Batal</button>)}      
       </section>
       <section>
         <div className={`flex items-center justify-center gap-[18px] mt-[42px]`}>
-          <p className={`text-dark_neutral_500 font-bold text-2xl `}>POSITIONS</p>
+          <p className={`text-dark_neutral_500 font-bold text-2xl `}>POSISI</p>
           <hr className={`w-[998px] border-dark_neutral_100 border-[1px]`}></hr>
         </div>
         <div className={`container mx-auto flex justify-between w-[1148px] mt-[18px]`}>
@@ -161,14 +164,14 @@ export default function Home() {
                 <div className={`flex justify-between`}>
                   <p className={`flex items-center gap-[18px] text-xl text-dark_neutral_100`}><span className={`text-2xl text-primary_dark font-semibold`}>{positionData.position}</span><span>-</span><span>{positionData.department}</span></p>
                   <div className={`flex items-center gap-[18px]`}>
-                    <button className={`flex items-center w-[108px] h-[47px] border hover:border-[2px] border-primary_blue text-primary_blue rounded py-[14px] px-[10px] justify-between`}><FiEdit2/>Edit Job</button>
-                    <button className={`bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}>+ Add New Candidates</button>
+                    <button className={`flex items-center w-[124px] h-[47px] border hover:border-[2px] border-primary_blue text-primary_blue rounded gap-[6px]  justify-center`}><FiEdit2/>Edit Posisi</button>
+                    <button className={`bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}>+ Tambah Kandidat Baru</button>
                     <Popover className={`relative`}>
                       <Popover.Button className={`focus:bg-light_neutral_500 h-[44px] rounded-xl `} ><RxDotsVertical className={`w-[20px] h-6`} /></Popover.Button>
                         <Popover.Panel className={`absolute z-10`}>
                           <div className={`grid grid-rows-2 pl-[16px] bg-light_neutral_200 w-[239px] h-[102px] rounded-md text-dark_neutral_500 border border-dark_neutral_500 drop-shadow`}>
-                            <button className={`text-left`} onClick={()=>handleDeletePosition(positionData.id)}>Delete Position</button>
-                            <button className={`text-left`}>Resolve Position</button>
+                            <button className={`text-left`} onClick={()=>handleDeletePosition(positionData.id)}>Hapus Posisi</button>
+                            <button className={`text-left`}>Selesaikan Posisi</button>
                           </div>
                         </Popover.Panel>
                     </Popover>
@@ -177,28 +180,28 @@ export default function Home() {
                 <div className={`flex gap-[65px] justify-center items-center`}>
                   <div className={`text-center`}>
                     <span className={`font-semibold text-2xl`}>0</span>
-                    <p>Uploaded CV</p>
+                    <p>CV yang terunggah</p>
                   </div>
                   <div className={`border border-dark_neutral_100 h-[79.27px]`}/>
-                    <button className={`w-[117px] h-[47px] rounded py-[14px] px-[10px] bg-light_neutral_500`}>Score All CV</button>
+                    <button className={`flex items-center justify-center w-[139px] h-[47px] rounded  bg-light_neutral_500`}>Nilai Semua CV</button>
                     <div className={`border border-dark_neutral_100  h-[79.27px]`}/>
                       <div className={`text-center`}>
                         <span className={`font-semibold text-2xl`}>0</span>
-                        <p>Shortlisted Candidates</p>
+                        <p>Kandidat Terpilih</p>
                       </div>
                       <div className={`border border-dark_neutral_100  h-[79.27px]`}/>
                       <div className={`text-center`}>
                         <span className={`font-semibold text-2xl`}>0</span>
-                        <p>Qualified Candidates</p>
+                        <p>Kandidat Terkualifikasi</p>
                       </div>  
                     </div>
                     <div className={`flex justify-between` }>
                       <div className={`flex items-center gap-[6px] `}>
                         <VscChromeClose className={` text-xl text-semantic_red_500`} />
-                        <p>This Position has not been resolved</p>
+                        <p>Posisi ini belum selesai</p>
                       </div>
                       <p>
-                        Last candidates addes: 
+                        Kandidat terakhir ditambahkan: 
                         <span className={`font-semibold`}>-</span>
                       </p>              
                     </div>
@@ -213,44 +216,45 @@ export default function Home() {
         <section className={`bg-light_neutral_200 flex gap-[230px]   w-full py-[18px] px-[31px] border-[1px] border-mid_neutral_100`}>
           <div className={`w-[80%] flex justify-end`}>
             <form onSubmit={handleSearchSubmit} className={` flex items-center justify-between w-[676px] h-[47px] border border-dark_neutral_100  rounded`}>
-              <input placeholder='Search department, position' className={`  outline-none mx-[10px] my-[12.5px] bg-light_neutral_200 w-full`} value={searchTerm} onChange={handleSearchChange}/>
+              <input placeholder='Cari department, posisi' className={`  outline-none mx-[10px] my-[12.5px] bg-light_neutral_200 w-full`} value={searchTerm} onChange={handleSearchChange}/>
               <button type='submit' className={`w-[46px] h-[47px]  rounded-r rounded-b bg-light_neutral_500 p-[14.12px] text-[18.5px] text-dark_neutral_200 border border-dark_neutral_100`}><AiOutlineSearch/></button>
             </form>
           </div>
         <div className={`flex gap-[18px] `}>
-          <Link href='/jobs/add-new-position' className={`flex justify-center w-[181px] h-[47px] bg-primary_blue text-primary_white rounded px-[10px] py-[14px] hover:text-primary_blue hover:bg-primary_white border border-primary_blue items-center `}><p><span className={`mr-[6px] text-[19px]`}>+</span>Add New Position</p></Link>
-          <button onClick={handleNavigateDelete} className={`w-[181px] h-[47px] bg-semantic_red_500 text-primary_white rounded flex  items-center px-[10px] py-[14px] gap-[6px] justify-center hover:text-semantic_red_500 hover:bg-primary_white border border-semantic_red_500`}> <BsFillTrashFill/> Delete Position</button>
+          <Link href='/jobs/add-new-position' className={`flex justify-center w-[181px] h-[47px] bg-primary_blue text-primary_white rounded  hover:text-primary_blue hover:bg-primary_white border border-primary_blue items-center `}><p><span className={`mr-[6px] text-[19px]`}>+</span>Tambah Posisi Baru</p></Link>
+          <button onClick={handleNavigateDelete} className={`w-[181px] h-[47px] bg-semantic_red_500 text-primary_white rounded flex  items-center  gap-[6px] justify-center hover:text-semantic_red_500 hover:bg-primary_white border border-semantic_red_500`}> <BsFillTrashFill/>Hapus Posisi</button>
         </div>
       </section>
       <section className={`pt-[59px]`}>
         <div className={` ${isSearching? 'hidden': 'visible'} relative container mx-auto text-center  text-dark_neutral_300 w-[1147px] h-[169px] bg-semantic_blue_50 py-8 px-[107px] border border-mid_neutral_600 rounded-md`}>
           <button className={`absolute z-10 right-4 mt-[-16px]`}><VscChromeClose className={`text-2xl`} /></button>
-          <h1 className={` font-bold text-2xl`}>Welcome to automated CV screening system!</h1>
-          <p className={`mt-[22px] `}>All of the features here will help you to screen your CV faster, more accurate, and find the
-            perfect candidate. Start add a new position to get started. 
+          <h1 className={` font-bold text-2xl`}>Selamat datang di sistem Screening CV otomatis!</h1>
+          <p className={`mt-[22px] `}>
+          Seluruh fitur di dalam sistem ini akan membantu Anda menyaring CV lebih cepat, lebih akurat, dan menemukan kandidat yang sempurna. Mulai tambahkan posisi baru untuk memulai. 
           </p>
         </div>
         <div className={`${isSearching? 'hidden': 'visible'} mt-[59px] `}>
           <div className={`flex items-center justify-center gap-[18px]`}>
-            <p className={`text-dark_neutral_500 font-bold text-2xl `}>GET STARTED</p>
+            <p className={`text-dark_neutral_500 font-bold text-2xl `}>MULAI DARI SINI</p>
             <hr className={`w-[963px] border-dark_neutral_100 border-[1px]`}></hr>
           </div>
           <div className={` container mx-auto bg-primary_white w-[1148px] h-[185px] mt-6 flex flex-row gap-[101px] pt-[26.57px] pl-[38.5px]`}>
               <div className={`w-[824px] text-dark_neutral_300`}>
-                <h2 className={`mb-[18px] text-2xl  font-bold`}>Add a new position</h2>
-                <p className={`text-lg`}>To get started, create a new position and fill the position with all needed requirement. After that, 
-                  upload your CV and automate your screening process.
+                <h2 className={`mb-[18px] text-2xl  font-bold`}>Tambah Posisi Baru</h2>
+                <p className={`text-lg`}>
+                Untuk memulai, buatlah posisi baru dan isi posisi tersebut dengan semua requirement. Setelah itu, 
+                unggah CV Anda dan otomatiskan proses penyaringan Anda.
                 </p>
               </div> 
               <div>
                 <Link href="/jobs/add-new-position" className={`text-primary_blue  bg-primary_white border hover:border-[2px] border-primary_blue py-[14px] px-[10px] rounded`}>
-                  Add New Position
+                  Tambah Posisi Baru
                 </Link>
               </div>
           </div>     
         </div>
         <div className={`flex items-center justify-center gap-[18px] mt-[42px]`}>
-            <p className={`text-dark_neutral_500 font-bold text-2xl `}>POSITIONS</p>
+            <p className={`text-dark_neutral_500 font-bold text-2xl `}>POSISI</p>
             <hr className={`w-[998px] border-dark_neutral_100 border-[1px]`}></hr>
         </div>
         <div className={`container mx-auto flex justify-between w-[1148px] mt-[18px]`}>
@@ -276,14 +280,14 @@ export default function Home() {
                   <div className={`flex justify-between`}>
                     <p className={`flex items-center gap-[18px] text-xl text-dark_neutral_100`}><span className={`text-2xl text-primary_dark font-semibold`}>{positionData.position}</span><span>-</span><span>{positionData.department}</span></p>
                     <div className={`flex items-center gap-[18px]`}>
-                      <button className={`flex items-center w-[108px] h-[47px] border hover:border-[2px] border-primary_blue text-primary_blue rounded py-[14px] px-[10px] justify-between`}><FiEdit2/>Edit Job</button>
-                      <button className={`bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}>+ Add New Candidates</button>
+                      <button className={`flex items-center w-[124px] h-[47px] border hover:border-[2px] border-primary_blue text-primary_blue rounded gap-[6px]  justify-center`}><FiEdit2/>Edit Posisi</button>
+                      <button className={`bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}>+ Tambah Kandidat Baru</button>
                       <Popover className={`relative`}>
                         <Popover.Button  className={`focus:bg-light_neutral_500 h-[44px] rounded-xl `} ><RxDotsVertical className={`w-[20px] h-6  `} /></Popover.Button>
                         <Popover.Panel className={`absolute z-10`}>
                           <div className={`grid grid-rows-2  pl-[16px] bg-light_neutral_200 w-[239px] h-[102px] rounded-md text-dark_neutral_500 border border-dark_neutral_500 drop-shadow`}>
-                            <button className={`text-left`} onClick={()=>handleDeletePosition(positionData.id)}>Delete Position</button>
-                            <button className={`text-left`}>Resolve Position</button>
+                            <button className={`text-left`} onClick={()=>handleDeletePosition(positionData.id)}>Hapus Posisi</button>
+                            <button className={`text-left`}>Selesaikan Posisi</button>
                           </div>
                         </Popover.Panel>
                       </Popover>
@@ -292,28 +296,28 @@ export default function Home() {
                   <div className={`flex gap-[65px] justify-center items-center`}>
                       <div className={`text-center`}>
                         <span className={`font-semibold text-2xl`}>0</span>
-                        <p>Uploaded CV</p>
+                        <p>CV yang Terunggah</p>
                       </div>
                       <div className={`border border-dark_neutral_100 h-[79.27px]`}/>
-                      <button className={`w-[117px] h-[47px] rounded py-[14px] px-[10px] bg-light_neutral_500`}>Score All CV</button>
+                      <button className={`flex items-center justify-center w-[139px] h-[47px] rounded  bg-light_neutral_500`}>Nilai Semua CV</button>
                       <div className={`border border-dark_neutral_100  h-[79.27px]`}/>
                       <div className={`text-center`}>
                         <span className={`font-semibold text-2xl`}>0</span>
-                        <p>Shortlisted Candidates</p>
+                        <p>Kandidat Terpilihj</p>
                       </div>
                       <div className={`border border-dark_neutral_100  h-[79.27px]`}/>
                       <div className={`text-center`}>
                         <span className={`font-semibold text-2xl`}>0</span>
-                        <p>Qualified Candidates</p>
+                        <p>Kandidat Terkualifikasi</p>
                       </div>                   
                     </div>
                     <div className={`flex justify-between` }>
                       <div className={`flex items-center gap-[6px] `}>
                         <VscChromeClose className={` text-xl text-semantic_red_500`} />
-                        <p>This Position has not been resolved</p>
+                        <p>Posisi ini belum selesai</p>
                       </div>
                       <p>
-                        Last candidates addes: 
+                        Kandidat terakhir ditambahkan: 
                         <span className={`font-semibold`}>-</span>
                       </p>
                       
@@ -329,14 +333,14 @@ export default function Home() {
                       <div className={`flex justify-between`}>
                         <p className={`flex items-center gap-[18px] text-xl text-dark_neutral_100`}><span className={`text-2xl text-primary_dark font-semibold`}>{positionData.position}</span><span>-</span><span>{positionData.department}</span></p>
                         <div className={`flex items-center gap-[18px]`}>
-                          <button className={`flex items-center w-[108px] h-[47px] border hover:border-[2px] border-primary_blue text-primary_blue rounded py-[14px] px-[10px] justify-between`}><FiEdit2/>Edit Job</button>
-                          <button className={`bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}>+ Add New Candidates</button>
+                          <button className={`flex items-center w-[124px] h-[47px] border hover:border-[2px] border-primary_blue text-primary_blue rounded gap-[6px]  justify-center`}><FiEdit2/>Edit Posisi</button>
+                          <button className={`bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}>+ Tambah Kandidat Baru</button>
                           <Popover className={`relative`}>
                             <Popover.Button className={`focus:bg-light_neutral_500 h-[44px] rounded-xl `} ><RxDotsVertical className={`w-[20px] h-6`} /></Popover.Button>
                             <Popover.Panel className={`absolute z-10`}>
                               <div className={`grid grid-rows-2 pl-[16px] bg-light_neutral_200 w-[239px] h-[102px] rounded-md text-dark_neutral_500 border border-dark_neutral_500 drop-shadow`}>
-                                <button className={`text-left`} onClick={()=>handleDeletePosition(positionData.id)}>Delete Position</button>
-                                <button className={`text-left`}>Resolve Position</button>
+                                <button className={`text-left`} onClick={()=>handleDeletePosition(positionData.id)}>Hapus Posisi</button>
+                                <button className={`text-left`}>Selesaikan Posisi</button>
                               </div>
                             </Popover.Panel>
                           </Popover>
@@ -345,29 +349,29 @@ export default function Home() {
                       <div className={`flex gap-[65px] justify-center items-center`}>
                           <div className={`text-center`}>
                             <span className={`font-semibold text-2xl`}>0</span>
-                            <p>Uploaded CV</p>
+                            <p>CV yang Terunggah</p>
                           </div>
                           <div className={`border border-dark_neutral_100 h-[79.27px]`}/>
-                          <button className={`w-[117px] h-[47px] rounded py-[14px] px-[10px] bg-light_neutral_500`}>Score All CV</button>
+                          <button className={`flex items-center justify-center w-[139px] h-[47px] rounded  bg-light_neutral_500`}>Nilai Semua CV</button>
                           <div className={`border border-dark_neutral_100  h-[79.27px]`}/>
                           <div className={`text-center`}>
                             <span className={`font-semibold text-2xl`}>0</span>
-                            <p>Shortlisted Candidates</p>
+                            <p>Kandidat Terpilih</p>
                           </div>
                           <div className={`border border-dark_neutral_100  h-[79.27px]`}/>
                           <div className={`text-center`}>
                             <span className={`font-semibold text-2xl`}>0</span>
-                            <p>Qualified Candidates</p>
+                            <p>Kandidat Terkualifikasi</p>
                           </div>
                           
                         </div>
                         <div className={`flex justify-between` }>
                           <div className={`flex items-center gap-[6px] `}>
                             <VscChromeClose className={` text-xl text-semantic_red_500`} />
-                            <p>This Position has not been resolved</p>
+                            <p>Posisi ini belum selesai</p>
                           </div>
                           <p>
-                            Last candidates addes: 
+                            Kandidat terkahir ditambahkan: 
                             <span className={`font-semibold`}>-</span>
                           </p>              
                         </div>

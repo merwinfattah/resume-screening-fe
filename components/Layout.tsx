@@ -16,7 +16,7 @@ const Layout = ({ children }: any) => {
             <header>
                 <Navbar />
             </header>
-            <main className={`${isOpen? ' opacity-75 absolute inset-0' : ''}bg-light_neutral_400 h-screen overflow-scroll  pb-[40px]`}>
+            <main className={`${isOpen? ' opacity-75 absolute inset-0' : ''}bg-light_neutral_400 h-screen overflow-scroll  `}>
                 {children}
             </main>
         </>

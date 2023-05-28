@@ -1,6 +1,7 @@
 export default interface Candidate {
+    id: number;
     name: string;
-    cv: string | null;
+    cv: string ;
     email: string;
     phone: string;
     domicile: string;
@@ -9,5 +10,7 @@ export default interface Candidate {
     score: number;
     isQualified: boolean;
     isFavorite: boolean;
+    idPosition: number;
+    createdDate: Date;
     
 }

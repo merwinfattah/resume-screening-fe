@@ -95,23 +95,22 @@ export default function Jobs () {
     return (
         <Layout>
             <section className={`container mx-auto mt-[40px] w-[1148px] h-[204px]`}>
-                <h2 className={`font-bold`}>DEPARTMENT</h2>
+                <h2 className={`font-bold`}>DEPARTEMEN</h2>
                 <div className={`flex flex-row  bg-light_neutral_200 rounded-md py-[30px] pl-[38.5px] pr-[35px] mt-6`}>
                     <div className={` w-5/6 text-dark_neutral_300`}>
-                        <h3 className={` text-2xl font-semibold`}>Add more department</h3>
+                        <h3 className={` text-2xl font-semibold`}>Tambah departemen baru</h3>
                         <p className={`mt-[18px] w-[837px]`}>
-                            Here is the list of all your created department. You can add more department 
-                           as much as you like and add more positions to automate your CV screening process.
+                        Berikut adalah daftar semua departemen yang Anda buat. Tambahkan departemen dan posisi sebanyak yang Anda inginkan untuk mengotomatiskan proses penyaringan CV Anda.
                         </p>
                     </div>
-                    <button className={`w-[162px] h-[42px] rounded p-[10px] border border-dark_neutral_400 text-dark_neutral_400`} onClick={addItemToList}>Add department</button>
+                    <button className={`flex justify-center items-center w-[199px] h-[42px] rounded  border border-dark_neutral_400 text-dark_neutral_400`} onClick={addItemToList}>Tambah Departemen</button>
                 </div>
                 <div>
                    
                 </div>
             </section>
             <section className={`container mx-auto mt-[40px] w-[1148px] `}>
-                <h2 className={`font-bold`} >DEPARTMENT LIST</h2>
+                <h2 className={`font-bold`} >DAFTAR DEPARTEMEN</h2>
                 <div className={` mt-6 flex flex-col gap-[18px]`}>
                     {departmentList.map((department, index) => (
                          <Disclosure key={index}>
@@ -125,10 +124,10 @@ export default function Jobs () {
                                             (
                                             <>
                                                 <Link href={`/jobs/add-new-position?departmentName=${encodeURIComponent(department.name)}`} className={`text-[31px] font-thin`}><IoAddCircleOutline /></Link>
-                                                <div className={`w-[181px] h-[31px] rounded-[68px] py-[6px] px-[48px] bg-semantic_blue_100`}>{positionDataList.filter( position => position.department === department.name && position.isTrash.isInTrash === false ).length } positions</div>
+                                                <div className={`flex justify-center items-center w-[181px] h-[31px] rounded-[68px]  bg-semantic_blue_100`}>{positionDataList.filter( position => position.department === department.name && position.isTrash.isInTrash === false ).length } posisi</div>
                                             </>
                                             )
-                                            :(<Link href={`/jobs/add-new-position?departmentName=${encodeURIComponent(department.name)}`} className={`flex w-[198.4px] h-[31px] py-[6px] justify-center rounded-[68px] font-bold items-center gap-[10px] border border-dark_neutral_400 text-dark_neutral_400`}><GrAdd /> Add Position</Link>)}
+                                            :(<Link href={`/jobs/add-new-position?departmentName=${encodeURIComponent(department.name)}`} className={`flex w-[198.4px] h-[31px] py-[6px] justify-center rounded-[68px] font-bold items-center gap-[10px] border border-dark_neutral_400 text-dark_neutral_400`}><GrAdd />Tambah Posisi</Link>)}
                                             <Disclosure.Button className={` text-[30px] `} ><IoMdArrowDropdown className={`${open? 'rotate-180 transform': ''}`}/></Disclosure.Button>
                                         </div>
                                     </div>
@@ -155,10 +154,10 @@ export default function Jobs () {
                                                         <div className={`flex items-center justify-between py-3 px-3 rounded-md text-dark_neutral_300 bg-light_neutral_400 w-[1037px] h-[53px]`}>
                                                             <div className={`font-semibold`}>{position.position}</div>
                                                             <div className={`flex items-center gap-[18px]`}>
-                                                                <p><span className={`font-semibold`}>{position.qualifiedCandidates.length}</span> qualified candidates</p>
+                                                                <p><span className={`font-semibold`}>{position.qualifiedCandidates.length}</span> Kandidat Terkualifikasi</p>
                                                                 <div  className={` text-mid_neutral_400  font-semibold`}>|</div>
-                                                                <p><span className={`font-semibold`}>{position.potentialCandidates.length}</span> potential candidates</p>
-                                                                <Link href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(position.id)}&selectedDepartment=${encodeURIComponent(position.department)}&selectedEducation=${encodeURIComponent(position.education)}`} className={`w-[87px] h-[29px] rounded-[68px]  text-center border border-primary_blue text-primary_blue`}>Edit Job</Link>
+                                                                <p><span className={`font-semibold`}>{position.potentialCandidates.length}</span> Kandidat Terpilih</p>
+                                                                <Link href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(position.id)}&selectedDepartment=${encodeURIComponent(position.department)}&selectedEducation=${encodeURIComponent(position.education)}`} className={`flex justify-center items-center w-[101px] h-[29px] rounded-[68px]  border border-primary_blue text-primary_blue`}>Edit Posisi</Link>
                                                             </div>
                                                         </div>
                                                     </div>

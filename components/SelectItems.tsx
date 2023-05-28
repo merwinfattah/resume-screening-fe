@@ -13,10 +13,11 @@ type Props = {
     placeholder: string
     width: string
     value?: string | undefined
+    searchable?: boolean
   };
 
-const SelectItems: React.FC<Props> = ({handleChange, id, options, inputName, placeholder, width, value}) =>  {
-    const [isSearchable] = useState(true);
+const SelectItems: React.FC<Props> = ({handleChange, id, options, inputName, placeholder, width, value, searchable}) =>  {
+    const [isSearchable] = useState(searchable === false ? false : true);
     const [isClearable] = useState(true);
     const [isDisabled] = useState(false);
     const [isLoading] = useState(false);

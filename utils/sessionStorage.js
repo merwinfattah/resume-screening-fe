@@ -7,6 +7,15 @@ export const registerSessionKeys = () => {
     });
   };
 
+export const registerCandidatesSessionKeys = () => {
+  const keys = ["candidateDataList"];
+  keys.forEach((key) => {
+    if (!sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, JSON.stringify([]));
+    }
+  });
+};
+
 export const registerTotalPositionKeys = () => {
   const keys = ["totalPosition"];
   keys.forEach((key) => {
@@ -15,6 +24,8 @@ export const registerTotalPositionKeys = () => {
     }
   });
 };
+
+
 
 
 export const setItem = async (key, value) => {
