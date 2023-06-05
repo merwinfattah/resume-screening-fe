@@ -162,9 +162,10 @@ export default function Jobs() {
             {departmentChecked > 0 ? (
               <button
                 onClick={showModalCheckedDelete}
-                className={`w-[181px] h-[47px] bg-semantic_red_500 text-primary_white rounded flex  items-center px-[10px] py-[14px] gap-[6px] justify-center hover:text-semantic_red_500 hover:bg-primary_white border border-semantic_red_500`}
+                className={`w-[181px] h-[47px] bg-semantic_red_500 text-primary_white rounded flex  items-center  gap-[6px] justify-center hover:text-semantic_red_500 hover:bg-primary_white border border-semantic_red_500`}
               >
-                <BsFillTrashFill /> Delete Position
+                <BsFillTrashFill />
+                Hapus Departemen
               </button>
             ) : (
               <button
@@ -477,7 +478,7 @@ export default function Jobs() {
       )}
       {isModalOpen && (
         <Modal
-          type="deletePosition"
+          type={`${isCheckedDelete ? 'delete-department' : 'delete-position'}`}
           isOpen={isModalOpen}
           onOk={isCheckedDelete ? handleCheckedDelete : handleDeletePosition}
           onClose={closeModal}

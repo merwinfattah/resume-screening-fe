@@ -42,19 +42,51 @@ export const Modal: React.FC<ModalProps> = ({ type, headline, content, isOpen, o
               don&apos;t show this again
             </label>
           </div>
-          {type === 'deletePosition' && (
+          {type.includes('delete') && (
             <div className="flex justify-between">
               <button
                 className="w-[189px] h-[47px] text-primary_blue border border-primary_blue hover:border-2 rounded"
                 onClick={onClose}
               >
-                Cancel
+                Batal
               </button>
               <button
                 onClick={onOk}
                 className="w-[189px] h-[47px] text-primary_white bg-semantic_red_500 border hover:bg-primary_white hover:border-semantic_red_500 hover:text-semantic_red_500 rounded"
               >
-                Delete
+                Hapus
+              </button>
+            </div>
+          )}
+          {type.includes('restore') && (
+            <div className="flex justify-between">
+              <button
+                className="w-[189px] h-[47px] text-primary_blue border border-primary_blue hover:border-2 rounded"
+                onClick={onClose}
+              >
+                Batal
+              </button>
+              <button
+                onClick={onOk}
+                className="w-[189px] h-[47px] text-primary_white bg-semantic_green_600 border hover:bg-primary_white hover:border-semantic_green_600 hover:text-semantic_green_600 rounded"
+              >
+                Pulihkan
+              </button>
+            </div>
+          )}
+          {type.includes('resolve') && (
+            <div className="flex justify-between">
+              <button
+                className="w-[189px] h-[47px] text-primary_blue border border-primary_blue hover:border-2 rounded"
+                onClick={onClose}
+              >
+                Batal
+              </button>
+              <button
+                onClick={onOk}
+                className="w-[189px] h-[47px] text-primary_white bg-primary_blue border hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue rounded"
+              >
+                Selesaikan
               </button>
             </div>
           )}

@@ -55,6 +55,8 @@ export default function EditPosition() {
     }
   };
 
+  fethInitialData();
+
   // Retrieve department list data from session storage
   const departmentListInStorage = sessionStorage.getItem('department list');
   const existingList = departmentListInStorage ? JSON.parse(departmentListInStorage) : [];
@@ -224,21 +226,21 @@ export default function EditPosition() {
               <Link href="/jobs" className={` text-[32px]`}>
                 <BiArrowBack />
               </Link>
-              <p>CREATE NEW POSITION</p>
+              <p>BUAT POSISI BARU</p>
             </div>
           </div>
           <div className={`flex gap-[18px] text-dark_neutral_200`}>
             <button
               className={`bg-primary_white py-[14px] px-[10px] text-primary_blue border border-primary_blue rounded hover:border-2`}
             >
-              Save Draft
+              Simpan Draft
             </button>
             <button
               className={`rounded bg-primary_blue text-primary_white py-[14px] px-[10px] border  hover:bg-primary_white hover:text-primary_blue hover:border-primary_blue`}
               form="job-detail"
               type="submit"
             >
-              Save and Continue
+              Simpan dan Lanjutkan
             </button>
           </div>
         </div>
@@ -246,32 +248,32 @@ export default function EditPosition() {
       <section className={`flex flex-row mt-[17px] gap-[18px] justify-center`}>
         <div className={` w-[339px] h-[378px] bg-light_neutral_200 py-6 px-[18px] z-10`}>
           <div className={`p-[18px] bg-semantic_blue_50 rounded`}>
-            <h2 className={`font-semibold`}>Job Details</h2>
+            <h2 className={`font-semibold`}>Detail Posisi</h2>
             <p className={`mt-[13px]`}>
-              Fill this part with positions information including department, position, education, and job location
+              Isi bagian ini dengan informasi posisi termasuk departemen, posisi, pendidikan, dan lokasi pekerjaan
             </p>
           </div>
           <hr className={`  border border-dark_neutral_300 my-[25px]`} />
           <div className={`p-[18px]`}>
-            <h2 className={`font-semibold`}>Job Description</h2>
+            <h2 className={`font-semibold`}>Detail Posisi</h2>
             <p className={`mt-[13px] w-[261.1px] h-[48px]`}>
-              Fill this part with job requirements that’s match with your job details
+              Isi bagian ini dengan requirement pekerjaan yang sesuai dengan detail posisi Anda
             </p>
           </div>
         </div>
         <div className={`w-[1289px]  rounded-md  bg-light_neutral_200 `}>
           <div className={`pb-[40px]`}>
             <div className={`bg-light_neutral_300 border border-b-mid_neutral_600 py-[21px] pl-6`}>
-              <h2 className={`text-2xl font-semibold`}>Job Detail</h2>
+              <h2 className={`text-2xl font-semibold`}>Detail Pekerjaan</h2>
             </div>
             <div className={`px-[40px] pt-8`}>
               <form className={`flex flex-col gap-6`} id="job-detail" onSubmit={handleFormSubmit}>
                 <div
                   className={` h-auto flex justify-between py-[10px] px-[12px] rounded text-semantic_purple_600  bg-semantic_purple_100 border border-semantic_purple_600`}
                 >
-                  <p>Notes: It will be seen as Job Position - Department on talent pool</p>
+                  <p>Catatan: Ini akan terlihat sebagai Posisi Pekerjaan - Departemen pada Talent Pool</p>
                   <div className={`flex gap-3 `}>
-                    <p className={`underline`}>don’t show again</p>
+                    <p className={`underline`}>jangan tampilkan lagi</p>
                     <button>
                       <GrClose />
                     </button>
@@ -280,7 +282,7 @@ export default function EditPosition() {
                 <div className={`flex gap-[49px]`}>
                   <div className={` w-1/2 h-[113px]`}>
                     <label htmlFor="department" className={`text-xl font-medium text-primary_dark`}>
-                      <span className={`text-secondary_red`}>*</span>Department
+                      <span className={`text-secondary_red`}>*</span>Departemen
                     </label>
                     <div className={`flex justify-between items-center mt-[18px] mb-2 `}>
                       <SelectItems
@@ -293,12 +295,11 @@ export default function EditPosition() {
                         value={slcDepartment}
                       />
                     </div>
-                    <p className={`text-dark_neutral_300`}>80 characters left. No special characters.</p>
+                    <p className={`text-dark_neutral_300`}>80 karakter tersisa.</p>
                   </div>
                   <div className={` w-1/2 h-[113px]`}>
                     <label htmlFor="job-position" className={`text-xl font-medium text-primary_dark`}>
-                      {' '}
-                      Job Position{' '}
+                      Posisi Pekerjaan
                     </label>
                     <div
                       className={`flex justify-between items-center mt-[18px] mb-2 py-3 px-4 rounded-md w-[580px] h-[44px] border border-dark_neutral_200`}
@@ -312,18 +313,19 @@ export default function EditPosition() {
                         value={positionData.position}
                       />
                     </div>
-                    <p className={`text-dark_neutral_300`}>80 characters left. No special characters.</p>
+                    <p className={`text-dark_neutral_300`}>80 karakter tersisa.</p>
                   </div>
                 </div>
                 <div
                   className={` h-auto flex justify-between py-[10px] px-[12px] rounded text-semantic_purple_600  bg-semantic_purple_100 border border-semantic_purple_600`}
                 >
                   <p className={`w-[749px]`}>
-                    Education and job location is optional and you can choose to not fill it. If you fill it, the system
-                    will sort out the candidates with the required education and / or job location
+                    Edukasi and lokasi pekerjaan bersifat opsional dan Anda bisa memilih untuk tidak mengisinya. Jika
+                    Anda mengisinya, sistem akan memilah kandidat berdasarkan pendidikan dan / atau lokasi pekerjaan
+                    yang dibutuhkan
                   </p>
                   <div className={`flex gap-3 items-center`}>
-                    <p className={`underline`}>don’t show again</p>
+                    <p className={`underline`}>jangan tampilkan lagi</p>
                     <button>
                       <GrClose />
                     </button>
@@ -332,7 +334,7 @@ export default function EditPosition() {
                 <div className={`flex gap-[49px]`}>
                   <div className={` w-1/2 h-[113px]`}>
                     <label htmlFor="education" className={`text-xl font-medium text-primary_dark`}>
-                      Education
+                      Edukasi
                     </label>
                     <div className={`flex justify-between items-center mt-[18px] mb-2 `}>
                       <SelectItems
@@ -345,12 +347,11 @@ export default function EditPosition() {
                         value={slcEdu}
                       />
                     </div>
-                    <p className={`text-dark_neutral_300`}>Minimum education for the position</p>
+                    <p className={`text-dark_neutral_300`}>Pendidikan minimal untuk posisi ini</p>
                   </div>
                   <div className={` w-1/2 h-[113px]`}>
                     <label htmlFor="job-position" className={`text-xl font-medium text-primary_dark`}>
-                      {' '}
-                      Job Location{' '}
+                      Lokasi Pekerjaan
                     </label>
                     <div
                       className={`flex justify-between items-center mt-[18px] mb-2 py-3 px-4 rounded-md w-[580px] h-[44px] border border-dark_neutral_200`}
@@ -364,12 +365,12 @@ export default function EditPosition() {
                         value={positionData.location}
                       />
                     </div>
-                    <p className={`text-dark_neutral_300`}>Include the location for the job</p>
+                    <p className={`text-dark_neutral_300`}>Sertakan lokasi pekerjaan</p>
                   </div>
                 </div>
                 <div>
                   <label htmlFor="minimum-experience" className={`text-xl font-medium text-primary_dark`}>
-                    Minimum Works Experience
+                    Minimal Pengalaman Kerja
                   </label>
                   <div className={`flex items-center gap-[12px] mt-[18px]`}>
                     <div
@@ -382,7 +383,7 @@ export default function EditPosition() {
                         placeholder="Fill.."
                         className={`w-[44px] bg-transparent  outline-none `}
                       />
-                      <div className={``}>
+                      <div>
                         <div
                           onClick={addExperince}
                           className={`   hover: cursor-pointer text-dark_neutral_400 text-lg `}
@@ -397,7 +398,7 @@ export default function EditPosition() {
                         </div>
                       </div>
                     </div>
-                    <p className={` text-dark_neutral_500`}>Year(s)</p>
+                    <p className={` text-dark_neutral_500`}>Tahun</p>
                   </div>
                 </div>
               </form>

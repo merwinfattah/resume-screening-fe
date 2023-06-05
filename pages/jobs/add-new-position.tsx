@@ -347,7 +347,7 @@ export default function AddNewPosition() {
                 </div>
                 <div>
                   <label htmlFor="minimum-experience" className={`text-xl font-medium text-primary_dark`}>
-                    Minimum Works Experience
+                    Minimal Pengalaman Kerja
                   </label>
                   <div className={`flex items-center gap-[12px] mt-[18px]`}>
                     <div
@@ -360,7 +360,7 @@ export default function AddNewPosition() {
                         placeholder="isi.."
                         className={`w-[44px] bg-transparent  outline-none `}
                       />
-                      <div className={``}>
+                      <div>
                         <div
                           onClick={addExperince}
                           className={`   hover: cursor-pointer text-dark_neutral_400 text-lg `}

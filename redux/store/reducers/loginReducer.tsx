@@ -6,7 +6,6 @@ const initialState = {
   companyName: null,
   companyAddress: null,
   userName: null,
-  isLoggedIn: false,
 };
 
 const loginSlice = createSlice({
@@ -20,7 +19,6 @@ const loginSlice = createSlice({
       state.companyName = companyName;
       state.companyAddress = companyAddress;
       state.userName = userName;
-      state.isLoggedIn = true;
     },
     logoutUser: (state) => {
       state.userId = null;
@@ -28,7 +26,6 @@ const loginSlice = createSlice({
       state.companyName = null;
       state.companyAddress = null;
       state.userName = null;
-      state.isLoggedIn = false;
     },
   },
 });

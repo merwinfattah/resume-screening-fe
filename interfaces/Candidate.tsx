@@ -9,6 +9,6 @@ export default interface Candidate {
   score: number;
   isQualified: boolean;
   isShortlist: boolean;
-  idPosition: number;
+  idPosition: number | null;
   createdDate: Date;
 }

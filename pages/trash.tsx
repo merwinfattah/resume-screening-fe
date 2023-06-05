@@ -15,6 +15,7 @@ export default function Trash() {
   const [isRestore, setIsRestore] = useState(false);
   const [positionChecked, setPositionChecked] = useState(0);
   const [idPositionChecked, setIdPositionChecked] = useState<number[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const departmentListInStorage = sessionStorage.getItem('department list');
@@ -53,32 +54,53 @@ export default function Trash() {
     setIsRestore((isRestore) => !isRestore);
   };
 
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   const handleCheckedPosition = (event: React.ChangeEvent<HTMLInputElement>, id: number) => {
     if (event.target.checked) {
       setIdPositionChecked((idPositionChecked) => [...idPositionChecked, id]);
       setPositionChecked((positionChecked) => positionChecked + 1);
+      console.log(idPositionChecked);
     } else {
       const newIdPositionChecked = idPositionChecked.filter((idPosition: number) => idPosition !== id);
       setIdPositionChecked(newIdPositionChecked);
       setPositionChecked((positionChecked) => positionChecked - 1);
+      console.log(idPositionChecked);
     }
   };
 
-  const handleRestorePosition = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+  const handleDeletePosition = async () => {
+    const newPositionDataList = positionDataList.filter(
+      (positionData: PositionData) => !idPositionChecked.includes(positionData.id)
+    );
+    setPositionDataList(newPositionDataList);
+    await sessionStorage.setItem('positionDataList', JSON.stringify(newPositionDataList));
+    setIsDelete((isDelete) => !isDelete);
+    setIsModalOpen(false);
+  };
+
+  const handleRestorePosition = async () => {
     const newPositionDataList = positionDataList.filter((positionData: PositionData) => {
       for (let i = 0; i < idPositionChecked.length; i++) {
         if (positionData.id === idPositionChecked[i]) {
           positionData.isTrash.isInTrash = false;
           positionData.isTrash.removedDate = undefined;
           return true;
+        } else {
+          return false;
         }
       }
-      return false;
     });
     setPositionDataList(newPositionDataList);
     await sessionStorage.setItem('positionDataList', JSON.stringify(newPositionDataList));
     setIsRestore((isRestore) => !isRestore);
+    setIsModalOpen(false);
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,9 +129,9 @@ export default function Trash() {
             {isDelete ? (
               positionChecked > 0 ? (
                 <button
+                  onClick={showModal}
                   className={`w-[161px] h-[47px] bg-semantic_red_500 text-primary_white rounded flex  items-center px-[10px] py-[14px] gap-[6px] justify-center border hover:bg-primary_white hover:text-semantic_red_500 hover:border-semantic_red_500`}
                 >
-                  {' '}
                   <BsFillTrashFill /> Hapus Posisi
                 </button>
               ) : (
@@ -122,7 +144,7 @@ export default function Trash() {
               )
             ) : positionChecked > 0 ? (
               <button
-                onClick={handleRestorePosition}
+                onClick={showModal}
                 className={`w-[145px] h-[47px] rounded py-[12px] text-center  text-semantic_green_600 border border-semantic_green_600 hover:border-2`}
               >
                 Pulihkan Posisi
@@ -456,6 +478,20 @@ export default function Trash() {
             </div>
           </section>
         </>
+      )}
+      {isModalOpen && (
+        <Modal
+          type={`${isDelete ? 'delete-position' : 'restore-position'}`}
+          isOpen={isModalOpen}
+          onOk={isDelete ? handleDeletePosition : handleRestorePosition}
+          onClose={closeModal}
+          headline="Apa anda yakin?"
+          content={`${
+            isDelete
+              ? 'Menghapus posisi ini dari Trash berarti menghapus seluruh posisi ini secara permanen'
+              : 'Dengan memulihkan posisi ini dari Trash, anda dapat mengakses posisi ini kembali'
+          }`}
+        />
       )}
     </Layout>
   );
