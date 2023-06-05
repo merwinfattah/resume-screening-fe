@@ -4,7 +4,8 @@ import User from '@/interfaces/User';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { baseURL } from '../api/http-common';
+import CompanyDataService from '../api/services/company.service';
+import UserDataService from '../api/services/user.service';
 
 export default function Register() {
   const router = useRouter();
@@ -13,26 +14,32 @@ export default function Register() {
     email: '',
     password: '',
     phone: '',
-    companyId: '6430e5a14dd8b71d95db8352',
+    companyId: '',
   });
   const [nextForm, setNextForm] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [company, setCompany] = useState([
+    {
+      id: '',
+      name: '',
+    },
+  ]);
   const [companyOptions, setCompanyOptions] = useState([]);
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
 
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const response = await axios.get(`${baseURL}api/company/get-all-company`);
-        console.log(response.data);
+        const response = await CompanyDataService.getAll();
         const companies = response.data; // Assuming the API response contains an array of objects with properties 'value' and 'label'
-
+        setCompany(companies);
         // Transform the received data into the desired format
-        // const formattedCompanies = companies.map((company: any) => ({
-        //   value: company.name,
-        //   label: company.name,
-        // }));
+        const formattedCompanies = companies.map((company: any) => ({
+          value: company.name,
+          label: company.name,
+        }));
 
-        // setCompanyOptions(formattedCompanies);
+        setCompanyOptions(formattedCompanies);
       } catch (error) {
         console.error(error);
       }
@@ -53,7 +60,7 @@ export default function Register() {
     if (selectedOption) {
       setUserData((prevState) => ({
         ...prevState,
-        company: selectedOption.value,
+        company: company.find((item) => item.name === selectedOption.value)?.id,
       }));
     }
   };
@@ -82,6 +89,16 @@ export default function Register() {
     }));
   };
 
+  const handleConfirmPasswordInputChange = (e: any) => {
+    const { value } = e.target;
+    setConfirmPassword(value);
+    if (userData.password !== value) {
+      setError('Password tidak sama');
+    } else {
+      setError('');
+    }
+  };
+
   const handleFormChange = () => {
     setNextForm(!nextForm);
   };
@@ -94,7 +111,7 @@ export default function Register() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${baseURL}api/user/create-user`, userData);
+      const response = await UserDataService.create(userData);
       console.log(response.data);
       // Handle success or redirect to another page
     } catch (error) {
@@ -146,6 +163,7 @@ export default function Register() {
                       id="email"
                       placeholder="username@email.com"
                       className={`w-full bg-transparent  outline-none `}
+                      value={userData.email}
                       onChange={handleEmailInputChange}
                     />
                   </div>
@@ -163,6 +181,7 @@ export default function Register() {
                       id="password"
                       placeholder="Password"
                       className={`w-full bg-transparent  outline-none `}
+                      value={userData.password}
                       onChange={handlePasswordInputChange}
                     />
                   </div>
@@ -183,13 +202,8 @@ export default function Register() {
                       id="confirm-password"
                       placeholder="Password"
                       className={`w-full bg-transparent  outline-none `}
-                      onChange={(e) => {
-                        if (e.target.value !== userData.password) {
-                          setError('Password tidak sama');
-                        } else {
-                          setError('');
-                        }
-                      }}
+                      onChange={handleConfirmPasswordInputChange}
+                      value={confirmPassword}
                     />
                   </div>
                   <p className={` ${error ? 'visible' : 'invisible'} text-red-500 text-xs italic mb-4 h-3`}>{error}</p>
@@ -210,6 +224,7 @@ export default function Register() {
                       id="full-name"
                       placeholder="Tuliskan nama lengkap, contoh: Andreas Borjous"
                       className={`w-full bg-transparent  outline-none `}
+                      value={userData.name}
                       onChange={handleNameInputChange}
                     />
                   </div>
@@ -243,6 +258,7 @@ export default function Register() {
                       id="phone-number"
                       placeholder="+62xxxxxxxx"
                       className={`w-full bg-transparent  outline-none `}
+                      value={userData.phone}
                       onChange={handlePhoneInputChange}
                     />
                   </div>

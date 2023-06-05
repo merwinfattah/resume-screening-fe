@@ -2,10 +2,10 @@ import AuthLayout from '@/components/AuthLayout';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import { baseURL } from '../api/http-common';
 import { useDispatch } from 'react-redux';
 import { setToken } from '@/redux/store/reducers/authReducer';
 import { setUser } from '@/redux/store/reducers/loginReducer';
+import AuthDataService from '../api/services/auth.service';
 
 export default function Login() {
   const router = useRouter();
@@ -36,15 +36,16 @@ export default function Login() {
   const handleSubmitLogin = async (e: any) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${baseURL}api/auth/login`, userDataLogin);
+      const response = await AuthDataService.login(userDataLogin);
       const { token, user } = response.data;
       dis(setToken(token));
-      const userData = await axios.get(`${baseURL}api/user/get-user`, {
-        params: { id: user },
-      });
-      dis(setUser(userData.data));
-      console.log(token);
-      console.log(userData.data);
+      console.log(token, user);
+      // const userData = await axios.get(`${baseURL}/api/user/get-user`, {
+      //   params: { id: user },
+      // });
+      // dis(setUser(userData.data));
+      // console.log(token);
+      // console.log(userData.data);
     } catch (error) {
       console.log(error);
     } finally {
