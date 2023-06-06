@@ -1,20 +1,20 @@
-import { ApiAuth } from '../http-common';
+import { ApiAuth, ApiAuthGet } from '../http-common';
 
 const DepartmentDataService = {
-  create(data: JSON) {
+  create(data: any) {
     return ApiAuth().post('/api/department/create-department', data);
   },
   getAll(id: string) {
-    return ApiAuth().get(`/api/department/get-department`, { params: { id } });
+    return ApiAuthGet().get(`/api/department/get-department?id=${id}`);
   },
   get(id: string) {
-    return ApiAuth().get(`/api/department/get-one-department`, { params: { id } });
+    return ApiAuthGet().get(`/api/department/get-one-department?id=${id}`);
   },
-  edit(data: JSON) {
+  edit(data: any) {
     return ApiAuth().put('/api/department/edit-department', data);
   },
-  delete(id: string[]) {
-    return ApiAuth().delete(`/api/department/delete-department`, { params: { id } });
+  delete(data: any) {
+    return ApiAuth().delete(`/api/department/delete-department`, data);
   },
 };
 

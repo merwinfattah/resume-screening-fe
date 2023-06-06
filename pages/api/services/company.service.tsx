@@ -1,20 +1,20 @@
-import { api, ApiAuth } from '../http-common';
+import { api, apiGet, ApiAuth } from '../http-common';
 
 const CompanyDataService = {
   getAll() {
-    return api.get('/api/company/get-all-company');
+    return apiGet.get('/api/company/get-all-company');
   },
   get(id: string) {
-    return api.get(`/api/company/get-company`, { params: { id } });
+    return apiGet.get(`/api/company/get-company?id=${id}`);
   },
-  create(data: JSON) {
+  create(data: any) {
     return api.post('/api/company/create-company', data);
   },
-  edit(data: JSON) {
+  edit(data: any) {
     return ApiAuth().put('/api/company/edit-company', data);
   },
-  delete(id: string) {
-    return ApiAuth().delete(`/api/company/delete-company`, { params: { id } });
+  delete(data: any) {
+    return ApiAuth().delete(`/api/company/delete-company`, data);
   },
 };
 

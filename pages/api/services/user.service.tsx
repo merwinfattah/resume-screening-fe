@@ -1,19 +1,19 @@
-import { api, ApiAuth } from '../http-common';
+import { api, apiGet, ApiAuth } from '../http-common';
 
 const UserDataService = {
   create(data: any) {
     return api.post('/api/user/create-user', data);
   },
   get(id: string) {
-    return api.get(`/api/user/get-user`, { params: { id } });
+    return apiGet.get(`/api/user/get-user?id=${id}`);
   },
-  edit(data: JSON) {
+  edit(data: any) {
     return ApiAuth().put('/api/user/edit-user', data);
   },
-  delete(id: string) {
-    return ApiAuth().delete(`/api/user/delete-user`, { params: { id } });
+  delete(data: any) {
+    return ApiAuth().delete(`/api/user/delete-user`, data);
   },
-  changePassword(data: JSON) {
+  changePassword(data: any) {
     return ApiAuth().put('/api/user/change-password', data);
   },
 };

@@ -1,29 +1,29 @@
-import { ApiAuth } from '../http-common';
+import { ApiAuth, ApiAuthGet } from '../http-common';
 
 const PositionDataService = {
-  create(data: JSON) {
+  create(data: any) {
     return ApiAuth().post('/api/position/create-position', data);
   },
   getAll(id: string) {
-    return ApiAuth().get(`/api/position/get-position`, { params: { id } });
+    return ApiAuthGet().get(`/api/position/get-position?id=${id}`);
   },
   get(id: string) {
-    return ApiAuth().get(`/api/position/get-one-position`, { params: { id } });
+    return ApiAuthGet().get(`/api/position/get-one-position?id=${id}`);
   },
-  edit(data: JSON) {
+  edit(data: any) {
     return ApiAuth().put('/api/position/edit-position', data);
   },
-  editNumber(data: JSON) {
+  editNumber(data: any) {
     return ApiAuth().put('/api/position/edit-position-candidates', data);
   },
-  resolve(data: JSON) {
+  resolve(data: any) {
     return ApiAuth().put('/api/position/resolve-position', data);
   },
-  remove(data: JSON) {
+  remove(data: any) {
     return ApiAuth().put('/api/position/remove-position', data);
   },
-  delete(ids: string[]) {
-    return ApiAuth().delete('/api/position/delete-position', { params: { ids } });
+  delete(data: any) {
+    return ApiAuth().delete('/api/position/delete-position', data);
   },
 };
 
