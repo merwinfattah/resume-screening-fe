@@ -1,23 +1,26 @@
-import { ApiAuth, ApiAuthGet } from '../http-common';
+import { ApiAuth, ApiAuthGet, ApiAuthForm } from '../http-common';
 
 const CandidateDataService = {
-  get(id: string) {
-    return ApiAuthGet().get(`/api/candidate/get-one-candidate?id=${id}`);
+  get(id: string, token: any) {
+    return ApiAuthGet(token).get(`/api/candidate/get-one-candidate?id=${id}`);
   },
-  getAll(id: string) {
-    return ApiAuthGet().get(`/api/candidate/get-candidate?id=${id}`);
+  getAll(id: string, token: any) {
+    return ApiAuthGet(token).get(`/api/candidate/get-candidate?companyId=${id}`);
   },
-  edit(data: any) {
-    return ApiAuth().put('/api/candidate/edit-candidate', data);
+  edit(data: any, token: any) {
+    return ApiAuth(token).put('/api/candidate/edit-candidate', data);
   },
-  shortlist(data: any) {
-    return ApiAuth().put('/api/candidate/shortlist-candidate', data);
+  upload(data: any, token: any) {
+    return ApiAuthForm(token).post('/api/candidate/create-candidate', data);
   },
-  qualify(data: any) {
-    return ApiAuth().put('/api/candidate/qualify-candidate', data);
+  shortlist(data: any, token: any) {
+    return ApiAuth(token).put('/api/candidate/shortlist-candidate', data);
   },
-  delete(data: any) {
-    return ApiAuth().delete('/api/candidate/delete-candidate', data);
+  qualify(data: any, token: any) {
+    return ApiAuth(token).put('/api/candidate/qualify-candidate', data);
+  },
+  delete(data: any, token: any) {
+    return ApiAuth(token).delete('/api/candidate/delete-candidate', { data });
   },
 };
 

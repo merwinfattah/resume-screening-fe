@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, use } from 'react';
 import Layout from './../components/Layout';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { AiOutlineSearch } from 'react-icons/ai';
@@ -6,36 +6,45 @@ import { VscChromeClose } from 'react-icons/vsc';
 import { FiEdit2 } from 'react-icons/fi';
 import { RxDotsVertical } from 'react-icons/rx';
 import { Popover } from '@headlessui/react';
-import { getItem, setItem } from '@/utils/sessionStorage';
 import dynamic from 'next/dynamic';
 import PositionData from '@/interfaces/PositionData';
-import { Modal } from '@/components/Modal';
-
+import PositionDataService from './api/services/position.service';
+import DepartmentDataService from './api/services/department.service';
+import { useSelector } from 'react-redux';
+import Department from '@/interfaces/Department';
 const Link = dynamic(() => import('next/link'));
-import UploadCV from './talent-pool/upload-cv';
 
 export default function Home() {
-  const [formDataList, setFormDataList] = useState<PositionData[]>([]);
+  const companyId = useSelector((state: any) => state.login.companyId);
+  const token = useSelector((state: any) => state.auth.token);
+  const [positionDataList, setpositionDataList] = useState<PositionData[]>([]);
+  const [departmentDataList, setdepartmentDataList] = useState<Department[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const [positionChecked, setPositionChecked] = useState(0);
-  const [idPositionChecked, setIdPositionChecked] = useState<number[]>([]);
-
-  const fetchData = useCallback(async () => {
-    const data = await getItem('positionDataList');
-    setFormDataList(data);
-  }, []);
+  const [idPositionChecked, setIdPositionChecked] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    const fetchDataPosition = async () => {
+      try {
+        const responsePosition = await PositionDataService.getAll(companyId, token.token);
+        const responseDepartment = await DepartmentDataService.getAll(companyId, token.token);
+        console.log('data department', responseDepartment.data);
+        setpositionDataList(responsePosition.data);
+        setdepartmentDataList(responseDepartment.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchDataPosition();
+  }, [companyId, token]);
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
 
-  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSearchSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (searchTerm.trim() === '') {
       setIsSearching(false);
@@ -44,77 +53,80 @@ export default function Home() {
     }
   };
 
-  const handleNavigateDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleNavigateDelete = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setIsDelete((isDelete) => !isDelete);
   };
 
-  const handleCheckedPosition = (event: React.ChangeEvent<HTMLInputElement>, id: number) => {
+  const handleCheckedPosition = async (event: React.ChangeEvent<HTMLInputElement>, id: string) => {
     if (event.target.checked) {
       setIdPositionChecked((idPositionChecked) => [...idPositionChecked, id]);
       setPositionChecked((positionChecked) => positionChecked + 1);
     } else {
-      const newIdPositionChecked = idPositionChecked.filter((idPosition: number) => idPosition !== id);
+      const newIdPositionChecked = idPositionChecked.filter((idPosition: string) => idPosition !== id);
       setIdPositionChecked(newIdPositionChecked);
       setPositionChecked((positionChecked) => positionChecked - 1);
     }
   };
 
-  const handleCheckedDelete = () => {
-    setFormDataList((prevState) => {
+  const handleCheckedDelete = async () => {
+    setpositionDataList((prevState) => {
       const newState = [...prevState];
       for (let i = 0; i < newState.length; i++) {
-        if (idPositionChecked.includes(newState[i].id)) {
+        if (idPositionChecked.includes(newState[i]._id)) {
           newState[i].isTrash.isInTrash = true;
           newState[i].isTrash.removedDate = new Date();
         }
       }
-      setItem('positionDataList', newState)
-        .then(() => {
-          // Handle successful storage
-          console.log('Data stored successfully');
-        })
-        .catch((error) => {
-          // Handle storage error
-          console.error('Error storing data:', error);
-        });
+
       return newState;
     });
-    setIsDelete(false);
-    setPositionChecked(0);
-    setIdPositionChecked([]);
+    const data = {
+      ids: [...idPositionChecked],
+    };
+    try {
+      const response = await PositionDataService.remove(data, token.token);
+      console.log(response);
+      setIsDelete(false);
+      setPositionChecked(0);
+      setIdPositionChecked([]);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleDeletePosition = (id: number) => {
-    setFormDataList((prevState) => {
+  const handleDeletePosition = async (id: string) => {
+    setpositionDataList((prevState) => {
       const newState = [...prevState];
       for (let i = 0; i < newState.length; i++) {
-        if (newState[i].id === id) {
+        if (newState[i]._id === id) {
           newState[i].isTrash.isInTrash = true;
           newState[i].isTrash.removedDate = new Date();
           break;
         }
       }
-      setItem('positionDataList', newState);
       return newState;
     });
+    const data = {
+      ids: [id],
+    };
+    try {
+      const response = await PositionDataService.remove(data, token.token);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  {
-    /*const filteredData = formDataList && formDataList.filter((positionData: any) => {
-    return positionData.position.toLowerCase().includes(searchTerm.toLowerCase()) || positionData.department.toLowerCase().includes(searchTerm.toLowerCase());
-  });*/
-  }
-
   const filteredData = useMemo(() => {
-    if (!formDataList) return [];
-    return formDataList.filter((positionData: any) => {
+    if (!positionDataList) return [];
+    return positionDataList.filter((positionData: any) => {
       return (
-        positionData.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        positionData.department.toLowerCase().includes(searchTerm.toLowerCase())
+        positionData.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        positionData.departmentId?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
-  }, [formDataList, searchTerm]);
+  }, [positionDataList, searchTerm]);
 
   return (
     <Layout>
@@ -164,26 +176,29 @@ export default function Home() {
             </div>
             <div className={`container mx-auto w-[1184px] mt-6`}>
               <div className={`flex flex-col gap-6`}>
-                {Array.isArray(formDataList) &&
-                  formDataList
+                {Array.isArray(positionDataList) &&
+                  positionDataList
                     .filter((position) => !position.isTrash.isInTrash)
-                    .map((positionData: any, index: number) => (
-                      <div key={index} className={`flex gap-[32px] items-center `}>
+                    .map((positionData: PositionData) => (
+                      <div key={positionData._id} className={`flex gap-[32px] items-center `}>
                         <input
                           type="checkbox"
                           className={`hover:cursor-pointer w-[34px] h-[34px] bg-light_neutral_300 border border-mid_neutral_600`}
-                          onChange={(e) => handleCheckedPosition(e, positionData.id)}
+                          onChange={(e) => handleCheckedPosition(e, positionData._id)}
                         />
                         <div
                           className={`flex flex-col gap-8 bg-primary_white w-[1148px] h-[262.27px] rounded-md py-6 px-8`}
                         >
                           <div className={`flex justify-between`}>
                             <p className={`flex items-center gap-[18px] text-xl text-dark_neutral_100`}>
-                              <span className={`text-2xl text-primary_dark font-semibold`}>
-                                {positionData.position}
-                              </span>
+                              <span className={`text-2xl text-primary_dark font-semibold`}>{positionData.name}</span>
                               <span>-</span>
-                              <span>{positionData.department}</span>
+                              <span>
+                                {
+                                  departmentDataList.find((department) => department._id === positionData.department)
+                                    ?.name
+                                }
+                              </span>
                             </p>
                             <div className={`flex items-center gap-[18px]`}>
                               <button
@@ -207,7 +222,7 @@ export default function Home() {
                                   >
                                     <button
                                       className={`text-left`}
-                                      onClick={() => handleDeletePosition(positionData.id)}
+                                      onClick={() => handleDeletePosition(positionData._id)}
                                     >
                                       Hapus Posisi
                                     </button>
@@ -293,7 +308,6 @@ export default function Home() {
                 onClick={handleNavigateDelete}
                 className={`w-[181px] h-[47px] bg-semantic_red_500 text-primary_white rounded flex  items-center  gap-[6px] justify-center hover:text-semantic_red_500 hover:bg-primary_white border border-semantic_red_500`}
               >
-                {' '}
                 <BsFillTrashFill />
                 Hapus Posisi
               </button>
@@ -363,16 +377,19 @@ export default function Home() {
                   {Array.isArray(filteredData) &&
                     filteredData
                       .filter((positionData) => !positionData.isTrash.isInTrash)
-                      .map((positionData: any, index: number) => (
-                        <div key={index}>
+                      .map((positionData: PositionData) => (
+                        <div key={positionData._id}>
                           <div className={`flex flex-col gap-8 bg-primary_white h-[262.27px] rounded-md py-6 px-8`}>
                             <div className={`flex justify-between`}>
                               <p className={`flex items-center gap-[18px] text-xl text-dark_neutral_100`}>
-                                <span className={`text-2xl text-primary_dark font-semibold`}>
-                                  {positionData.position}
-                                </span>
+                                <span className={`text-2xl text-primary_dark font-semibold`}>{positionData.name}</span>
                                 <span>-</span>
-                                <span>{positionData.department}</span>
+                                <span>
+                                  {
+                                    departmentDataList.find((department) => department._id === positionData.department)
+                                      ?.name
+                                  }
+                                </span>
                               </p>
                               <div className={`flex items-center gap-[18px]`}>
                                 <button
@@ -396,7 +413,7 @@ export default function Home() {
                                     >
                                       <button
                                         className={`text-left`}
-                                        onClick={() => handleDeletePosition(positionData.id)}
+                                        onClick={() => handleDeletePosition(positionData._id)}
                                       >
                                         Hapus Posisi
                                       </button>
@@ -444,19 +461,22 @@ export default function Home() {
                 </div>
               ) : (
                 <div className={`flex flex-col gap-6`}>
-                  {Array.isArray(formDataList) &&
-                    formDataList
+                  {Array.isArray(positionDataList) &&
+                    positionDataList
                       .filter((positionData) => !positionData.isTrash.isInTrash)
-                      .map((positionData: any, index: number) => (
-                        <div key={index}>
+                      .map((positionData: PositionData) => (
+                        <div key={positionData._id}>
                           <div className={`flex flex-col gap-8 bg-primary_white h-[262.27px] rounded-md py-6 px-8`}>
                             <div className={`flex justify-between`}>
                               <p className={`flex items-center gap-[18px] text-xl text-dark_neutral_100`}>
-                                <span className={`text-2xl text-primary_dark font-semibold`}>
-                                  {positionData.position}
-                                </span>
+                                <span className={`text-2xl text-primary_dark font-semibold`}>{positionData.name}</span>
                                 <span>-</span>
-                                <span>{positionData.department}</span>
+                                <span>
+                                  {
+                                    departmentDataList.find((department) => department._id === positionData.department)
+                                      ?.name
+                                  }
+                                </span>
                               </p>
                               <div className={`flex items-center gap-[18px]`}>
                                 <button
@@ -480,7 +500,7 @@ export default function Home() {
                                     >
                                       <button
                                         className={`text-left`}
-                                        onClick={() => handleDeletePosition(positionData.id)}
+                                        onClick={() => handleDeletePosition(positionData._id)}
                                       >
                                         Hapus Posisi
                                       </button>
@@ -518,7 +538,7 @@ export default function Home() {
                                 <p>Posisi ini belum selesai</p>
                               </div>
                               <p>
-                                Kandidat terkahir ditambahkan:
+                                Kandidat terakhir ditambahkan:
                                 <span className={`font-semibold`}>-</span>
                               </p>
                             </div>

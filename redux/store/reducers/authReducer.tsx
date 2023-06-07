@@ -6,21 +6,25 @@ const initialState = {
 };
 
 const authSlice = createSlice({
-    name: 'auth',
-    initialState,
-    reducers: {
-      setToken: (state, action) => {
-        state.token = action.payload;
-        state.isAuthenticated = true;
-      },
-      clearToken: (state) => {
-        state.token = null;
-        state.isAuthenticated = false;
-      },
+  name: 'auth',
+  initialState,
+  reducers: {
+    setToken: (state, action) => {
+      state.token = action.payload;
+      state.isAuthenticated = true;
+
+      // Save only the token to localStorage
+      localStorage.setItem('token', JSON.stringify(action.payload));
     },
-  });
+    clearToken: (state) => {
+      state.token = null;
+      state.isAuthenticated = false;
+
+      localStorage.removeItem('token');
+    },
+  },
+});
 
 export const { setToken, clearToken } = authSlice.actions;
 
 export default authSlice.reducer;
-

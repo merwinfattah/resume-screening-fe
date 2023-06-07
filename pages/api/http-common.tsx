@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useSelector } from 'react-redux';
 
 export const api = axios.create({
   baseURL: 'http://localhost:8010/proxy',
@@ -9,6 +8,19 @@ export const api = axios.create({
   },
 });
 
+export const ApiAuthForm = (token: any) => {
+  const apiAuthFormWithToken = axios.create({
+    baseURL: 'http://localhost:8010/proxy',
+    headers: {
+      'Content-type': 'multipart/form-data',
+      'ngrok-skip-browser-warning': true,
+      Authorization: token,
+    },
+  });
+
+  return apiAuthFormWithToken;
+};
+
 export const apiGet = axios.create({
   baseURL: 'http://localhost:8010/proxy',
   headers: {
@@ -16,20 +28,28 @@ export const apiGet = axios.create({
   },
 });
 
-export const ApiAuth = () => {
-  const token = useSelector((state: any) => state.auth.token);
-
-  // Set the token in the headers
-  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-  return api;
+export const ApiAuth = (token: any) => {
+  const apiAuthWithToken = axios.create({
+    baseURL: 'http://localhost:8010/proxy',
+    headers: {
+      'Content-type': 'application/json',
+      'ngrok-skip-browser-warning': true,
+      Authorization: token,
+    },
+  });
+  console.log('apiAuthWithToken', apiAuthWithToken);
+  return apiAuthWithToken;
 };
 
-export const ApiAuthGet = () => {
-  const token = useSelector((state: any) => state.auth.token);
-
+export const ApiAuthGet = (token: any) => {
   // Set the token in the headers
-  apiGet.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  const apiAuthGetWithToken = axios.create({
+    baseURL: 'http://localhost:8010/proxy',
+    headers: {
+      'ngrok-skip-browser-warning': true,
+      Authorization: token,
+    },
+  });
 
-  return apiGet;
+  return apiAuthGetWithToken;
 };

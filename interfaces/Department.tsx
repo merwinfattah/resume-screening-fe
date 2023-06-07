@@ -1,5 +1,7 @@
 export default interface Department {
-    id: number;
-    name: string;
-    createdDate: Date;
+  _id: string;
+  __v: number;
+  name: string;
+  company: string;
+  createdDate: Date;
 }

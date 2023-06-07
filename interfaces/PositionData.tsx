@@ -4,19 +4,20 @@ interface IsTrash {
 }
 
 export default interface PositionData {
-  id: number;
+  _id: string;
+  __v: number;
   department: string;
-  position: string;
+  name: string;
   education: string;
   location: string;
   description: string;
   qualification: string;
-  minimumExperience: string;
+  minWorkExp: number;
   uploadedCV: number;
   filteredCV: number;
   potentialCandidates: number;
   qualifiedCandidates: number;
-  lastCandidatesUpdated: Date;
   isResolved: boolean;
   isTrash: IsTrash;
+  createdDate: Date | undefined;
 }

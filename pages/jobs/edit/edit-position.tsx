@@ -7,76 +7,100 @@ import { useEffect, useState } from 'react';
 import { BiArrowBack } from 'react-icons/bi';
 import { GrClose } from 'react-icons/gr';
 import { MdArrowDropUp, MdArrowDropDown } from 'react-icons/md';
-import { getItem, setItem } from '@/utils/sessionStorage';
 import { educationOptions } from '@/components/SelectOptions';
-import PositionData from '@/interfaces/PositionData';
 import 'react-quill/dist/quill.snow.css';
+import PositionDataService from '@/pages/api/services/position.service';
+import { useSelector } from 'react-redux';
+import Department from '@/interfaces/Department';
+import DepartmentDataService from '@/pages/api/services/department.service';
+import PositionData from '@/interfaces/PositionData';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export default function EditPosition() {
+  const token = useSelector((state: any) => state.auth.token);
+  const companyId = useSelector((state: any) => state.login.companyId);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showDescription, setShowDescription] = useState('');
   const [showQualification, setShowQualification] = useState('');
-  const { positionId, selectedDepartment, selectedEducation } = router.query;
-  const pssId = parseInt(Array.isArray(positionId) ? '' : positionId ?? '');
-  const slcDepartment = Array.isArray(selectedDepartment) ? '' : selectedDepartment ?? '';
-  const slcEdu = Array.isArray(selectedEducation) ? '' : selectedEducation ?? '';
-
+  const [department, setDepartment] = useState('');
+  const { positionId } = router.query;
+  const pssId = Array.isArray(positionId) ? '' : positionId ?? '';
+  const [departmentList, setDepartmentList] = useState<Department[]>([]);
   const [positionData, setPositionData] = useState<PositionData>({
-    id: 0,
+    _id: '',
+    __v: 0,
     department: '',
-    position: '',
+    name: '',
     education: '',
     location: '',
     description: '',
     qualification: '',
-    minimumExperience: '',
+    minWorkExp: 0,
     uploadedCV: 0,
     filteredCV: 0,
     potentialCandidates: 0,
     qualifiedCandidates: 0,
-    lastCandidatesUpdated: new Date(),
     isResolved: false,
     isTrash: {
       isInTrash: false,
       removedDate: undefined,
     },
+    createdDate: undefined,
   });
-
-  const fethInitialData = async () => {
-    const existingPositionDataList = await getItem('positionDataList');
-    for (let i = 0; i < existingPositionDataList.length; i++) {
-      if (existingPositionDataList[i].id === pssId) {
-        setPositionData(existingPositionDataList[i]);
-        break;
+  useEffect(() => {
+    const fetchPositionData = async () => {
+      try {
+        const responsePosition = await PositionDataService.get(pssId, token.token);
+        setPositionData(responsePosition.data);
+      } catch (error) {
+        console.log(error);
       }
-    }
-  };
+    };
+    fetchPositionData();
+  }, [pssId, token]);
 
-  fethInitialData();
-
+  const [editedPositionData, setEditedPositionData] = useState({
+    id: positionData._id ?? '',
+    name: positionData.name ?? '',
+    education: positionData.education ?? '',
+    location: positionData.location ?? '',
+    description: positionData.description ?? '',
+    qualification: positionData.qualification ?? '',
+    minWorkExp: 0,
+  });
   // Retrieve department list data from session storage
-  const departmentListInStorage = sessionStorage.getItem('department list');
-  const existingList = departmentListInStorage ? JSON.parse(departmentListInStorage) : [];
+  useEffect(() => {
+    const fetchDepartmentList = async () => {
+      try {
+        const responseDepartment = await DepartmentDataService.getAll(companyId, token.token);
+        let departmentListTemp = [...responseDepartment.data];
+        setDepartmentList(responseDepartment.data);
+        setDepartment(departmentListTemp.find((department) => department._id === positionData.department)?.name ?? '');
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchDepartmentList();
+  }, [companyId, token, positionData]);
   // Create a new list of objects with name and label properties
-  const departmentOptions = existingList.map((department: any) => {
+  const departmentOptions = departmentList.map((department: Department) => {
     return {
       value: department.name,
       label: department.name,
     };
   });
 
-  const handlePositionInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPositionData((prevState) => ({
+  const handlePositionInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedPositionData((prevState) => ({
       ...prevState,
-      position: event.target.value,
+      name: event.target.value,
     }));
   };
 
-  const handleLocationInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPositionData((prevState) => ({
+  const handleLocationInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedPositionData((prevState) => ({
       ...prevState,
       location: event.target.value,
     }));
@@ -84,40 +108,37 @@ export default function EditPosition() {
 
   const handleDepartmentInputChange = (selectedOption: any) => {
     if (selectedOption) {
-      setPositionData((prevState) => ({
-        ...prevState,
-        department: selectedOption.value,
-      }));
+      setDepartment(selectedOption.value);
     }
   };
 
   const handleEducationInputChange = (selectedOption: any) => {
     if (selectedOption) {
-      setPositionData((prevState) => ({
+      setEditedPositionData((prevState) => ({
         ...prevState,
         education: selectedOption.value,
       }));
     }
   };
 
-  const handleExperienceInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPositionData((prevState) => ({
+  const handleExperienceInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedPositionData((prevState) => ({
       ...prevState,
-      minimumExperience: event.target.value,
+      minWorkExp: parseInt(event.target.value),
     }));
   };
 
-  const handleDescriptionInputChange = (value: string) => {
+  const handleDescriptionInputChange = async (value: string) => {
     setShowDescription(value);
-    setPositionData((prevState) => ({
+    setEditedPositionData((prevState) => ({
       ...prevState,
       description: value.replace(/<\/?p>/g, ''),
     }));
   };
 
-  const handleQualificationInputChange = (value: string) => {
+  const handleQualificationInputChange = async (value: string) => {
     setShowQualification(value);
-    setPositionData((prevState) => ({
+    setEditedPositionData((prevState) => ({
       ...prevState,
       qualification: value.replace(/<\/?p>/g, ''),
     }));
@@ -125,62 +146,39 @@ export default function EditPosition() {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const existingPositionDataList = await getItem('positionDataList');
-    let newPositionDataList = [...existingPositionDataList];
-    for (let i = 0; i < newPositionDataList.length; i++) {
-      if (newPositionDataList[i].id === pssId) {
-        newPositionDataList[i] = positionData;
-        break;
-      }
+    try {
+      const response = await PositionDataService.edit(editedPositionData, token.token);
+      console.log(response.data);
+      router.push('/talent-pool');
+    } catch (error) {
+      console.log(error);
     }
-    setItem('positionDataList', newPositionDataList);
-    setPositionData({
-      id: 0,
-      department: '',
-      position: '',
-      education: '',
-      location: '',
-      description: '',
-      qualification: '',
-      minimumExperience: '',
-      uploadedCV: 0,
-      filteredCV: 0,
-      potentialCandidates: 0,
-      qualifiedCandidates: 0,
-      lastCandidatesUpdated: new Date(),
-      isResolved: false,
-      isTrash: {
-        isInTrash: false,
-        removedDate: undefined,
-      },
-    });
-    router.push('/talent-pool');
   };
 
   const addExperince = () => {
-    if (positionData.minimumExperience) {
+    if (positionData.minWorkExp >= 0) {
       setPositionData((prevState) => ({
         ...prevState,
-        minimumExperience: (parseInt(prevState.minimumExperience) + 1).toString(),
+        minWorkExp: prevState.minWorkExp + 1,
       }));
     } else {
       setPositionData((prevState) => ({
         ...prevState,
-        minimumExperience: '0',
+        minWorkExp: 0,
       }));
     }
   };
 
   const minusExperince = () => {
-    if (positionData.minimumExperience) {
+    if (positionData.minWorkExp > 0) {
       setPositionData((prevState) => ({
         ...prevState,
-        minimumExperience: (parseInt(prevState.minimumExperience) - 1).toString(),
+        minWorkExp: prevState.minWorkExp - 1,
       }));
     } else {
       setPositionData((prevState) => ({
         ...prevState,
-        minimumExperience: '0',
+        minWorkExp: 0,
       }));
     }
   };
@@ -292,7 +290,8 @@ export default function EditPosition() {
                         placeholder="Select Department, ex : Human Resource"
                         width="580px"
                         handleChange={handleDepartmentInputChange}
-                        value={slcDepartment}
+                        value={department}
+                        disabled={true}
                       />
                     </div>
                     <p className={`text-dark_neutral_300`}>80 karakter tersisa.</p>
@@ -310,7 +309,7 @@ export default function EditPosition() {
                         placeholder="Example : Associate Manager"
                         className={`bg-transparent w-full outline-none `}
                         onChange={handlePositionInputChange}
-                        value={positionData.position}
+                        value={positionData.name}
                       />
                     </div>
                     <p className={`text-dark_neutral_300`}>80 karakter tersisa.</p>
@@ -344,7 +343,7 @@ export default function EditPosition() {
                         placeholder="Select Education"
                         width="580px"
                         handleChange={handleEducationInputChange}
-                        value={slcEdu}
+                        value={positionData.education}
                       />
                     </div>
                     <p className={`text-dark_neutral_300`}>Pendidikan minimal untuk posisi ini</p>
@@ -378,7 +377,7 @@ export default function EditPosition() {
                     >
                       <input
                         type="text"
-                        value={positionData.minimumExperience}
+                        value={positionData.minWorkExp}
                         onChange={handleExperienceInputChange}
                         placeholder="Fill.."
                         className={`w-[44px] bg-transparent  outline-none `}

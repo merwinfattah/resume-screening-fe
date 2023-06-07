@@ -3,7 +3,6 @@ import SelectItems from '@/components/SelectItems';
 import User from '@/interfaces/User';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import CompanyDataService from '../api/services/company.service';
 import UserDataService from '../api/services/user.service';
 
@@ -16,12 +15,16 @@ export default function Register() {
     phone: '',
     companyId: '',
   });
+  const [selectedOption, setSelectedOption] = useState<any>(null);
   const [nextForm, setNextForm] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [company, setCompany] = useState([
     {
-      id: '',
+      _id: '',
       name: '',
+      address: '',
+      _v: 0,
+      createdDate: '',
     },
   ]);
   const [companyOptions, setCompanyOptions] = useState([]);
@@ -48,7 +51,7 @@ export default function Register() {
     fetchCompanies();
   }, []);
 
-  const handleNameInputChange = (e: any) => {
+  const handleNameInputChange = async (e: any) => {
     const { value } = e.target;
     setUserData((prevState) => ({
       ...prevState,
@@ -58,14 +61,16 @@ export default function Register() {
 
   const handleCompanyInputChange = (selectedOption: any) => {
     if (selectedOption) {
+      setSelectedOption(selectedOption.value);
+      console.log('ini option', company);
       setUserData((prevState) => ({
         ...prevState,
-        company: company.find((item) => item.name === selectedOption.value)?.id,
+        companyId: company.find((item) => item.name === selectedOption.value)?._id || '',
       }));
     }
   };
 
-  const handlePhoneInputChange = (e: any) => {
+  const handlePhoneInputChange = async (e: any) => {
     const { value } = e.target;
     setUserData((prevState) => ({
       ...prevState,
@@ -73,7 +78,7 @@ export default function Register() {
     }));
   };
 
-  const handleEmailInputChange = (e: any) => {
+  const handleEmailInputChange = async (e: any) => {
     const { value } = e.target;
     setUserData((prevState) => ({
       ...prevState,
@@ -81,7 +86,7 @@ export default function Register() {
     }));
   };
 
-  const handlePasswordInputChange = (e: any) => {
+  const handlePasswordInputChange = async (e: any) => {
     const { value } = e.target;
     setUserData((prevState) => ({
       ...prevState,
@@ -89,7 +94,7 @@ export default function Register() {
     }));
   };
 
-  const handleConfirmPasswordInputChange = (e: any) => {
+  const handleConfirmPasswordInputChange = async (e: any) => {
     const { value } = e.target;
     setConfirmPassword(value);
     if (userData.password !== value) {
@@ -99,20 +104,23 @@ export default function Register() {
     }
   };
 
-  const handleFormChange = () => {
+  const handleFormChange = async (e: any) => {
+    e.preventDefault();
     setNextForm(!nextForm);
   };
 
-  const handleNavigateLogin = () => {
+  const handleNavigateLogin = async () => {
     router.push('/auth/login');
   };
 
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
+    console.log(userData);
 
     try {
       const response = await UserDataService.create(userData);
       console.log(response.data);
+      router.push('/auth/login');
       // Handle success or redirect to another page
     } catch (error) {
       console.error(error);
@@ -235,6 +243,7 @@ export default function Register() {
                   </label>
                   <div>
                     <SelectItems
+                      value={selectedOption}
                       options={companyOptions}
                       id="company-name"
                       inputName="company-name"
@@ -276,7 +285,7 @@ export default function Register() {
                 Daftar
               </button>
               <button
-                onClick={handleFormChange}
+                onClick={(e) => handleFormChange(e)}
                 className={`w-full px-3 py-4 text-primary_blue bg-primary_white rounded-md border  border-primary_blue hover:border-2 focus:outline-none hover:transition`}
               >
                 Kembali ke Langkah Sebelumnya

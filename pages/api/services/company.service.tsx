@@ -10,11 +10,11 @@ const CompanyDataService = {
   create(data: any) {
     return api.post('/api/company/create-company', data);
   },
-  edit(data: any) {
-    return ApiAuth().put('/api/company/edit-company', data);
+  edit(data: any, token: any) {
+    return ApiAuth(token).put('/api/company/edit-company', data);
   },
-  delete(data: any) {
-    return ApiAuth().delete(`/api/company/delete-company`, data);
+  delete(data: any, token: any) {
+    return ApiAuth(token).delete(`/api/company/delete-company`, { data });
   },
 };
 

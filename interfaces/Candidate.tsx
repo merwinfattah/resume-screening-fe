@@ -1,14 +1,13 @@
 export default interface Candidate {
-  id: number;
+  _id: string;
+  __v: number;
   name: string;
-  cv: File;
+  cvFile: string;
   email: string;
   domicile: string;
-  competency: string;
-  notes: string;
   score: number;
   isQualified: boolean;
   isShortlist: boolean;
-  idPosition: number | null;
+  position: string;
   createdDate: Date;
 }

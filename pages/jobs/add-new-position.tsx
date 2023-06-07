@@ -3,64 +3,66 @@ import SelectItems from '@/components/SelectItems';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BiArrowBack } from 'react-icons/bi';
 import { GrClose } from 'react-icons/gr';
 import { MdArrowDropUp, MdArrowDropDown } from 'react-icons/md';
-import { getItem, setItem } from '@/utils/sessionStorage';
 import { educationOptions } from '@/components/SelectOptions';
-import PositionData from '@/interfaces/PositionData';
 import 'react-quill/dist/quill.snow.css';
+import PositionDataService from '../api/services/position.service';
+import DepartmentDataService from '../api/services/department.service';
+import { useSelector } from 'react-redux';
+import Department from '@/interfaces/Department';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export default function AddNewPosition() {
+  const companyId = useSelector((state: any) => state.login.companyId);
+  const token = useSelector((state: any) => state.auth.token);
   const router = useRouter();
+  const [departmentList, setDepartmentList] = useState<Department[]>([]);
   const [loading, setLoading] = useState(false);
   const [showDescription, setShowDescription] = useState('');
   const [showQualification, setShowQualification] = useState('');
   const { departmentName } = router.query;
-  const dpName = Array.isArray(departmentName) ? '' : departmentName ?? '';
-  const currentTotalPage = parseInt(JSON.parse(sessionStorage.getItem('totalPosition') || ''));
-  const [positionData, setPositionData] = useState<PositionData>({
-    id: currentTotalPage + 1,
-    department: dpName ?? '',
-    position: '',
+  const departmentNameQuery = Array.isArray(departmentName) ? '' : departmentName ?? '';
+  const [positionData, setPositionData] = useState({
+    departmentId: departmentList.find((department) => department.name === departmentName)?._id ?? '',
+    name: '',
     education: '',
     location: '',
     description: '',
     qualification: '',
-    minimumExperience: '',
-    uploadedCV: 0,
-    filteredCV: 0,
-    potentialCandidates: 0,
-    qualifiedCandidates: 0,
-    lastCandidatesUpdated: new Date(),
-    isResolved: false,
-    isTrash: {
-      isInTrash: false,
-      removedDate: undefined,
-    },
+    minWorkExp: 0,
   });
-  // Retrieve department list data from session storage
-  const departmentListInStorage = sessionStorage.getItem('department list');
-  const existingList = departmentListInStorage ? JSON.parse(departmentListInStorage) : [];
-  // Create a new list of objects with name and label properties
-  const departmentOptions = existingList.map((department: any) => {
+
+  useEffect(() => {
+    const fetchDepartmentList = async () => {
+      try {
+        const response = await DepartmentDataService.getAll(companyId, token.token);
+        setDepartmentList(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchDepartmentList();
+  }, [companyId, token]);
+
+  const departmentOptions = departmentList.map((department: any) => {
     return {
       value: department.name,
       label: department.name,
     };
   });
 
-  const handlePositionInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePositionInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setPositionData((prevState) => ({
       ...prevState,
-      position: event.target.value,
+      name: event.target.value,
     }));
   };
 
-  const handleLocationInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLocationInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setPositionData((prevState) => ({
       ...prevState,
       location: event.target.value,
@@ -71,7 +73,7 @@ export default function AddNewPosition() {
     if (selectedOption) {
       setPositionData((prevState) => ({
         ...prevState,
-        department: selectedOption.value,
+        departmentId: departmentList.find((department) => department.name === selectedOption.value)?._id ?? '',
       }));
     }
   };
@@ -85,14 +87,14 @@ export default function AddNewPosition() {
     }
   };
 
-  const handleExperienceInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleExperienceInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setPositionData((prevState) => ({
       ...prevState,
-      minimumExperience: event.target.value,
+      minWorkExp: parseInt(event.target.value),
     }));
   };
 
-  const handleDescriptionInputChange = (value: string) => {
+  const handleDescriptionInputChange = async (value: string) => {
     setShowDescription(value);
     setPositionData((prevState) => ({
       ...prevState,
@@ -100,7 +102,7 @@ export default function AddNewPosition() {
     }));
   };
 
-  const handleQualificationInputChange = (value: string) => {
+  const handleQualificationInputChange = async (value: string) => {
     setShowQualification(value);
     setPositionData((prevState) => ({
       ...prevState,
@@ -110,57 +112,48 @@ export default function AddNewPosition() {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const existingPositionDataList = await getItem('positionDataList');
-    const newPositionDataList = [...existingPositionDataList, positionData];
-    await setItem('positionDataList', newPositionDataList);
-    sessionStorage.setItem('totalPosition', JSON.stringify(currentTotalPage + 1));
-    setPositionData({
-      id: 0,
-      department: '',
-      position: '',
-      education: '',
-      location: '',
-      description: '',
-      qualification: '',
-      minimumExperience: '',
-      uploadedCV: 0,
-      filteredCV: 0,
-      potentialCandidates: 0,
-      qualifiedCandidates: 0,
-      lastCandidatesUpdated: new Date(),
-      isResolved: false,
-      isTrash: {
-        isInTrash: false,
-        removedDate: undefined,
-      },
-    });
-    router.push('/talent-pool');
+    try {
+      const response = await PositionDataService.create(positionData, token.token);
+      console.log(response.data);
+      setPositionData({
+        departmentId: departmentList.find((department) => department.name === departmentName)?._id ?? '',
+        name: '',
+        education: '',
+        location: '',
+        description: '',
+        qualification: '',
+        minWorkExp: 0,
+      });
+      router.push('/talent-pool');
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const addExperince = () => {
-    if (positionData.minimumExperience) {
+  const addExperince = async () => {
+    if (positionData.minWorkExp >= 0) {
       setPositionData((prevState) => ({
         ...prevState,
-        minimumExperience: (parseInt(prevState.minimumExperience) + 1).toString(),
+        minWorkExp: prevState.minWorkExp + 1,
       }));
     } else {
       setPositionData((prevState) => ({
         ...prevState,
-        minimumExperience: '0',
+        minWorkExp: 0,
       }));
     }
   };
 
-  const minusExperince = () => {
-    if (positionData.minimumExperience) {
+  const minusExperince = async () => {
+    if (positionData.minWorkExp > 0) {
       setPositionData((prevState) => ({
         ...prevState,
-        minimumExperience: (parseInt(prevState.minimumExperience) - 1).toString(),
+        minWorkExp: prevState.minWorkExp - 1,
       }));
     } else {
       setPositionData((prevState) => ({
         ...prevState,
-        minimumExperience: '0',
+        minWorkExp: 0,
       }));
     }
   };
@@ -173,7 +166,7 @@ export default function AddNewPosition() {
       formData.append('file', file, file.name);
 
       try {
-        const response = await fetch('https://3cdf-182-253-194-86.ngrok-free.app/jobdesc_reader', {
+        const response = await fetch('https://aa4f-182-253-194-27.ngrok-free.app/jobdesc_reader', {
           method: 'POST',
           body: formData,
         });
@@ -181,8 +174,10 @@ export default function AddNewPosition() {
         if (response.ok) {
           const { job_description, qualification } = await response.json();
           // Process the response data as needed
-          setShowDescription(job_description);
-          setShowQualification(qualification);
+          const formattedJobDescription = job_description.replace(/\n/g, '<br/>');
+          const formattedQualification = qualification.replace(/\n/g, '<br/>');
+          setShowDescription(formattedJobDescription);
+          setShowQualification(formattedQualification);
           console.log(qualification);
         } else {
           console.error('Failed to upload job description file');
@@ -272,7 +267,7 @@ export default function AddNewPosition() {
                         placeholder="Select Department, ex : Human Resource"
                         width="580px"
                         handleChange={handleDepartmentInputChange}
-                        value={dpName}
+                        value={departmentNameQuery}
                       />
                     </div>
                     <p className={`text-dark_neutral_300`}>80 karakter tersisa.</p>
@@ -355,7 +350,7 @@ export default function AddNewPosition() {
                     >
                       <input
                         type="text"
-                        value={positionData.minimumExperience}
+                        value={positionData.minWorkExp}
                         onChange={handleExperienceInputChange}
                         placeholder="isi.."
                         className={`w-[44px] bg-transparent  outline-none `}

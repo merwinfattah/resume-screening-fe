@@ -1,11 +1,11 @@
 import AuthLayout from '@/components/AuthLayout';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { setToken } from '@/redux/store/reducers/authReducer';
 import { setUser } from '@/redux/store/reducers/loginReducer';
 import AuthDataService from '../api/services/auth.service';
+import UserDataService from '../api/services/user.service';
 
 export default function Login() {
   const router = useRouter();
@@ -15,21 +15,21 @@ export default function Login() {
     password: '',
   });
 
-  const handleEmailInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEmailInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setUserDataLogin((prevState) => ({
       ...prevState,
       email: event.target.value,
     }));
   };
 
-  const handlePasswordInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePasswordInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setUserDataLogin((prevState) => ({
       ...prevState,
       password: event.target.value,
     }));
   };
 
-  const handleNavigateRegister = () => {
+  const handleNavigateRegister = async () => {
     router.push('/auth/register');
   };
 
@@ -38,18 +38,22 @@ export default function Login() {
     try {
       const response = await AuthDataService.login(userDataLogin);
       const { token, user } = response.data;
-      dis(setToken(token));
-      console.log(token, user);
-      // const userData = await axios.get(`${baseURL}/api/user/get-user`, {
-      //   params: { id: user },
-      // });
-      // dis(setUser(userData.data));
-      // console.log(token);
-      // console.log(userData.data);
+      const userData = await UserDataService.get(user);
+      const auth = {
+        token,
+        isAuthenticated: true,
+      };
+      const userLogin = {
+        userId: userData.data._id,
+        companyId: userData.data.company,
+        userName: userData.data.name,
+        email: userData.data.email,
+      };
+      dis(setUser(userLogin));
+      dis(setToken(auth));
+      router.push('/');
     } catch (error) {
       console.log(error);
-    } finally {
-      router.push('/');
     }
   };
   return (

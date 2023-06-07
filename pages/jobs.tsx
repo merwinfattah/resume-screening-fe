@@ -1,6 +1,5 @@
 import Layout from '@/components/Layout';
 import Link from 'next/link';
-import { getItem, setItem } from '@/utils/sessionStorage';
 import { useState, useEffect, useCallback } from 'react';
 import { IoMdArrowDropdown } from 'react-icons/io';
 import { IoAddCircleOutline } from 'react-icons/io5';
@@ -12,126 +11,148 @@ import { BsFillTrashFill } from 'react-icons/bs';
 import PositionData from '@/interfaces/PositionData';
 import Department from '@/interfaces/Department';
 import { Modal } from '@/components/Modal';
+import { useSelector } from 'react-redux';
+import DepartmentDataService from './api/services/department.service';
+import PositionDataService from './api/services/position.service';
 
 export default function Jobs() {
+  const companyId = useSelector((state: any) => state.login.companyId);
+  const token = useSelector((state: any) => state.auth.token);
   const [departmentList, setDepartmentList] = useState<Department[]>([]);
   const [positionDataList, setPositionDataList] = useState<PositionData[]>([]);
   const [isDelete, setIsDelete] = useState(false);
   const [departmentChecked, setDepartmentChecked] = useState(0);
-  const [idDepartmentChecked, setIdDepartmentChecked] = useState<number[]>([]);
-  const fetchData = useCallback(async () => {
-    const data = await getItem('positionDataList');
-    setPositionDataList(data);
-  }, []);
+  const [idDepartmentChecked, setIdDepartmentChecked] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  useEffect(() => {
-    const departmentListInStorage = sessionStorage.getItem('department list');
-    if (departmentListInStorage) {
-      const parsedList = JSON.parse(departmentListInStorage);
-      setDepartmentList(parsedList);
-    }
-  }, []);
-
-  const addItemToList = () => {
-    const newItem = {
-      id: departmentList.length + 1,
-      name: '',
-      createdDate: new Date(),
+    const fetchDataPosition = async () => {
+      try {
+        const positionDataResponse = await PositionDataService.getAll(companyId, token.token);
+        console.log('ini position data', positionDataResponse.data);
+        setPositionDataList(positionDataResponse.data);
+      } catch (error) {
+        console.error('Error fetching position data:', error);
+      }
     };
-    setDepartmentList((prevList) => [...prevList, newItem]);
-    console.log(newItem.createdDate);
-    // Check if department list exists in sessionStorage
-    const departmentListInStorage = sessionStorage.getItem('department list');
-    if (departmentListInStorage) {
-      const existingList = JSON.parse(departmentListInStorage);
-      // Append the new item to the existing list
-      const newList = [...existingList, newItem];
-      sessionStorage.setItem('department list', JSON.stringify(newList));
-    } else {
-      // If no department list exists, initialize with the new item
-      const newList = [newItem];
-      sessionStorage.setItem('department list', JSON.stringify(newList));
+
+    fetchDataPosition();
+  }, [companyId, token]);
+
+  useEffect(() => {
+    const fetchDataDepartment = async () => {
+      try {
+        const departmentDataResponse = await DepartmentDataService.getAll(companyId, token.token);
+        console.log('ini department data', departmentDataResponse.data);
+        setDepartmentList(departmentDataResponse.data);
+      } catch (error) {
+        console.error('Error fetching department data:', error);
+      }
+    };
+    fetchDataDepartment();
+  }, [companyId, token]);
+
+  const addItemToList = async () => {
+    const newItem = {
+      companyId: companyId,
+    };
+    try {
+      const response = await DepartmentDataService.create(newItem, token.token);
+      console.log(response.data.msg);
+      setDepartmentList((prevState) => {
+        const newState = [...prevState];
+        newState.push(response.data.department);
+        return newState;
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error adding item:', error);
     }
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deletePositionId, setDeletePositionId] = useState(0);
+  const [deletePositionId, setDeletePositionId] = useState('');
   const [deletePosition, setDeletePosition] = useState('');
   const [deleteDepartment, setDeleteDepartment] = useState('');
   const [isCheckedDelete, setIsCheckedDelete] = useState(false);
-  const showModal = (id: number, position: string, department: string) => {
+  const showModal = (id: string, position: string, department: string) => {
     setIsModalOpen(true);
     setDeletePosition(position);
     setDeleteDepartment(department);
     setDeletePositionId(id);
   };
 
-  const showModalCheckedDelete = () => {
+  const showModalCheckedDelete = async () => {
     setIsModalOpen(true);
     setIsCheckedDelete(true);
   };
 
-  const handleDeletePosition = () => {
+  const handleDeletePosition = async (id: string) => {
     setPositionDataList((prevState) => {
       const newState = [...prevState];
       for (let i = 0; i < newState.length; i++) {
-        if (newState[i].id === deletePositionId) {
+        if (newState[i]._id === deletePositionId) {
           newState[i].isTrash.isInTrash = true;
           newState[i].isTrash.removedDate = new Date();
           break;
         }
       }
-      setItem('positionDataList', newState);
       return newState;
     });
-    setIsModalOpen(false);
+    const data = {
+      ids: [id],
+    };
+    try {
+      const response = await PositionDataService.remove(data, token.token);
+      console.log(response.data);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error deleting position:', error);
+    }
   };
 
-  const closeModal = () => {
+  const closeModal = async () => {
     setIsModalOpen(false);
     if (isCheckedDelete) {
       setIsCheckedDelete(false);
     }
   };
 
-  const handleNameChange = (newName: string, date: Date) => {
-    let newDepartmentList = [...departmentList]; // Create a new copy of departmentList
-    let oldDepartmentName;
-    let newPositionDataList = [...positionDataList]; // Create a new copy of positionDataList
-    for (let i = 0; i < newDepartmentList.length; i++) {
-      if (newDepartmentList[i].createdDate === date) {
-        oldDepartmentName = newDepartmentList[i].name;
-        newDepartmentList[i].name = newName;
-        break;
+  const handleNameChange = async (newName: string, id: string) => {
+    const data = {
+      id: id,
+      name: newName,
+    };
+
+    setDepartmentList((prevState) => {
+      const newState = [...prevState];
+      for (let i = 0; i < newState.length; i++) {
+        if (newState[i] && newState[i]._id === id) {
+          newState[i] = { ...newState[i], name: newName };
+          break;
+        }
       }
+      return newState;
+    });
+
+    try {
+      const response = await DepartmentDataService.edit(data, token.token);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error updating department name:', error);
     }
-    for (let i = 0; i < newPositionDataList.length; i++) {
-      if (newPositionDataList[i].department === oldDepartmentName) {
-        newPositionDataList[i].department = newName;
-        break;
-      }
-    } // Update the name of the department at the specified index
-    setPositionDataList(newPositionDataList); // Update the state with the new positionDataList
-    setDepartmentList(newDepartmentList); // Update the state with the new departmentList
-    sessionStorage.setItem('department list', JSON.stringify(newDepartmentList));
-    sessionStorage.setItem('positionDataList', JSON.stringify(newPositionDataList));
   };
 
-  const handleNavigateDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleNavigateDelete = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setIsDelete((isDelete) => !isDelete);
   };
 
-  const handleCheckedDepartment = (event: React.ChangeEvent<HTMLInputElement>, id: number) => {
+  const handleCheckedDepartment = async (event: React.ChangeEvent<HTMLInputElement>, id: string) => {
     if (event.target.checked) {
       setIdDepartmentChecked((idDepartmentChecked) => [...idDepartmentChecked, id]);
       setDepartmentChecked((departmentChecked) => departmentChecked + 1);
     } else {
-      const newIdDepartmentChecked = idDepartmentChecked.filter((idPosition: number) => idPosition !== id);
+      const newIdDepartmentChecked = idDepartmentChecked.filter((idPosition: string) => idPosition !== id);
       setIdDepartmentChecked(newIdDepartmentChecked);
       setDepartmentChecked((departmentChecked) => departmentChecked - 1);
     }
@@ -139,14 +160,25 @@ export default function Jobs() {
 
   const handleCheckedDelete = async () => {
     let newDepartmentList = [...departmentList];
-    newDepartmentList = newDepartmentList.filter((department) => !idDepartmentChecked.includes(department.id));
+    newDepartmentList = newDepartmentList.filter((department) => !idDepartmentChecked.includes(department._id));
     setDepartmentList(newDepartmentList);
-    setIdDepartmentChecked([]);
-    // setDepartmentList();
-    await setItem('department list', newDepartmentList);
-    setIsDelete((isDelete) => !isDelete);
-    setIsCheckedDelete(false);
-    setIsModalOpen(false);
+    console.log('ini id yang mau dihapus', idDepartmentChecked);
+    let data = {
+      ids: [...idDepartmentChecked],
+    };
+    console.log('ini data yang mau dihapus', data);
+    console.log('ini token', token.token);
+    try {
+      const deleteDepartment = await DepartmentDataService.delete(data, token.token);
+      console.log(deleteDepartment.data);
+    } catch (error) {
+      console.error('Error deleting department:', error);
+    } finally {
+      setIdDepartmentChecked([]);
+      setIsDelete((isDelete) => !isDelete);
+      setIsCheckedDelete(false);
+      setIsModalOpen(false);
+    }
   };
 
   return (
@@ -179,15 +211,15 @@ export default function Jobs() {
           <section className={`container mx-auto mt-[40px] w-[1148px] `}>
             <h2 className={`font-bold mt-[32px]`}>DAFTAR DEPARTEMEN</h2>
             <div className={` mt-6 flex flex-col gap-[18px]`}>
-              {departmentList.map((department, index) => (
-                <Disclosure key={index}>
+              {departmentList.map((department) => (
+                <Disclosure key={department._id}>
                   {({ open }) => (
                     <>
                       <div className={`flex items-center gap-[32px]`}>
                         <input
                           type="checkbox"
                           className={`hover:cursor-pointer w-[34px] h-[34px] bg-light_neutral_300 border border-mid_neutral_600`}
-                          onChange={(e) => handleCheckedDepartment(e, department.id)}
+                          onChange={(e) => handleCheckedDepartment(e, department._id)}
                         />
                         <div
                           className={`flex justify-between px-8 pb-[21px] pt-[22px] w-[1148px] h-[72px] z-10 mb-1 rounded-md ${
@@ -196,12 +228,12 @@ export default function Jobs() {
                         >
                           <EditorInput
                             initialValue={department.name}
-                            onValueChange={(newName) => handleNameChange(newName, department.createdDate)}
+                            onValueChange={(newName) => handleNameChange(newName, department._id)}
                           />
                           <div className={'flex gap-[18px] items-center'}>
                             {positionDataList.filter(
                               (position) =>
-                                position.department === department.name && position.isTrash.isInTrash === false
+                                position.department === department._id && position.isTrash.isInTrash === false
                             ).length > 0 ? (
                               <>
                                 <Link
@@ -216,9 +248,9 @@ export default function Jobs() {
                                   {
                                     positionDataList.filter(
                                       (position) =>
-                                        position.department === department.name && position.isTrash.isInTrash === false
+                                        position.department === department._id && position.isTrash.isInTrash === false
                                     ).length
-                                  }{' '}
+                                  }
                                   posisi
                                 </div>
                               </>
@@ -253,20 +285,20 @@ export default function Jobs() {
                           {positionDataList
                             .filter(
                               (position) =>
-                                position.department === department.name && position.isTrash.isInTrash !== true
+                                position.department === department._id && position.isTrash.isInTrash !== true
                             )
-                            .map((position: any, index: number) => (
-                              <div key={index} className={`flex justify-center gap-4`}>
+                            .map((position: PositionData) => (
+                              <div key={position._id} className={`flex justify-center gap-4`}>
                                 <button
                                   className={` text-2xl text-semantic_red_500`}
-                                  onClick={() => showModal(position.id, position.position, position.department)}
+                                  onClick={() => showModal(position._id, position.name, position.department)}
                                 >
                                   <BsFillTrashFill />
                                 </button>
                                 <div
                                   className={`flex items-center justify-between py-3 px-3 rounded-md text-dark_neutral_300 bg-light_neutral_400 w-[1037px] h-[53px]`}
                                 >
-                                  <div className={`font-semibold`}>{position.position}</div>
+                                  <div className={`font-semibold`}>{position.name}</div>
                                   <div className={`flex items-center gap-[18px]`}>
                                     <p>
                                       <span className={`font-semibold`}>{position.qualifiedCandidates}</span> Kandidat
@@ -279,7 +311,7 @@ export default function Jobs() {
                                     </p>
                                     <Link
                                       href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
-                                        position.id
+                                        position._id
                                       )}&selectedDepartment=${encodeURIComponent(
                                         position.department
                                       )}&selectedEducation=${encodeURIComponent(position.education)}`}
@@ -359,8 +391,8 @@ export default function Jobs() {
             </div>
             <h2 className={`font-bold mt-[32px]`}>DAFTAR DEPARTEMEN</h2>
             <div className={` mt-6 flex flex-col gap-[18px]`}>
-              {departmentList.map((department, index) => (
-                <Disclosure key={index}>
+              {departmentList.map((department) => (
+                <Disclosure key={department._id}>
                   {({ open }) => (
                     <>
                       <div>
@@ -370,13 +402,13 @@ export default function Jobs() {
                           } bg-light_neutral_200`}
                         >
                           <EditorInput
-                            initialValue={department.name}
-                            onValueChange={(newName) => handleNameChange(newName, department.createdDate)}
+                            initialValue={department?.name || ''}
+                            onValueChange={(newName) => handleNameChange(newName, department._id)}
                           />
                           <div className={'flex gap-[18px] items-center'}>
                             {positionDataList.filter(
                               (position) =>
-                                position.department === department.name && position.isTrash.isInTrash === false
+                                position.department === department._id && position.isTrash.isInTrash === false
                             ).length > 0 ? (
                               <>
                                 <Link
@@ -391,7 +423,7 @@ export default function Jobs() {
                                   {
                                     positionDataList.filter(
                                       (position) =>
-                                        position.department === department.name && position.isTrash.isInTrash === false
+                                        position.department === department._id && position.isTrash.isInTrash === false
                                     ).length
                                   }{' '}
                                   posisi
@@ -427,20 +459,20 @@ export default function Jobs() {
                             {positionDataList
                               .filter(
                                 (position) =>
-                                  position.department === department.name && position.isTrash.isInTrash !== true
+                                  position.department === department._id && position.isTrash.isInTrash !== true
                               )
-                              .map((position: any, index: number) => (
-                                <div key={index} className={`flex justify-center gap-4`}>
+                              .map((position: PositionData) => (
+                                <div key={position._id} className={`flex justify-center gap-4`}>
                                   <button
                                     className={` text-2xl text-semantic_red_500`}
-                                    onClick={() => showModal(position.id, position.position, position.department)}
+                                    onClick={() => showModal(position._id, position.name, position.department)}
                                   >
                                     <BsFillTrashFill />
                                   </button>
                                   <div
                                     className={`flex items-center justify-between py-3 px-3 rounded-md text-dark_neutral_300 bg-light_neutral_400 w-[1037px] h-[53px]`}
                                   >
-                                    <div className={`font-semibold`}>{position.position}</div>
+                                    <div className={`font-semibold`}>{position.name}</div>
                                     <div className={`flex items-center gap-[18px]`}>
                                       <p>
                                         <span className={`font-semibold`}>{position.qualifiedCandidates}</span> Kandidat
@@ -453,7 +485,7 @@ export default function Jobs() {
                                       </p>
                                       <Link
                                         href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
-                                          position.id
+                                          position._id
                                         )}&selectedDepartment=${encodeURIComponent(
                                           position.department
                                         )}&selectedEducation=${encodeURIComponent(position.education)}`}
@@ -480,7 +512,13 @@ export default function Jobs() {
         <Modal
           type={`${isCheckedDelete ? 'delete-department' : 'delete-position'}`}
           isOpen={isModalOpen}
-          onOk={isCheckedDelete ? handleCheckedDelete : handleDeletePosition}
+          onOk={() => {
+            if (isCheckedDelete) {
+              handleCheckedDelete();
+            } else {
+              handleDeletePosition(deletePositionId);
+            }
+          }}
           onClose={closeModal}
           headline={`${
             isCheckedDelete

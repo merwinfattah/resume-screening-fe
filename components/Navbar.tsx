@@ -2,9 +2,32 @@ import { HiLocationMarker } from 'react-icons/hi';
 import { IoSettingsOutline } from 'react-icons/io5';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import CompanyDataService from '../pages/api/services/company.service';
+import { useSelector } from 'react-redux';
 
 export default function Navbar(): JSX.Element {
   const router = useRouter();
+  const companyId = useSelector((state: any) => state.login.companyId);
+  const [companyData, setCompanyData] = useState({
+    name: '',
+    address: '',
+  });
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      try {
+        const response = await CompanyDataService.get(companyId);
+        console.log('ini company', response);
+        const { name, address } = response.data;
+        setCompanyData({ name, address });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchCompanyData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <nav className={`bg-primary_blue`}>
       <div className={` max-w-full  px-8 py-[14px] flex justify-between items-center text-primary_white`}>
@@ -12,10 +35,10 @@ export default function Navbar(): JSX.Element {
           <div className={`flex items-center gap-3`}>
             <div className={` bg-primary_white w-9 h-9 rounded-full`}>{/*Logo*/}</div>
             <div>
-              <div>COMPANY NAME</div>
+              <div>{companyData.name}</div>
               <div>
                 <HiLocationMarker className={`inline-block mr-[2px]`} />
-                <small>Based Location (Jakarta / Anywhere)</small>
+                <small>{companyData.address}</small>
               </div>
             </div>
           </div>
