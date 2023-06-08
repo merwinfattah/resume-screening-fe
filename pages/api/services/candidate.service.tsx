@@ -13,9 +13,6 @@ const CandidateDataService = {
   upload(data: any, token: any) {
     return ApiAuthForm(token).post('/api/candidate/create-candidate', data);
   },
-  shortlist(data: any, token: any) {
-    return ApiAuth(token).put('/api/candidate/shortlist-candidate', data);
-  },
   qualify(data: any, token: any) {
     return ApiAuth(token).put('/api/candidate/qualify-candidate', data);
   },

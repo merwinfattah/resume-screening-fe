@@ -15,7 +15,6 @@ export default interface PositionData {
   minWorkExp: number;
   uploadedCV: number;
   filteredCV: number;
-  potentialCandidates: number;
   qualifiedCandidates: number;
   isResolved: boolean;
   isTrash: IsTrash;

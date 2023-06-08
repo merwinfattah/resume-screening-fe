@@ -305,10 +305,7 @@ export default function Jobs() {
                                       Terkualifikasi
                                     </p>
                                     <div className={` text-mid_neutral_400  font-semibold`}>|</div>
-                                    <p>
-                                      <span className={`font-semibold`}>{position.potentialCandidates}</span> Kandidat
-                                      Terpilih
-                                    </p>
+
                                     <Link
                                       href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
                                         position._id
@@ -479,10 +476,7 @@ export default function Jobs() {
                                         Terkualifikasi
                                       </p>
                                       <div className={` text-mid_neutral_400  font-semibold`}>|</div>
-                                      <p>
-                                        <span className={`font-semibold`}>{position.potentialCandidates}</span> Kandidat
-                                        Terpilih
-                                      </p>
+
                                       <Link
                                         href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
                                           position._id

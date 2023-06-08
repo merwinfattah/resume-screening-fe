@@ -436,11 +436,6 @@ export default function Home() {
                               </button>
                               <div className={`border border-dark_neutral_100  h-[79.27px]`} />
                               <div className={`text-center`}>
-                                <span className={`font-semibold text-2xl`}>{positionData.filteredCV}</span>
-                                <p>Kandidat Terpilihj</p>
-                              </div>
-                              <div className={`border border-dark_neutral_100  h-[79.27px]`} />
-                              <div className={`text-center`}>
                                 <span className={`font-semibold text-2xl`}>{positionData.qualifiedCandidates}</span>
                                 <p>Kandidat Terkualifikasi</p>
                               </div>
@@ -521,11 +516,6 @@ export default function Home() {
                               >
                                 Nilai Semua CV
                               </button>
-                              <div className={`border border-dark_neutral_100  h-[79.27px]`} />
-                              <div className={`text-center`}>
-                                <span className={`font-semibold text-2xl`}>{positionData.filteredCV}</span>
-                                <p>Kandidat Terpilih</p>
-                              </div>
                               <div className={`border border-dark_neutral_100  h-[79.27px]`} />
                               <div className={`text-center`}>
                                 <span className={`font-semibold text-2xl`}>{positionData.qualifiedCandidates}</span>

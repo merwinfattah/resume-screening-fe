@@ -250,14 +250,7 @@ export default function Trash() {
                                   <p className={`text-dark_neutral_300`}>Filtered CV</p>
                                   <p className={`text-primary_dark font-semibold`}>{positionData.filteredCV}</p>
                                 </div>
-                                <div
-                                  className={`w-[392px] h-[35px] flex justify-between bg-light_neutral_300 border border-light_neutral_600 p-2 rounded-sm`}
-                                >
-                                  <p className={`text-dark_neutral_300`}>Potential Candidates</p>
-                                  <p className={`text-primary_dark font-semibold`}>
-                                    {positionData.potentialCandidates}
-                                  </p>
-                                </div>
+
                                 <div
                                   className={`w-[392px] h-[35px] flex justify-between bg-light_neutral_300 border border-light_neutral_600 p-2 rounded-sm`}
                                 >
@@ -380,14 +373,7 @@ export default function Trash() {
                                   <p className={`text-dark_neutral_300`}>Filtered CV</p>
                                   <p className={`text-primary_dark font-semibold`}>{positionData.filteredCV}</p>
                                 </div>
-                                <div
-                                  className={`w-[392px] h-[35px] flex justify-between bg-light_neutral_300 border border-light_neutral_600 p-2 rounded-sm`}
-                                >
-                                  <p className={`text-dark_neutral_300`}>Potential Candidates</p>
-                                  <p className={`text-primary_dark font-semibold`}>
-                                    {positionData.potentialCandidates}
-                                  </p>
-                                </div>
+
                                 <div
                                   className={`w-[392px] h-[35px] flex justify-between bg-light_neutral_300 border border-light_neutral_600 p-2 rounded-sm`}
                                 >

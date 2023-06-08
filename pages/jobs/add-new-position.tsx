@@ -166,7 +166,7 @@ export default function AddNewPosition() {
       formData.append('file', file, file.name);
 
       try {
-        const response = await fetch('https://aa4f-182-253-194-27.ngrok-free.app/jobdesc_reader', {
+        const response = await fetch('https://e754-36-85-233-125.ngrok-free.app/jobdesc_reader', {
           method: 'POST',
           body: formData,
         });

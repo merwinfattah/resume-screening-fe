@@ -5,9 +5,8 @@ export default interface Candidate {
   cvFile: string;
   email: string;
   domicile: string;
-  score: number;
+  score: number | null;
   isQualified: boolean;
-  isShortlist: boolean;
   position: string;
   createdDate: Date;
 }
