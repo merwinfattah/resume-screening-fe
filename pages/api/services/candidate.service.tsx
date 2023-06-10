@@ -4,8 +4,8 @@ const CandidateDataService = {
   get(id: string, token: any) {
     return ApiAuthGet(token).get(`/api/candidate/get-one-candidate?id=${id}`);
   },
-  getAll(id: string, token: any) {
-    return ApiAuthGet(token).get(`/api/candidate/get-candidate?companyId=${id}`);
+  getAll(token: any) {
+    return ApiAuthGet(token).get(`/api/candidate/get-all-candidate`);
   },
   edit(data: any, token: any) {
     return ApiAuth(token).put('/api/candidate/edit-candidate', data);

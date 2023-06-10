@@ -3,6 +3,7 @@ import Layout from './../components/Layout';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { VscChromeClose } from 'react-icons/vsc';
+import { AiOutlineCheck } from 'react-icons/ai';
 import { FiEdit2 } from 'react-icons/fi';
 import { RxDotsVertical } from 'react-icons/rx';
 import { Popover } from '@headlessui/react';
@@ -24,17 +25,21 @@ export default function Home() {
   const [isDelete, setIsDelete] = useState(false);
   const [positionChecked, setPositionChecked] = useState(0);
   const [idPositionChecked, setIdPositionChecked] = useState<string[]>([]);
+  const [isLoadingPosition, setIsLoadingPosition] = useState(false);
 
   useEffect(() => {
     const fetchDataPosition = async () => {
+      setIsLoadingPosition(true);
       try {
-        const responsePosition = await PositionDataService.getAll(companyId, token.token);
-        const responseDepartment = await DepartmentDataService.getAll(companyId, token.token);
+        const responsePosition = await PositionDataService.getAll(token.token);
+        const responseDepartment = await DepartmentDataService.getAll(token.token);
         console.log('data department', responseDepartment.data);
         setpositionDataList(responsePosition.data);
         setdepartmentDataList(responseDepartment.data);
+        setIsLoadingPosition(false);
       } catch (error) {
         console.log(error);
+        setIsLoadingPosition(false);
       }
     };
     fetchDataPosition();
@@ -118,6 +123,28 @@ export default function Home() {
     }
   };
 
+  const handleResolvePosition = async (id: string) => {
+    setpositionDataList((prevState) => {
+      const newState = [...prevState];
+      for (let i = 0; i < newState.length; i++) {
+        if (newState[i]._id === id) {
+          newState[i].isResolved = true;
+          break;
+        }
+      }
+      return newState;
+    });
+    const data = {
+      id: id,
+    };
+    try {
+      const response = await PositionDataService.resolve(data, token.token);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const filteredData = useMemo(() => {
     if (!positionDataList) return [];
     return positionDataList.filter((positionData: any) => {
@@ -176,7 +203,11 @@ export default function Home() {
             </div>
             <div className={`container mx-auto w-[1184px] mt-6`}>
               <div className={`flex flex-col gap-6`}>
-                {Array.isArray(positionDataList) &&
+                {isLoadingPosition ? (
+                  <div className={`flex justify-center items-center w-full h-[200px]`}>
+                    <div className={`w-[50px] h-[50px] border-t-2 border-primary_blue rounded-full animate-spin`} />
+                  </div>
+                ) : (
                   positionDataList
                     .filter((position) => !position.isTrash.isInTrash)
                     .map((positionData: PositionData) => (
@@ -226,7 +257,12 @@ export default function Home() {
                                     >
                                       Hapus Posisi
                                     </button>
-                                    <button className={`text-left`}>Selesaikan Posisi</button>
+                                    <button
+                                      onClick={() => handleResolvePosition(positionData._id)}
+                                      className={`text-left`}
+                                    >
+                                      Selesaikan Posisi
+                                    </button>
                                   </div>
                                 </Popover.Panel>
                               </Popover>
@@ -256,17 +292,23 @@ export default function Home() {
                           </div>
                           <div className={`flex justify-between`}>
                             <div className={`flex items-center gap-[6px] `}>
-                              <VscChromeClose className={` text-xl text-semantic_red_500`} />
-                              <p>Posisi ini belum selesai</p>
+                              {positionData.isResolved ? (
+                                <>
+                                  <AiOutlineCheck className={` text-xl text-semantic_green_500`} />
+                                  <p>Posisi ini sudah selesai</p>
+                                </>
+                              ) : (
+                                <>
+                                  <VscChromeClose className={` text-xl text-semantic_red_500`} />
+                                  <p>Posisi ini belum selesai</p>
+                                </>
+                              )}
                             </div>
-                            <p>
-                              Kandidat terakhir ditambahkan:
-                              <span className={`font-semibold`}>-</span>
-                            </p>
                           </div>
                         </div>
                       </div>
-                    ))}
+                    ))
+                )}
               </div>
             </div>
           </section>
@@ -417,7 +459,12 @@ export default function Home() {
                                       >
                                         Hapus Posisi
                                       </button>
-                                      <button className={`text-left`}>Selesaikan Posisi</button>
+                                      <button
+                                        onClick={() => handleResolvePosition(positionData._id)}
+                                        className={`text-left`}
+                                      >
+                                        Selesaikan Posisi
+                                      </button>
                                     </div>
                                   </Popover.Panel>
                                 </Popover>
@@ -435,20 +482,21 @@ export default function Home() {
                                 Nilai Semua CV
                               </button>
                               <div className={`border border-dark_neutral_100  h-[79.27px]`} />
-                              <div className={`text-center`}>
-                                <span className={`font-semibold text-2xl`}>{positionData.qualifiedCandidates}</span>
-                                <p>Kandidat Terkualifikasi</p>
-                              </div>
                             </div>
                             <div className={`flex justify-between`}>
                               <div className={`flex items-center gap-[6px] `}>
-                                <VscChromeClose className={` text-xl text-semantic_red_500`} />
-                                <p>Posisi ini belum selesai</p>
+                                {positionData.isResolved ? (
+                                  <>
+                                    <AiOutlineCheck className={` text-xl text-semantic_green_500`} />
+                                    <p>Posisi ini sudah selesai</p>
+                                  </>
+                                ) : (
+                                  <>
+                                    <VscChromeClose className={` text-xl text-semantic_red_500`} />
+                                    <p>Posisi ini belum selesai</p>
+                                  </>
+                                )}
                               </div>
-                              <p>
-                                Kandidat terakhir ditambahkan:
-                                <span className={`font-semibold`}>-</span>
-                              </p>
                             </div>
                           </div>
                         </div>
@@ -499,7 +547,12 @@ export default function Home() {
                                       >
                                         Hapus Posisi
                                       </button>
-                                      <button className={`text-left`}>Selesaikan Posisi</button>
+                                      <button
+                                        onClick={() => handleResolvePosition(positionData._id)}
+                                        className={`text-left`}
+                                      >
+                                        Selesaikan Posisi
+                                      </button>
                                     </div>
                                   </Popover.Panel>
                                 </Popover>
@@ -524,13 +577,18 @@ export default function Home() {
                             </div>
                             <div className={`flex justify-between`}>
                               <div className={`flex items-center gap-[6px] `}>
-                                <VscChromeClose className={` text-xl text-semantic_red_500`} />
-                                <p>Posisi ini belum selesai</p>
+                                {positionData.isResolved ? (
+                                  <>
+                                    <AiOutlineCheck className={` text-xl text-semantic_green_500`} />
+                                    <p>Posisi ini sudah selesai</p>
+                                  </>
+                                ) : (
+                                  <>
+                                    <VscChromeClose className={` text-xl text-semantic_red_500`} />
+                                    <p>Posisi ini belum selesai</p>
+                                  </>
+                                )}
                               </div>
-                              <p>
-                                Kandidat terakhir ditambahkan:
-                                <span className={`font-semibold`}>-</span>
-                              </p>
                             </div>
                           </div>
                         </div>

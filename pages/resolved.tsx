@@ -73,9 +73,9 @@ export default function TalentPool() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const departmentDataListResponse = await DepartmentDataService.getAll(companyId, token.token);
-        const positionDataListResponse = await PositionDataService.getAll(companyId, token.token);
-        const candidateDataListResponse = await CandidateDataService.getAll(companyId, token.token);
+        const departmentDataListResponse = await DepartmentDataService.getAll(token.token);
+        const positionDataListResponse = await PositionDataService.getAll(token.token);
+        const candidateDataListResponse = await CandidateDataService.getAll(token.token);
         setDepartmentDataList(departmentDataListResponse.data);
         setPositionDataList(positionDataListResponse.data);
         setCandidateDataList(candidateDataListResponse.data);

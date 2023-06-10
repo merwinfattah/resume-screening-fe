@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux';
 import Department from '@/interfaces/Department';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+const apiMlKey = process.env.API_URL_ML;
 
 export default function AddNewPosition() {
   const companyId = useSelector((state: any) => state.login.companyId);
@@ -39,7 +40,7 @@ export default function AddNewPosition() {
   useEffect(() => {
     const fetchDepartmentList = async () => {
       try {
-        const response = await DepartmentDataService.getAll(companyId, token.token);
+        const response = await DepartmentDataService.getAll(token.token);
         setDepartmentList(response.data);
       } catch (error) {
         console.log(error);
@@ -166,7 +167,7 @@ export default function AddNewPosition() {
       formData.append('file', file, file.name);
 
       try {
-        const response = await fetch('https://e754-36-85-233-125.ngrok-free.app/jobdesc_reader', {
+        const response = await fetch(`https://c35a-36-65-244-49.ngrok-free.app/jobdesc_reader`, {
           method: 'POST',
           body: formData,
         });

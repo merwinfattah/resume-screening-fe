@@ -4,8 +4,8 @@ const DepartmentDataService = {
   create(data: any, token: any) {
     return ApiAuth(token).post('/api/department/create-department', data);
   },
-  getAll(id: string, token: any) {
-    return ApiAuthGet(token).get(`/api/department/get-department?companyId=${id}`);
+  getAll(token: any) {
+    return ApiAuthGet(token).get(`/api/department/get-all-department`);
   },
   get(id: string, token: any) {
     return ApiAuthGet(token).get(`/api/department/get-one-department?id=${id}`);

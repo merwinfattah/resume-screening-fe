@@ -4,8 +4,8 @@ const PositionDataService = {
   create(data: any, token: any) {
     return ApiAuth(token).post('/api/position/create-position', data);
   },
-  getAll(id: string, token: any) {
-    return ApiAuthGet(token).get(`/api/position/get-position?companyId=${id}`);
+  getAll(token: any) {
+    return ApiAuthGet(token).get(`/api/position/get-all-position`);
   },
   get(id: string, token: any) {
     return ApiAuthGet(token).get(`/api/position/get-one-position?id=${id}`);

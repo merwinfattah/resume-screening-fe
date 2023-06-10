@@ -8,5 +8,6 @@ export default interface Candidate {
   score: number | null;
   isQualified: boolean;
   position: string;
+  skills: string[];
   createdDate: Date;
 }

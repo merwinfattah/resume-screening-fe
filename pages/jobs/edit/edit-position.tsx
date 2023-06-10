@@ -40,7 +40,6 @@ export default function EditPosition() {
     minWorkExp: 0,
     uploadedCV: 0,
     filteredCV: 0,
-    potentialCandidates: 0,
     qualifiedCandidates: 0,
     isResolved: false,
     isTrash: {
@@ -74,7 +73,7 @@ export default function EditPosition() {
   useEffect(() => {
     const fetchDepartmentList = async () => {
       try {
-        const responseDepartment = await DepartmentDataService.getAll(companyId, token.token);
+        const responseDepartment = await DepartmentDataService.getAll(token.token);
         let departmentListTemp = [...responseDepartment.data];
         setDepartmentList(responseDepartment.data);
         setDepartment(departmentListTemp.find((department) => department._id === positionData.department)?.name ?? '');
@@ -191,7 +190,7 @@ export default function EditPosition() {
       formData.append('file', file, file.name);
 
       try {
-        const response = await fetch('https://3cdf-182-253-194-86.ngrok-free.app/jobdesc_reader', {
+        const response = await fetch('https://4acb-182-253-194-76.ngrok-free.app/jobdesc_reader', {
           method: 'POST',
           body: formData,
         });

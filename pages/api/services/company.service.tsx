@@ -5,7 +5,7 @@ const CompanyDataService = {
     return apiGet.get('/api/company/get-all-company');
   },
   get(id: string) {
-    return apiGet.get(`/api/company/get-company?id=${id}`);
+    return apiGet.get(`/api/company/get-one-company?id=${id}`);
   },
   create(data: any) {
     return api.post('/api/company/create-company', data);

@@ -26,8 +26,8 @@ export default function Trash() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const responseDepartment = await DepartmentDataService.getAll(companyId, token.token);
-        const responsePosition = await PositionDataService.getAll(companyId, token.token);
+        const responseDepartment = await DepartmentDataService.getAll(token.token);
+        const responsePosition = await PositionDataService.getAll(token.token);
         console.log(responseDepartment.data);
         setDepartmentList(responseDepartment.data);
         setPositionDataList(responsePosition.data);
@@ -98,16 +98,11 @@ export default function Trash() {
   };
 
   const handleRestorePosition = async () => {
-    const newPositionDataList = positionDataList.filter((positionData: PositionData) => {
-      for (let i = 0; i < idPositionChecked.length; i++) {
-        if (positionData._id === idPositionChecked[i]) {
-          positionData.isTrash.isInTrash = false;
-          positionData.isTrash.removedDate = undefined;
-          return true;
-        } else {
-          return false;
-        }
+    const newPositionDataList = positionDataList.map((positionData: PositionData) => {
+      if (idPositionChecked.includes(positionData._id)) {
+        positionData.isTrash.isInTrash = false;
       }
+      return positionData;
     });
     setPositionDataList(newPositionDataList);
     const data = {

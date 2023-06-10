@@ -27,7 +27,7 @@ export default function Jobs() {
   useEffect(() => {
     const fetchDataPosition = async () => {
       try {
-        const positionDataResponse = await PositionDataService.getAll(companyId, token.token);
+        const positionDataResponse = await PositionDataService.getAll(token.token);
         console.log('ini position data', positionDataResponse.data);
         setPositionDataList(positionDataResponse.data);
       } catch (error) {
@@ -41,7 +41,7 @@ export default function Jobs() {
   useEffect(() => {
     const fetchDataDepartment = async () => {
       try {
-        const departmentDataResponse = await DepartmentDataService.getAll(companyId, token.token);
+        const departmentDataResponse = await DepartmentDataService.getAll(token.token);
         console.log('ini department data', departmentDataResponse.data);
         setDepartmentList(departmentDataResponse.data);
       } catch (error) {
