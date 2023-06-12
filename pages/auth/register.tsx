@@ -8,6 +8,13 @@ import UserDataService from '../api/services/user.service';
 
 export default function Register() {
   const router = useRouter();
+  const [inputNameActive, setInputNameActive] = useState(false);
+  const [inputPhoneActive, setInputPhoneActive] = useState(false);
+  const [inputEmailActive, setInputEmailActive] = useState(false);
+  const [inputPswdActive, setInputPswdActive] = useState(false);
+  const [inputConfirmPswdActive, setInputConfirmPswdActive] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userData, setUserData] = useState<User>({
     name: '',
     email: '',
@@ -163,12 +170,16 @@ export default function Register() {
                     Email
                   </label>
                   <div
-                    className={`flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
+                    className={`${
+                      inputEmailActive ? 'outline outline-primary_blue drop-shadow-sm' : 'outline-none'
+                    } flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
                   >
                     <input
                       type="email"
                       name="email"
                       id="email"
+                      onFocus={() => setInputEmailActive(true)}
+                      onBlur={() => setInputEmailActive(false)}
                       placeholder="username@email.com"
                       className={`w-full bg-transparent  outline-none `}
                       value={userData.email}
@@ -181,17 +192,24 @@ export default function Register() {
                     Password
                   </label>
                   <div
-                    className={`flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
+                    className={`${
+                      inputPswdActive ? 'outline outline-primary_blue drop-shadow-sm' : 'outline-none'
+                    } flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
                   >
                     <input
-                      type="text"
+                      type={showPassword ? 'text' : 'password'}
                       name="password"
                       id="password"
+                      onFocus={() => setInputPswdActive(true)}
+                      onBlur={() => setInputPswdActive(false)}
                       placeholder="Password"
                       className={`w-full bg-transparent  outline-none `}
                       value={userData.password}
                       onChange={handlePasswordInputChange}
                     />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className={``}>
+                      {showPassword ? 'Hide' : 'Show'}
+                    </button>
                   </div>
                 </div>
                 <div className={`mb-[56px]`}>
@@ -202,17 +220,24 @@ export default function Register() {
                     Ketik Ulang Password
                   </label>
                   <div
-                    className={`flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
+                    className={`${
+                      inputConfirmPswdActive ? 'outline outline-primary_blue drop-shadow-sm' : 'outline-none'
+                    } flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
                   >
                     <input
-                      type="text"
+                      type={showConfirmPassword ? 'text' : 'password'}
                       name="confirm-password"
                       id="confirm-password"
+                      onFocus={() => setInputConfirmPswdActive(true)}
+                      onBlur={() => setInputConfirmPswdActive(false)}
                       placeholder="Password"
                       className={`w-full bg-transparent  outline-none `}
                       onChange={handleConfirmPasswordInputChange}
                       value={confirmPassword}
                     />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className={``}>
+                      {showConfirmPassword ? 'Hide' : 'Show'}
+                    </button>
                   </div>
                   <p className={` ${error ? 'visible' : 'invisible'} text-red-500 text-xs italic mb-4 h-3`}>{error}</p>
                 </div>
@@ -224,12 +249,16 @@ export default function Register() {
                     Nama Lengkap
                   </label>
                   <div
-                    className={`flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
+                    className={`${
+                      inputNameActive ? 'outline outline-primary_blue drop-shadow-sm' : 'outline-none'
+                    } flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
                   >
                     <input
                       type="text"
                       name="full-name"
                       id="full-name"
+                      onFocus={() => setInputNameActive(true)}
+                      onBlur={() => setInputNameActive(false)}
                       placeholder="Tuliskan nama lengkap, contoh: Andreas Borjous"
                       className={`w-full bg-transparent  outline-none `}
                       value={userData.name}
@@ -259,12 +288,16 @@ export default function Register() {
                     Nomor Handphone
                   </label>
                   <div
-                    className={`flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
+                    className={`${
+                      inputPhoneActive ? 'outline outline-primary_blue drop-shadow-sm' : 'outline-none'
+                    } flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
                   >
                     <input
                       type="text"
                       name="phone-number"
                       id="phone-number"
+                      onFocus={() => setInputPhoneActive(true)}
+                      onBlur={() => setInputPhoneActive(false)}
                       placeholder="+62xxxxxxxx"
                       className={`w-full bg-transparent  outline-none `}
                       value={userData.phone}

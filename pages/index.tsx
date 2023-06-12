@@ -13,19 +13,21 @@ import PositionDataService from './api/services/position.service';
 import DepartmentDataService from './api/services/department.service';
 import { useSelector } from 'react-redux';
 import Department from '@/interfaces/Department';
+import SelectItems from '@/components/SelectItems';
 const Link = dynamic(() => import('next/link'));
 
 export default function Home() {
-  const companyId = useSelector((state: any) => state.login.companyId);
   const token = useSelector((state: any) => state.auth.token);
   const [positionDataList, setpositionDataList] = useState<PositionData[]>([]);
   const [departmentDataList, setdepartmentDataList] = useState<Department[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [isDelete, setIsDelete] = useState(false);
-  const [positionChecked, setPositionChecked] = useState(0);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [isDelete, setIsDelete] = useState<boolean>(false);
+  const [positionChecked, setPositionChecked] = useState<number>(0);
   const [idPositionChecked, setIdPositionChecked] = useState<string[]>([]);
-  const [isLoadingPosition, setIsLoadingPosition] = useState(false);
+  const [isLoadingPosition, setIsLoadingPosition] = useState<boolean>(false);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('all');
+  const [idSelectedDepartment, setIdSelectedDepartment] = useState<string>('');
 
   useEffect(() => {
     const fetchDataPosition = async () => {
@@ -33,7 +35,6 @@ export default function Home() {
       try {
         const responsePosition = await PositionDataService.getAll(token.token);
         const responseDepartment = await DepartmentDataService.getAll(token.token);
-        console.log('data department', responseDepartment.data);
         setpositionDataList(responsePosition.data);
         setdepartmentDataList(responseDepartment.data);
         setIsLoadingPosition(false);
@@ -43,7 +44,7 @@ export default function Home() {
       }
     };
     fetchDataPosition();
-  }, [companyId, token]);
+  }, [token]);
 
   const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -146,14 +147,29 @@ export default function Home() {
   };
 
   const filteredData = useMemo(() => {
+    const departmentSearch = departmentDataList.find((department) =>
+      department.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )?._id;
     if (!positionDataList) return [];
     return positionDataList.filter((positionData: any) => {
       return (
-        positionData.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        positionData.departmentId?.toLowerCase().includes(searchTerm.toLowerCase())
+        positionData.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        positionData.department === departmentSearch
       );
     });
-  }, [positionDataList, searchTerm]);
+  }, [positionDataList, departmentDataList, searchTerm]);
+
+  const handleSelectDepartment = async (selectedDepartment: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedDepartment(selectedDepartment.target.value);
+    if (selectedDepartment.target.value === 'all') {
+      setIdSelectedDepartment('');
+    } else {
+      const id =
+        departmentDataList.find((departmentData: Department) => departmentData.name === selectedDepartment.target.value)
+          ?._id ?? '';
+      setIdSelectedDepartment(id);
+    }
+  };
 
   return (
     <Layout>
@@ -170,7 +186,6 @@ export default function Home() {
                 onClick={handleCheckedDelete}
                 className={`w-[181px] h-[47px] bg-semantic_red_500 text-primary_white rounded flex  items-center px-[10px] py-[14px] gap-[6px] justify-center hover:text-semantic_red_500 hover:bg-primary_white border border-semantic_red_500`}
               >
-                {' '}
                 <BsFillTrashFill /> Delete Position
               </button>
             ) : (
@@ -191,13 +206,19 @@ export default function Home() {
               <div className={`flex`}>{/* variabel */} 1 out of 2 position scored</div>
               <div className={`flex gap-6 text-lg`}>
                 <div className={`flex items-center gap-[6px]`}>
-                  <p>All departments</p>
-                </div>
-                <div className={`flex items-center gap-[6px]`}>
-                  <p>All positions</p>
-                </div>
-                <div className={`flex items-center gap-[6px]`}>
-                  <p>No group applied </p>
+                  <select
+                    id="department-filter"
+                    className={`bg-transparent outline-none`}
+                    value={selectedDepartment}
+                    onChange={handleSelectDepartment}
+                  >
+                    <option value="all">All Departments</option>
+                    {departmentDataList.map((departmentData) => (
+                      <option key={departmentData._id} value={departmentData.name}>
+                        {departmentData.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
@@ -209,7 +230,11 @@ export default function Home() {
                   </div>
                 ) : (
                   positionDataList
-                    .filter((position) => !position.isTrash.isInTrash)
+                    .filter(
+                      (position) =>
+                        !position.isTrash.isInTrash &&
+                        (idSelectedDepartment ? position.department === idSelectedDepartment : true)
+                    )
                     .map((positionData: PositionData) => (
                       <div key={positionData._id} className={`flex gap-[32px] items-center `}>
                         <input
@@ -316,7 +341,7 @@ export default function Home() {
       ) : (
         <>
           <section
-            className={`bg-light_neutral_200 flex gap-[230px]   w-full py-[18px] px-[31px] border-[1px] border-mid_neutral_100`}
+            className={` bg-light_neutral_200 flex gap-[230px]   w-full py-[18px] px-[31px] border-[1px] border-mid_neutral_100`}
           >
             <div className={`w-[80%] flex justify-end`}>
               <form
@@ -355,7 +380,7 @@ export default function Home() {
               </button>
             </div>
           </section>
-          <section className={`pt-[59px]`}>
+          <section className={`pt-[50px]`}>
             <div
               className={` ${
                 isSearching ? 'hidden' : 'visible'
@@ -403,13 +428,19 @@ export default function Home() {
               <div className={`flex`}>{/* variabel */} 1 out of 2 position scored</div>
               <div className={`flex gap-6 text-lg`}>
                 <div className={`flex items-center gap-[6px]`}>
-                  <p>All departments</p>
-                </div>
-                <div className={`flex items-center gap-[6px]`}>
-                  <p>All positions</p>
-                </div>
-                <div className={`flex items-center gap-[6px]`}>
-                  <p>No group applied </p>
+                  <select
+                    id="department-filter"
+                    className={`bg-transparent outline-none`}
+                    value={selectedDepartment}
+                    onChange={handleSelectDepartment}
+                  >
+                    <option value="all">All Departments</option>
+                    {departmentDataList.map((departmentData) => (
+                      <option key={departmentData._id} value={departmentData.name}>
+                        {departmentData.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
@@ -418,7 +449,11 @@ export default function Home() {
                 <div className={`flex flex-col gap-6`}>
                   {Array.isArray(filteredData) &&
                     filteredData
-                      .filter((positionData) => !positionData.isTrash.isInTrash)
+                      .filter(
+                        (positionData) =>
+                          !positionData.isTrash.isInTrash &&
+                          (idSelectedDepartment ? positionData.department === idSelectedDepartment : true)
+                      )
                       .map((positionData: PositionData) => (
                         <div key={positionData._id}>
                           <div className={`flex flex-col gap-8 bg-primary_white h-[262.27px] rounded-md py-6 px-8`}>
@@ -506,7 +541,11 @@ export default function Home() {
                 <div className={`flex flex-col gap-6`}>
                   {Array.isArray(positionDataList) &&
                     positionDataList
-                      .filter((positionData) => !positionData.isTrash.isInTrash)
+                      .filter(
+                        (positionData) =>
+                          !positionData.isTrash.isInTrash &&
+                          (idSelectedDepartment ? positionData.department === idSelectedDepartment : true)
+                      )
                       .map((positionData: PositionData) => (
                         <div key={positionData._id}>
                           <div className={`flex flex-col gap-8 bg-primary_white h-[262.27px] rounded-md py-6 px-8`}>

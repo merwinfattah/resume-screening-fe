@@ -11,6 +11,8 @@ export default function Login() {
   const router = useRouter();
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
+  const [inputEmailActive, setInputEmailActive] = useState(false);
+  const [inputPswdActive, setInputPswdActive] = useState(false);
   const [userDataLogin, setUserDataLogin] = useState({
     email: '',
     password: '',
@@ -82,11 +84,15 @@ export default function Login() {
                   Email
                 </label>
                 <div
-                  className={`flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
+                  className={`${
+                    inputEmailActive ? 'outline outline-primary_blue drop-shadow-sm' : 'outline-none'
+                  } flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
                 >
                   <input
                     type="email"
                     name="email"
+                    onFocus={() => setInputEmailActive(true)}
+                    onBlur={() => setInputEmailActive(false)}
                     id="email"
                     placeholder="username@email.com"
                     className={`w-full bg-transparent  outline-none `}
@@ -104,14 +110,18 @@ export default function Login() {
                   </a>
                 </div>
                 <div
-                  className={`flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
+                  className={`${
+                    inputPswdActive ? 'outline outline-primary_blue drop-shadow-sm' : 'outline-none'
+                  }  flex  w-full h-[44px] items-center px-[16px]  border border-dark_neutral_200 rounded-[6px] `}
                 >
                   <input
                     type="password"
                     name="password"
+                    onFocus={() => setInputPswdActive(true)}
+                    onBlur={() => setInputPswdActive(false)}
                     id="password"
                     placeholder="Password"
-                    className={`w-full bg-transparent  outline-none `}
+                    className={`w-full bg-transparent  outline-none`}
                     onChange={handlePasswordInputChange}
                   />
                 </div>

@@ -38,7 +38,6 @@ export default function TalentPool() {
   const [idCandidateChecked, setIdCandidateChecked] = useState<string[]>([]);
   const [selectAllCandidates, setSelectAllCandidates] = useState<boolean>(false);
   const [showButtonRescore, setShowButtonRescore] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
   const [visibleTags, setVisibleTags] = useState(10);
   const [scoringLoading, setScoringLoading] = useState(false);
   const [candidateDisplayLoading, setCandidateDisplayLoading] = useState(false);
@@ -101,18 +100,20 @@ export default function TalentPool() {
   const skills = candidateDataList.find(
     (candidate: Candidate) => candidate._id === activeCandidateIndex && (candidate.score ?? 0 > 0)
   )?.skills;
-
   const handleExpandTags = () => {
-    if (!isExpanded && skills) {
-      const remainingTags = (skills.length || 0) - 10;
-      setVisibleTags(10 + Math.min(remainingTags, 10));
-    } else {
-      setVisibleTags(10);
+    if (skills && skills.length > 10) {
+      if (visibleTags === skills.length) {
+        setVisibleTags(10); // Reset visibleTags to the initial value of 10 when collapsing
+      } else {
+        const remainingTags = skills.length - visibleTags; // Calculate the remaining tags when expanding
+        const additionalTags = Math.min(remainingTags, 10); // Calculate the number of additional tags to show (up to 10)
+        setVisibleTags(visibleTags + additionalTags); // Update the visibleTags state by adding the additionalTags
+      }
     }
-    setIsExpanded(!isExpanded);
   };
 
   const visibleSkills = skills ? skills.slice(0, visibleTags) : [];
+  const remainingTags = skills ? skills.length - visibleTags : 0;
   useEffect(() => {
     if (filteredPositionDataList.length > 0 && activeIndex === null) {
       const firstItemId = filteredPositionDataList[0]._id;
@@ -342,9 +343,11 @@ export default function TalentPool() {
   };
 
   const handleScoreCandidate = async () => {
+    console.log('ini id', activeIndex);
+    console.log('token', token.token);
     setScoringLoading(true);
     try {
-      const url = `https://c35a-36-65-244-49.ngrok-free.app/resume_scoring?positionId=${activeIndex}&token_value=${token.token}&companyId=${companyId}`;
+      const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/resume_scoring?positionId=${activeIndex}&token_value=${token.token}`;
 
       const scoringResponse = await fetch(url, {
         method: 'POST',
@@ -356,6 +359,7 @@ export default function TalentPool() {
       }
       setActiveFilteredListCandidate('filtered');
       setScoringLoading(false);
+      window.location.reload();
     } catch (error) {
       console.log(error);
       setScoringLoading(false);
@@ -517,7 +521,7 @@ export default function TalentPool() {
                       <p className={`font-medium`}>CV yang tersaring</p>
                       {showButtonRescore && (
                         <div
-                          className={`rounded-[6px] z-20 py-[24px] px-[16px] modal-notification absolute top-[60px] right-[-85px] bg-primary_white border flex flex-col justify-center items-center`}
+                          className={`rounded-[6px] z-20 py-[24px] px-[16px] modal-notification absolute top-[60px] right-0 bg-primary_white border flex flex-col justify-center items-center`}
                         >
                           <h2 className={`text-[18px]`}>Nilai Ulang CV?</h2>
                           <p className={`font-normal`}>Terdeksi CV yang baru yang ditambakan</p>
@@ -525,7 +529,13 @@ export default function TalentPool() {
                             onClick={handleScoreCandidate}
                             className={`mt-[16px] flex justify-center items-center border hover:border-primary_blue bg-primary_blue hover:bg-primary_white text-primary_white hover:text-primary_blue rounded w-[177px] h-[47px]`}
                           >
-                            Nilai Ulang CV
+                            {scoringLoading ? (
+                              <div className={`flex justify-center items-center`}>
+                                <div className={`animate-spin rounded-full h-6 w-6 border-b-2 border-primary_blue`} />
+                              </div>
+                            ) : (
+                              <p>Nilai Semua CV</p>
+                            )}
                           </button>
                         </div>
                       )}
@@ -845,7 +855,7 @@ export default function TalentPool() {
                                         onClick={handleExpandTags}
                                         style={{ borderRadius: '32px', fontSize: '14px' }}
                                       >
-                                        {isExpanded ? 'Less' : '...'}
+                                        {remainingTags > 0 ? '...' : 'Less'}
                                       </Tag>
                                     )}
                                   </Space>

@@ -5,19 +5,27 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import CompanyDataService from '../pages/api/services/company.service';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '@/redux/store/reducers/loginReducer';
+import { clearToken } from '@/redux/store/reducers/authReducer';
 
 export default function Navbar(): JSX.Element {
   const router = useRouter();
-  const companyId = useSelector((state: any) => state.login.companyId);
+  const dispatch = useDispatch();
+  const { userName, email, companyId } = useSelector((state: any) => state.login);
   const [companyData, setCompanyData] = useState({
     name: '',
     address: '',
   });
+  const [isShow, setIsShow] = useState(false);
+  const handleHoverUser = () => {
+    setIsShow(!isShow);
+  };
+
   useEffect(() => {
     const fetchCompanyData = async () => {
       try {
         const response = await CompanyDataService.get(companyId);
-        console.log('ini company', response);
         const { name, address } = response.data;
         setCompanyData({ name, address });
       } catch (error) {
@@ -27,6 +35,12 @@ export default function Navbar(): JSX.Element {
     fetchCompanyData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    dispatch(clearToken());
+    router.push('/auth/login');
+  };
 
   return (
     <nav className={`bg-primary_blue`}>
@@ -106,7 +120,31 @@ export default function Navbar(): JSX.Element {
         </div>
         <div className={`flex items-center gap-[18px]`}>
           <IoSettingsOutline className={`text-[32px]`} />
-          <div className={` bg-primary_white w-8 h-8 rounded-full`}>{/*User*/}</div>
+          <div className={` bg-primary_white w-8 h-8 rounded-full`} onClick={handleHoverUser}>
+            {/*User*/}
+          </div>
+          {isShow && (
+            <div
+              className={`flex flex-col gap-[20px] absolute top-[60px] right-[20px] bg-primary_white w-auto h-auto p-3 z-50 rounded drop-shadow-lg`}
+            >
+              <div className={`flex gap-[20px] text-dark_neutral_300`}>
+                <div>
+                  <p className={`font-semibold`}>Username</p>
+                  <p className={`font-semibold`}>Email</p>
+                </div>
+                <div>
+                  <p>{userName}</p>
+                  <p>{email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className={`w-full h-[40px] bg-primary_blue border hover:bg-primary_white hover:border-primary_blue text-primary_white hover:text-primary_blue rounded-[32px]`}
+              >
+                Keluar
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </nav>

@@ -53,6 +53,8 @@ export default function EditPosition() {
       try {
         const responsePosition = await PositionDataService.get(pssId, token.token);
         setPositionData(responsePosition.data);
+        setShowDescription(responsePosition.data.description);
+        setShowQualification(responsePosition.data.qualification);
       } catch (error) {
         console.log(error);
       }
@@ -190,7 +192,7 @@ export default function EditPosition() {
       formData.append('file', file, file.name);
 
       try {
-        const response = await fetch('https://4acb-182-253-194-76.ngrok-free.app/jobdesc_reader', {
+        const response = await fetch('http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/jobdesc_reader', {
           method: 'POST',
           body: formData,
         });
