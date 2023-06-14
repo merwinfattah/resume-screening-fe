@@ -31,9 +31,6 @@ const SelectItems: React.FC<Props> = ({
 }) => {
   const isSearchable = searchable === false ? false : true;
   const defaultValue = options.find((option) => option.value === value);
-  console.log('ini value', defaultValue);
-  console.log('ini options', options);
-  console.log('ini value2', value);
   const customStyles = {
     control: (provided: any, state: any) => ({
       ...provided,

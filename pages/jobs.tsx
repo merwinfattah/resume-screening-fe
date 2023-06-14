@@ -23,6 +23,7 @@ export default function Jobs() {
   const [isDelete, setIsDelete] = useState(false);
   const [departmentChecked, setDepartmentChecked] = useState(0);
   const [idDepartmentChecked, setIdDepartmentChecked] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
     const fetchDataPosition = async () => {
@@ -42,7 +43,6 @@ export default function Jobs() {
     const fetchDataDepartment = async () => {
       try {
         const departmentDataResponse = await DepartmentDataService.getAll(token.token);
-        console.log('ini department data', departmentDataResponse.data);
         setDepartmentList(departmentDataResponse.data);
       } catch (error) {
         console.error('Error fetching department data:', error);
@@ -69,11 +69,18 @@ export default function Jobs() {
     }
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deletePositionId, setDeletePositionId] = useState('');
-  const [deletePosition, setDeletePosition] = useState('');
-  const [deleteDepartment, setDeleteDepartment] = useState('');
-  const [isCheckedDelete, setIsCheckedDelete] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [deletePositionId, setDeletePositionId] = useState<string>('');
+  const [deletePosition, setDeletePosition] = useState<string>('');
+  const [deleteDepartment, setDeleteDepartment] = useState<string>('');
+  const [isCheckedDelete, setIsCheckedDelete] = useState<boolean>(false);
+  const departmentOptions = departmentList.map((department: Department) => {
+    return {
+      value: department.name,
+      label: department.name,
+    };
+  });
+  const departmentOptionsJson = JSON.stringify(departmentOptions);
   const showModal = (id: string, position: string, department: string) => {
     setIsModalOpen(true);
     setDeletePosition(position);
@@ -162,15 +169,11 @@ export default function Jobs() {
     let newDepartmentList = [...departmentList];
     newDepartmentList = newDepartmentList.filter((department) => !idDepartmentChecked.includes(department._id));
     setDepartmentList(newDepartmentList);
-    console.log('ini id yang mau dihapus', idDepartmentChecked);
     let data = {
       ids: [...idDepartmentChecked],
     };
-    console.log('ini data yang mau dihapus', data);
-    console.log('ini token', token.token);
     try {
-      const deleteDepartment = await DepartmentDataService.delete(data, token.token);
-      console.log(deleteDepartment.data);
+      await DepartmentDataService.delete(data, token.token);
     } catch (error) {
       console.error('Error deleting department:', error);
     } finally {
@@ -179,6 +182,10 @@ export default function Jobs() {
       setIsCheckedDelete(false);
       setIsModalOpen(false);
     }
+  };
+
+  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
   };
 
   return (
@@ -237,7 +244,9 @@ export default function Jobs() {
                             ).length > 0 ? (
                               <>
                                 <Link
-                                  href={`/jobs/add-new-position?departmentName=${encodeURIComponent(department.name)}`}
+                                  href={`/jobs/add-new-position?departmentName=${encodeURIComponent(
+                                    department.name
+                                  )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                                   className={`text-[31px] font-thin`}
                                 >
                                   <IoAddCircleOutline />
@@ -256,7 +265,9 @@ export default function Jobs() {
                               </>
                             ) : (
                               <Link
-                                href={`/jobs/add-new-position?departmentName=${encodeURIComponent(department.name)}`}
+                                href={`/jobs/add-new-position?departmentName=${encodeURIComponent(
+                                  department.name
+                                )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                                 className={`flex w-[198.4px] h-[31px] py-[6px] justify-center rounded-[68px] font-bold items-center gap-[10px] border border-dark_neutral_400 text-dark_neutral_400`}
                               >
                                 <GrAdd />
@@ -310,8 +321,10 @@ export default function Jobs() {
                                       href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
                                         position._id
                                       )}&selectedDepartment=${encodeURIComponent(
-                                        position.department
-                                      )}&selectedEducation=${encodeURIComponent(position.education)}`}
+                                        department.name
+                                      )}&selectedEducation=${encodeURIComponent(
+                                        position.education
+                                      )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                                       className={`flex justify-center items-center w-[101px] h-[29px] rounded-[68px]  border border-primary_blue text-primary_blue`}
                                     >
                                       Edit Posisi
@@ -341,6 +354,8 @@ export default function Jobs() {
                 <input
                   placeholder="Cari department, posisi"
                   className={`  outline-none mx-[10px] my-[12.5px] bg-light_neutral_200 w-full`}
+                  onChange={handleSearchChange}
+                  value={searchTerm}
                 />
                 <button
                   type="submit"
@@ -363,7 +378,6 @@ export default function Jobs() {
                 onClick={handleNavigateDelete}
                 className={`w-[181px] h-[47px] bg-semantic_red_500 text-primary_white rounded flex  items-center  gap-[6px] justify-center hover:text-semantic_red_500 hover:bg-primary_white border border-semantic_red_500`}
               >
-                {' '}
                 <BsFillTrashFill />
                 Hapus Departemen
               </button>
@@ -388,116 +402,124 @@ export default function Jobs() {
             </div>
             <h2 className={`font-bold mt-[32px]`}>DAFTAR DEPARTEMEN</h2>
             <div className={` mt-6 flex flex-col gap-[18px]`}>
-              {departmentList.map((department) => (
-                <Disclosure key={department._id}>
-                  {({ open }) => (
-                    <>
-                      <div>
-                        <div
-                          className={`flex justify-between px-8 pb-[21px] pt-[22px] w-[1148px] h-[72px] z-10 mb-1 rounded-md ${
-                            open ? ' rounded-b-none  drop-shadow-lg' : ''
-                          } bg-light_neutral_200`}
-                        >
-                          <EditorInput
-                            initialValue={department?.name || ''}
-                            onValueChange={(newName) => handleNameChange(newName, department._id)}
-                          />
-                          <div className={'flex gap-[18px] items-center'}>
-                            {positionDataList.filter(
-                              (position) =>
-                                position.department === department._id && position.isTrash.isInTrash === false
-                            ).length > 0 ? (
-                              <>
-                                <Link
-                                  href={`/jobs/add-new-position?departmentName=${encodeURIComponent(department.name)}`}
-                                  className={`text-[31px] font-thin`}
-                                >
-                                  <IoAddCircleOutline />
-                                </Link>
-                                <div
-                                  className={`flex justify-center items-center w-[181px] h-[31px] rounded-[68px]  bg-semantic_blue_100`}
-                                >
-                                  {
-                                    positionDataList.filter(
-                                      (position) =>
-                                        position.department === department._id && position.isTrash.isInTrash === false
-                                    ).length
-                                  }{' '}
-                                  posisi
-                                </div>
-                              </>
-                            ) : (
-                              <Link
-                                href={`/jobs/add-new-position?departmentName=${encodeURIComponent(department.name)}`}
-                                className={`flex w-[198.4px] h-[31px] py-[6px] justify-center rounded-[68px] font-bold items-center gap-[10px] border border-dark_neutral_400 text-dark_neutral_400`}
-                              >
-                                <GrAdd />
-                                Tambah Posisi
-                              </Link>
-                            )}
-                            <Disclosure.Button className={` text-[30px] `}>
-                              <IoMdArrowDropdown className={`${open ? 'rotate-180 transform' : ''}`} />
-                            </Disclosure.Button>
-                          </div>
-                        </div>
-                        <Transition
-                          enter="transition ease-out duration-100 transform"
-                          enterFrom="opacity-0 scale-95"
-                          enterTo="opacity-100 scale-100"
-                          leave="transition ease-in duration-75 transform"
-                          leaveFrom="opacity-100 scale-100"
-                          leaveTo="opacity-0 scale-95"
-                        >
-                          <Disclosure.Panel
-                            className={`w-[1148px] flex flex-col gap-[18px] justify-center pt-[32px] pb-[29px] z-0 bg-light_neutral_200 rounded-b-lg rounded-l-md ${
-                              open ? 'rounded-t-none' : ''
-                            }`}
+              {departmentList
+                .filter((department) => department.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                .map((department) => (
+                  <Disclosure key={department._id}>
+                    {({ open }) => (
+                      <>
+                        <div>
+                          <div
+                            className={`flex justify-between px-8 pb-[21px] pt-[22px] w-[1148px] h-[72px] z-10 mb-1 rounded-md ${
+                              open ? ' rounded-b-none  drop-shadow-lg' : ''
+                            } bg-light_neutral_200`}
                           >
-                            {positionDataList
-                              .filter(
+                            <EditorInput
+                              initialValue={department?.name || ''}
+                              onValueChange={(newName) => handleNameChange(newName, department._id)}
+                            />
+                            <div className={'flex gap-[18px] items-center'}>
+                              {positionDataList.filter(
                                 (position) =>
-                                  position.department === department._id && position.isTrash.isInTrash !== true
-                              )
-                              .map((position: PositionData) => (
-                                <div key={position._id} className={`flex justify-center gap-4`}>
-                                  <button
-                                    className={` text-2xl text-semantic_red_500`}
-                                    onClick={() => showModal(position._id, position.name, position.department)}
+                                  position.department === department._id && position.isTrash.isInTrash === false
+                              ).length > 0 ? (
+                                <>
+                                  <Link
+                                    href={`/jobs/add-new-position?departmentName=${encodeURIComponent(
+                                      department.name
+                                    )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
+                                    className={`text-[31px] font-thin`}
                                   >
-                                    <BsFillTrashFill />
-                                  </button>
+                                    <IoAddCircleOutline />
+                                  </Link>
                                   <div
-                                    className={`flex items-center justify-between py-3 px-3 rounded-md text-dark_neutral_300 bg-light_neutral_400 w-[1037px] h-[53px]`}
+                                    className={`flex justify-center items-center w-[181px] h-[31px] rounded-[68px]  bg-semantic_blue_100`}
                                   >
-                                    <div className={`font-semibold`}>{position.name}</div>
-                                    <div className={`flex items-center gap-[18px]`}>
-                                      <p>
-                                        <span className={`font-semibold`}>{position.qualifiedCandidates}</span> Kandidat
-                                        Terkualifikasi
-                                      </p>
-                                      <div className={` text-mid_neutral_400  font-semibold`}>|</div>
+                                    {
+                                      positionDataList.filter(
+                                        (position) =>
+                                          position.department === department._id && position.isTrash.isInTrash === false
+                                      ).length
+                                    }{' '}
+                                    posisi
+                                  </div>
+                                </>
+                              ) : (
+                                <Link
+                                  href={`/jobs/add-new-position?departmentName=${encodeURIComponent(
+                                    department.name
+                                  )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
+                                  className={`flex w-[198.4px] h-[31px] py-[6px] justify-center rounded-[68px] font-bold items-center gap-[10px] border border-dark_neutral_400 text-dark_neutral_400`}
+                                >
+                                  <GrAdd />
+                                  Tambah Posisi
+                                </Link>
+                              )}
+                              <Disclosure.Button className={` text-[30px] `}>
+                                <IoMdArrowDropdown className={`${open ? 'rotate-180 transform' : ''}`} />
+                              </Disclosure.Button>
+                            </div>
+                          </div>
+                          <Transition
+                            enter="transition ease-out duration-100 transform"
+                            enterFrom="opacity-0 scale-95"
+                            enterTo="opacity-100 scale-100"
+                            leave="transition ease-in duration-75 transform"
+                            leaveFrom="opacity-100 scale-100"
+                            leaveTo="opacity-0 scale-95"
+                          >
+                            <Disclosure.Panel
+                              className={`w-[1148px] flex flex-col gap-[18px] justify-center pt-[32px] pb-[29px] z-0 bg-light_neutral_200 rounded-b-lg rounded-l-md ${
+                                open ? 'rounded-t-none' : ''
+                              }`}
+                            >
+                              {positionDataList
+                                .filter(
+                                  (position) =>
+                                    position.department === department._id && position.isTrash.isInTrash !== true
+                                )
+                                .map((position: PositionData) => (
+                                  <div key={position._id} className={`flex justify-center gap-4`}>
+                                    <button
+                                      className={` text-2xl text-semantic_red_500`}
+                                      onClick={() => showModal(position._id, position.name, position.department)}
+                                    >
+                                      <BsFillTrashFill />
+                                    </button>
+                                    <div
+                                      className={`flex items-center justify-between py-3 px-3 rounded-md text-dark_neutral_300 bg-light_neutral_400 w-[1037px] h-[53px]`}
+                                    >
+                                      <div className={`font-semibold`}>{position.name}</div>
+                                      <div className={`flex items-center gap-[18px]`}>
+                                        <p>
+                                          <span className={`font-semibold`}>{position.qualifiedCandidates}</span>{' '}
+                                          Kandidat Terkualifikasi
+                                        </p>
+                                        <div className={` text-mid_neutral_400  font-semibold`}>|</div>
 
-                                      <Link
-                                        href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
-                                          position._id
-                                        )}&selectedDepartment=${encodeURIComponent(
-                                          position.department
-                                        )}&selectedEducation=${encodeURIComponent(position.education)}`}
-                                        className={`flex justify-center items-center w-[101px] h-[29px] rounded-[68px]  border border-primary_blue text-primary_blue`}
-                                      >
-                                        Edit Posisi
-                                      </Link>
+                                        <Link
+                                          href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
+                                            position._id
+                                          )}&selectedDepartment=${encodeURIComponent(
+                                            department.name
+                                          )}&selectedEducation=${encodeURIComponent(
+                                            position.education
+                                          )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
+                                          className={`flex justify-center items-center w-[101px] h-[29px] rounded-[68px]  border border-primary_blue text-primary_blue`}
+                                        >
+                                          Edit Posisi
+                                        </Link>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              ))}
-                          </Disclosure.Panel>
-                        </Transition>
-                      </div>
-                    </>
-                  )}
-                </Disclosure>
-              ))}
+                                ))}
+                            </Disclosure.Panel>
+                          </Transition>
+                        </div>
+                      </>
+                    )}
+                  </Disclosure>
+                ))}
             </div>
           </section>
         </>
@@ -517,7 +539,9 @@ export default function Jobs() {
           headline={`${
             isCheckedDelete
               ? 'Apa anda yakin?'
-              : `Delete "${deletePosition}" position on ${deleteDepartment} department?`
+              : `Delete "${deletePosition}" position on ${
+                  departmentList.find((department) => department._id === deleteDepartment)?.name
+                } department?`
           }`}
           content={`${
             isCheckedDelete

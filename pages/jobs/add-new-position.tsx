@@ -25,10 +25,11 @@ export default function AddNewPosition() {
   const [loading, setLoading] = useState(false);
   const [showDescription, setShowDescription] = useState('');
   const [showQualification, setShowQualification] = useState('');
-  const { departmentName } = router.query;
+  const { departmentName, departmentOptions } = router.query;
   const departmentNameQuery = Array.isArray(departmentName) ? '' : departmentName ?? '';
+  const initialDepartmentOptions = departmentOptions ? JSON.parse(departmentOptions as string) : [];
   const [positionData, setPositionData] = useState({
-    departmentId: departmentList.find((department) => department.name === departmentName)?._id ?? '',
+    departmentId: '',
     name: '',
     education: '',
     location: '',
@@ -42,19 +43,18 @@ export default function AddNewPosition() {
       try {
         const response = await DepartmentDataService.getAll(token.token);
         setDepartmentList(response.data);
+        setPositionData((prevState) => ({
+          ...prevState,
+          departmentId:
+            response.data.find((department: Department) => department.name === departmentNameQuery)?._id ?? '',
+        }));
       } catch (error) {
         console.log(error);
       }
     };
     fetchDepartmentList();
-  }, [companyId, token]);
-
-  const departmentOptions = departmentList.map((department: any) => {
-    return {
-      value: department.name,
-      label: department.name,
-    };
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, departmentNameQuery, token]);
 
   const handlePositionInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setPositionData((prevState) => ({
@@ -71,6 +71,7 @@ export default function AddNewPosition() {
   };
 
   const handleDepartmentInputChange = (selectedOption: any) => {
+    console.log('ini department yang dipilih', selectedOption.value);
     if (selectedOption) {
       setPositionData((prevState) => ({
         ...prevState,
@@ -113,11 +114,12 @@ export default function AddNewPosition() {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log(positionData);
     try {
       const response = await PositionDataService.create(positionData, token.token);
       console.log(response.data);
       setPositionData({
-        departmentId: departmentList.find((department) => department.name === departmentName)?._id ?? '',
+        departmentId: departmentList.find((department) => department.name === departmentNameQuery)?._id ?? '',
         name: '',
         education: '',
         location: '',
@@ -262,7 +264,7 @@ export default function AddNewPosition() {
                     </label>
                     <div className={`flex justify-between items-center mt-[18px] mb-2 `}>
                       <SelectItems
-                        options={departmentOptions}
+                        options={initialDepartmentOptions}
                         id="department"
                         inputName="department"
                         placeholder="Select Department, ex : Human Resource"

@@ -16,7 +16,6 @@ export default function Trash() {
   const [departmentList, setDepartmentList] = useState<Department[]>([]);
   const [positionDataList, setPositionDataList] = useState<PositionData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const [isRestore, setIsRestore] = useState(false);
   const [positionChecked, setPositionChecked] = useState(0);
@@ -120,15 +119,6 @@ export default function Trash() {
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
-  };
-
-  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (searchTerm.trim() === '') {
-      setIsSearching(false);
-    } else {
-      setIsSearching(true);
-    }
   };
 
   return (
@@ -272,7 +262,6 @@ export default function Trash() {
           >
             <div className={`w-[80%] flex justify-end`}>
               <form
-                onSubmit={handleSearchSubmit}
                 className={` flex items-center justify-between w-[676px] h-[47px] border border-dark_neutral_100  rounded`}
               >
                 <input
@@ -320,71 +309,73 @@ export default function Trash() {
               </div>
             </div>
             <div className={` mx-[32px] mt-8 flex flex-col gap-6`}>
-              {filteredDepartmentList.map((department: Department) => {
-                return (
-                  <div key={department._id}>
-                    <div className={`flex gap-[18px] items-center`}>
-                      <p className={`min-w-fit text-2xl font-bold text-dark_neutral_500`}>
-                        Departemen {department.name}
-                      </p>
-                      <hr className={`w-full h-[2px]  bg-dark_neutral_100`} />
-                    </div>
-                    <div className={`flex flex-wrap gap-8 mt-6`}>
-                      {positionDataList
-                        .filter(
-                          (position: PositionData) =>
-                            position.department === department._id && position.isTrash.isInTrash
-                        )
-                        .map((positionData: PositionData) => {
-                          const createdDate = new Date(department.createdDate);
-                          const formattedDate = createdDate.toLocaleDateString('id-ID', {
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric',
-                          });
+              {filteredDepartmentList
+                .filter((department) => department.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                .map((department: Department) => {
+                  return (
+                    <div key={department._id}>
+                      <div className={`flex gap-[18px] items-center`}>
+                        <p className={`min-w-fit text-2xl font-bold text-dark_neutral_500`}>
+                          Departemen {department.name}
+                        </p>
+                        <hr className={`w-full h-[2px]  bg-dark_neutral_100`} />
+                      </div>
+                      <div className={`flex flex-wrap gap-8 mt-6`}>
+                        {positionDataList
+                          .filter(
+                            (position: PositionData) =>
+                              position.department === department._id && position.isTrash.isInTrash
+                          )
+                          .map((positionData: PositionData) => {
+                            const createdDate = new Date(department.createdDate);
+                            const formattedDate = createdDate.toLocaleDateString('id-ID', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                            });
 
-                          return (
-                            <div
-                              key={positionData._id}
-                              className={`flex flex-col gap-6  w-[440px] h-[308px]  bg-light_neutral_200 rounded p-6 `}
-                            >
-                              <div>
-                                <h2 className={`font-semibold text-2xl text-primary_dark`}>{positionData.name}</h2>
-                                <p className={`font-normal text-dark_neutral_100 mt-3 `}>
-                                  Ditambahkan pada tanggal:{' '}
-                                  <span className={`font-semibold text-dark_neutral_400`}>{formattedDate}</span>
-                                </p>
-                              </div>
-                              <div className={` grid  gap-3`}>
-                                <div
-                                  className={`w-[392px] h-[35px] flex justify-between bg-light_neutral_300 border border-light_neutral_600 p-2 rounded-sm`}
-                                >
-                                  <p className={`text-dark_neutral_300`}>Uploaded CV</p>
-                                  <p className={`text-primary_dark font-semibold`}>{positionData.uploadedCV}</p>
-                                </div>
-                                <div
-                                  className={`w-[392px] h-[35px] flex justify-between bg-light_neutral_300 border border-light_neutral_600 p-2 rounded-sm`}
-                                >
-                                  <p className={`text-dark_neutral_300`}>Filtered CV</p>
-                                  <p className={`text-primary_dark font-semibold`}>{positionData.filteredCV}</p>
-                                </div>
-
-                                <div
-                                  className={`w-[392px] h-[35px] flex justify-between bg-light_neutral_300 border border-light_neutral_600 p-2 rounded-sm`}
-                                >
-                                  <p className={`text-dark_neutral_300`}>Qualified Candidates</p>
-                                  <p className={`text-primary_dark font-semibold`}>
-                                    {positionData.qualifiedCandidates}
+                            return (
+                              <div
+                                key={positionData._id}
+                                className={`flex flex-col gap-6  w-[440px] h-[308px]  bg-light_neutral_200 rounded p-6 `}
+                              >
+                                <div>
+                                  <h2 className={`font-semibold text-2xl text-primary_dark`}>{positionData.name}</h2>
+                                  <p className={`font-normal text-dark_neutral_100 mt-3 `}>
+                                    Ditambahkan pada tanggal:{' '}
+                                    <span className={`font-semibold text-dark_neutral_400`}>{formattedDate}</span>
                                   </p>
                                 </div>
+                                <div className={` grid  gap-3`}>
+                                  <div
+                                    className={`w-[392px] h-[35px] flex justify-between bg-light_neutral_300 border border-light_neutral_600 p-2 rounded-sm`}
+                                  >
+                                    <p className={`text-dark_neutral_300`}>Uploaded CV</p>
+                                    <p className={`text-primary_dark font-semibold`}>{positionData.uploadedCV}</p>
+                                  </div>
+                                  <div
+                                    className={`w-[392px] h-[35px] flex justify-between bg-light_neutral_300 border border-light_neutral_600 p-2 rounded-sm`}
+                                  >
+                                    <p className={`text-dark_neutral_300`}>Filtered CV</p>
+                                    <p className={`text-primary_dark font-semibold`}>{positionData.filteredCV}</p>
+                                  </div>
+
+                                  <div
+                                    className={`w-[392px] h-[35px] flex justify-between bg-light_neutral_300 border border-light_neutral_600 p-2 rounded-sm`}
+                                  >
+                                    <p className={`text-dark_neutral_300`}>Qualified Candidates</p>
+                                    <p className={`text-primary_dark font-semibold`}>
+                                      {positionData.qualifiedCandidates}
+                                    </p>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           </section>
         </>

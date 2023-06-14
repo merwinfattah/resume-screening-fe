@@ -13,7 +13,7 @@ import PositionDataService from './api/services/position.service';
 import DepartmentDataService from './api/services/department.service';
 import { useSelector } from 'react-redux';
 import Department from '@/interfaces/Department';
-import SelectItems from '@/components/SelectItems';
+import CandidateDataService from './api/services/candidate.service';
 const Link = dynamic(() => import('next/link'));
 
 export default function Home() {
@@ -28,6 +28,8 @@ export default function Home() {
   const [isLoadingPosition, setIsLoadingPosition] = useState<boolean>(false);
   const [selectedDepartment, setSelectedDepartment] = useState<string>('all');
   const [idSelectedDepartment, setIdSelectedDepartment] = useState<string>('');
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadingId, setUploadingId] = useState<string>('');
 
   useEffect(() => {
     const fetchDataPosition = async () => {
@@ -45,6 +47,14 @@ export default function Home() {
     };
     fetchDataPosition();
   }, [token]);
+
+  const departmentOptions = departmentDataList.map((department: Department) => {
+    return {
+      value: department.name,
+      label: department.name,
+    };
+  });
+  const departmentOptionsJson = JSON.stringify(departmentOptions);
 
   const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -171,6 +181,63 @@ export default function Home() {
     }
   };
 
+  const handleFileUpload = async (event: any, id: string) => {
+    const files = event.target.files;
+    setIsUploading(true);
+    setUploadingId(id);
+    const fileList = Array.from(files).filter((file: any) => {
+      const fileExtension = file.name.split('.').pop();
+      return fileExtension === 'pdf' || fileExtension === 'docx';
+    });
+
+    if (fileList.length > 0) {
+      // Handle valid files
+      const newCandidateUploadList = new FormData();
+
+      fileList.forEach((file: any, index: number) => {
+        const name = file.name.split('_')[0];
+        const email = file.name.split('_')[1];
+        const domicile = file.name.split('_')[2].split('.')[0];
+        newCandidateUploadList.append(`candidates[${index}][name]`, name);
+        newCandidateUploadList.append(`candidates[${index}][email]`, email);
+        newCandidateUploadList.append(`candidates[${index}][domicile]`, domicile);
+        newCandidateUploadList.append(`candidates[${index}][positionId]`, id || '');
+        newCandidateUploadList.append('cvFiles', file);
+      });
+
+      const entriesIterator = newCandidateUploadList.entries();
+      let currentEntry = entriesIterator.next();
+
+      while (!currentEntry.done) {
+        const [key, value] = currentEntry.value;
+        console.log(key, value);
+        currentEntry = entriesIterator.next();
+      }
+
+      try {
+        const data = {
+          id: id,
+          qualifiedCV:
+            positionDataList.find((positionData: PositionData) => positionData._id === id)?.qualifiedCandidates || 0,
+        };
+        const uploadCandidate = await CandidateDataService.upload(newCandidateUploadList, token.token);
+        const updatedNumber = await PositionDataService.editNumber(data, token.token);
+        console.log(uploadCandidate);
+        console.log(updatedNumber);
+        setIsUploading(false);
+        setUploadingId('');
+        window.location.reload();
+      } catch (error) {
+        console.log(error);
+        setIsUploading(false);
+        setUploadingId('');
+      }
+    } else {
+      // Handle no valid files
+      console.log('No valid files found.');
+    }
+  };
+
   return (
     <Layout>
       {isDelete ? (
@@ -202,8 +269,7 @@ export default function Home() {
               <p className={`text-dark_neutral_500 font-bold text-2xl `}>POSISI</p>
               <hr className={`w-[998px] border-dark_neutral_100 border-[1px]`}></hr>
             </div>
-            <div className={`container mx-auto flex justify-between w-[1148px] mt-[18px]`}>
-              <div className={`flex`}>{/* variabel */} 1 out of 2 position scored</div>
+            <div className={`container mx-auto flex justify-end w-[1148px] mt-[18px]`}>
               <div className={`flex gap-6 text-lg`}>
                 <div className={`flex items-center gap-[6px]`}>
                   <select
@@ -257,16 +323,48 @@ export default function Home() {
                               </span>
                             </p>
                             <div className={`flex items-center gap-[18px]`}>
-                              <button
+                              <Link
+                                href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
+                                  positionData._id
+                                )}&selectedDepartment=${encodeURIComponent(
+                                  departmentDataList.find((department) => department._id === positionData.department)
+                                    ?.name ?? ''
+                                )}&selectedEducation=${encodeURIComponent(
+                                  positionData.education
+                                )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                                 className={`flex items-center w-[124px] h-[47px] border hover:border-[2px] border-primary_blue text-primary_blue rounded gap-[6px]  justify-center`}
                               >
                                 <FiEdit2 />
                                 Edit Posisi
-                              </button>
+                              </Link>
                               <button
-                                className={`bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
+                                className={`${
+                                  isUploading && uploadingId === positionData._id
+                                    ? 'bg-primary_white text-primary_blue border-primary_blue'
+                                    : 'bg-primary_blue text-primary_white'
+                                } rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
                               >
-                                + Tambah Kandidat Baru
+                                {isUploading ? (
+                                  <div className={`flex items-center gap-[6px]`}>
+                                    <div
+                                      className={`w-[20px] h-6 border-t-2 border-primary_blue rounded-full animate-spin`}
+                                    />
+                                    <p>Uploading</p>
+                                  </div>
+                                ) : (
+                                  <label htmlFor="file-upload" className="cursor-pointer">
+                                    <p>
+                                      <span className="mr-[6px] text-[19px]">+</span> Tambah Kandidat Baru
+                                    </p>
+                                    <input
+                                      id="file-upload"
+                                      type="file"
+                                      multiple
+                                      className="hidden"
+                                      onChange={(e) => handleFileUpload(e, positionData._id)}
+                                    />
+                                  </label>
+                                )}
                               </button>
                               <Popover className={`relative`}>
                                 <Popover.Button className={`focus:bg-light_neutral_500 h-[44px] rounded-xl `}>
@@ -424,8 +522,7 @@ export default function Home() {
               <p className={`text-dark_neutral_500 font-bold text-2xl `}>POSISI</p>
               <hr className={`w-[998px] border-dark_neutral_100 border-[1px]`}></hr>
             </div>
-            <div className={`container mx-auto flex justify-between w-[1148px] mt-[18px]`}>
-              <div className={`flex`}>{/* variabel */} 1 out of 2 position scored</div>
+            <div className={`container mx-auto flex justify-end w-[1148px] mt-[18px]`}>
               <div className={`flex gap-6 text-lg`}>
                 <div className={`flex items-center gap-[6px]`}>
                   <select
@@ -469,16 +566,48 @@ export default function Home() {
                                 </span>
                               </p>
                               <div className={`flex items-center gap-[18px]`}>
-                                <button
+                                <Link
+                                  href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
+                                    positionData._id
+                                  )}&selectedDepartment=${encodeURIComponent(
+                                    departmentDataList.find((department) => department._id === positionData.department)
+                                      ?.name ?? ''
+                                  )}&selectedEducation=${encodeURIComponent(
+                                    positionData.education
+                                  )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                                   className={`flex items-center w-[124px] h-[47px] border hover:border-[2px] border-primary_blue text-primary_blue rounded gap-[6px]  justify-center`}
                                 >
                                   <FiEdit2 />
                                   Edit Posisi
-                                </button>
+                                </Link>
                                 <button
-                                  className={`bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
+                                  className={`${
+                                    isUploading && uploadingId === positionData._id
+                                      ? 'bg-primary_white text-primary_blue border-primary_blue'
+                                      : 'bg-primary_blue text-primary_white'
+                                  } rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
                                 >
-                                  + Tambah Kandidat Baru
+                                  {isUploading ? (
+                                    <div className={`flex items-center gap-[6px]`}>
+                                      <div
+                                        className={`w-[20px] h-6 border-t-2 border-primary_blue rounded-full animate-spin`}
+                                      />
+                                      <p>Uploading</p>
+                                    </div>
+                                  ) : (
+                                    <label htmlFor="file-upload" className="cursor-pointer">
+                                      <p>
+                                        <span className="mr-[6px] text-[19px]">+</span> Tambah Kandidat Baru
+                                      </p>
+                                      <input
+                                        id="file-upload"
+                                        type="file"
+                                        multiple
+                                        className="hidden"
+                                        onChange={(e) => handleFileUpload(e, positionData._id)}
+                                      />
+                                    </label>
+                                  )}
                                 </button>
                                 <Popover className={`relative`}>
                                   <Popover.Button className={`focus:bg-light_neutral_500 h-[44px] rounded-xl `}>
@@ -561,16 +690,48 @@ export default function Home() {
                                 </span>
                               </p>
                               <div className={`flex items-center gap-[18px]`}>
-                                <button
+                                <Link
+                                  href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
+                                    positionData._id
+                                  )}&selectedDepartment=${encodeURIComponent(
+                                    departmentDataList.find((department) => department._id === positionData.department)
+                                      ?.name ?? ''
+                                  )}&selectedEducation=${encodeURIComponent(
+                                    positionData.education
+                                  )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                                   className={`flex items-center w-[124px] h-[47px] border hover:border-[2px] border-primary_blue text-primary_blue rounded gap-[6px]  justify-center`}
                                 >
                                   <FiEdit2 />
                                   Edit Posisi
-                                </button>
+                                </Link>
                                 <button
-                                  className={`bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
+                                  className={`${
+                                    isUploading && uploadingId === positionData._id
+                                      ? 'bg-primary_white text-primary_blue border-primary_blue'
+                                      : 'bg-primary_blue text-primary_white'
+                                  } bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
                                 >
-                                  + Tambah Kandidat Baru
+                                  {isUploading ? (
+                                    <div className={`flex items-center gap-[6px]`}>
+                                      <div
+                                        className={`w-[20px] h-6 border-t-2 border-primary_blue rounded-full animate-spin`}
+                                      />
+                                      <p>Uploading</p>
+                                    </div>
+                                  ) : (
+                                    <label htmlFor="file-upload" className="cursor-pointer">
+                                      <p>
+                                        <span className="mr-[6px] text-[19px]">+</span> Tambah Kandidat Baru
+                                      </p>
+                                      <input
+                                        id="file-upload"
+                                        type="file"
+                                        multiple
+                                        className="hidden"
+                                        onChange={(e) => handleFileUpload(e, positionData._id)}
+                                      />
+                                    </label>
+                                  )}
                                 </button>
                                 <Popover className={`relative`}>
                                   <Popover.Button className={`focus:bg-light_neutral_500 h-[44px] rounded-xl `}>
@@ -603,11 +764,10 @@ export default function Home() {
                                 <p>CV yang Terunggah</p>
                               </div>
                               <div className={`border border-dark_neutral_100 h-[79.27px]`} />
-                              <button
-                                className={`flex items-center justify-center w-[139px] h-[47px] rounded  bg-light_neutral_500`}
-                              >
-                                Nilai Semua CV
-                              </button>
+                              <div className={`text-center`}>
+                                <span className={`font-semibold text-2xl`}>{positionData.filteredCV}</span>
+                                <p>CV yang Tersaring</p>
+                              </div>
                               <div className={`border border-dark_neutral_100  h-[79.27px]`} />
                               <div className={`text-center`}>
                                 <span className={`font-semibold text-2xl`}>{positionData.qualifiedCandidates}</span>

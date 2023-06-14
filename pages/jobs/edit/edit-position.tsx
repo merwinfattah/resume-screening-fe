@@ -24,9 +24,11 @@ export default function EditPosition() {
   const [loading, setLoading] = useState(false);
   const [showDescription, setShowDescription] = useState('');
   const [showQualification, setShowQualification] = useState('');
-  const [department, setDepartment] = useState('');
-  const { positionId } = router.query;
+  const { positionId, selectedDepartment, selectedEducation, departmentOptions } = router.query;
   const pssId = Array.isArray(positionId) ? '' : positionId ?? '';
+  const initialDepartmentOptions = departmentOptions ? JSON.parse(departmentOptions as string) : [];
+  const initialDepartment = Array.isArray(selectedDepartment) ? '' : selectedDepartment ?? '';
+  const initialEducation = Array.isArray(selectedEducation) ? '' : selectedEducation ?? '';
   const [departmentList, setDepartmentList] = useState<Department[]>([]);
   const [positionData, setPositionData] = useState<PositionData>({
     _id: '',
@@ -48,6 +50,15 @@ export default function EditPosition() {
     },
     createdDate: undefined,
   });
+  const [editedPositionData, setEditedPositionData] = useState({
+    id: '',
+    name: '',
+    education: '',
+    location: '',
+    description: '',
+    qualification: '',
+    minWorkExp: 0,
+  });
   useEffect(() => {
     const fetchPositionData = async () => {
       try {
@@ -55,6 +66,16 @@ export default function EditPosition() {
         setPositionData(responsePosition.data);
         setShowDescription(responsePosition.data.description);
         setShowQualification(responsePosition.data.qualification);
+        setEditedPositionData((prevState) => ({
+          ...prevState,
+          id: responsePosition.data._id,
+          name: responsePosition.data.name,
+          education: responsePosition.data.education,
+          location: responsePosition.data.location,
+          description: responsePosition.data.description,
+          qualification: responsePosition.data.qualification,
+          minWorkExp: responsePosition.data.minWorkExp,
+        }));
       } catch (error) {
         console.log(error);
       }
@@ -62,23 +83,12 @@ export default function EditPosition() {
     fetchPositionData();
   }, [pssId, token]);
 
-  const [editedPositionData, setEditedPositionData] = useState({
-    id: positionData._id ?? '',
-    name: positionData.name ?? '',
-    education: positionData.education ?? '',
-    location: positionData.location ?? '',
-    description: positionData.description ?? '',
-    qualification: positionData.qualification ?? '',
-    minWorkExp: 0,
-  });
   // Retrieve department list data from session storage
   useEffect(() => {
     const fetchDepartmentList = async () => {
       try {
         const responseDepartment = await DepartmentDataService.getAll(token.token);
-        let departmentListTemp = [...responseDepartment.data];
         setDepartmentList(responseDepartment.data);
-        setDepartment(departmentListTemp.find((department) => department._id === positionData.department)?.name ?? '');
       } catch (error) {
         console.log(error);
       }
@@ -86,12 +96,6 @@ export default function EditPosition() {
     fetchDepartmentList();
   }, [companyId, token, positionData]);
   // Create a new list of objects with name and label properties
-  const departmentOptions = departmentList.map((department: Department) => {
-    return {
-      value: department.name,
-      label: department.name,
-    };
-  });
 
   const handlePositionInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditedPositionData((prevState) => ({
@@ -109,7 +113,11 @@ export default function EditPosition() {
 
   const handleDepartmentInputChange = (selectedOption: any) => {
     if (selectedOption) {
-      setDepartment(selectedOption.value);
+      const selectedDepartment = departmentList.find((department) => department.name === selectedOption.value)?._id;
+      setEditedPositionData((prevState) => ({
+        ...prevState,
+        department: selectedDepartment,
+      }));
     }
   };
 
@@ -147,9 +155,9 @@ export default function EditPosition() {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log('edit', editedPositionData);
     try {
-      const response = await PositionDataService.edit(editedPositionData, token.token);
-      console.log(response.data);
+      await PositionDataService.edit(editedPositionData, token.token);
       router.push('/talent-pool');
     } catch (error) {
       console.log(error);
@@ -202,7 +210,6 @@ export default function EditPosition() {
           // Process the response data as needed
           setShowDescription(job_description);
           setShowQualification(qualification);
-          console.log(qualification);
         } else {
           console.error('Failed to upload job description file');
         }
@@ -285,13 +292,13 @@ export default function EditPosition() {
                     </label>
                     <div className={`flex justify-between items-center mt-[18px] mb-2 `}>
                       <SelectItems
-                        options={departmentOptions}
+                        options={initialDepartmentOptions}
                         id="department"
                         inputName="department"
                         placeholder="Select Department, ex : Human Resource"
                         width="580px"
                         handleChange={handleDepartmentInputChange}
-                        value={department}
+                        value={initialDepartment}
                         disabled={true}
                       />
                     </div>
@@ -344,7 +351,7 @@ export default function EditPosition() {
                         placeholder="Select Education"
                         width="580px"
                         handleChange={handleEducationInputChange}
-                        value={positionData.education}
+                        value={initialEducation}
                       />
                     </div>
                     <p className={`text-dark_neutral_300`}>Pendidikan minimal untuk posisi ini</p>

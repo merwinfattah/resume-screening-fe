@@ -25,6 +25,7 @@ import PositionDataService from './api/services/position.service';
 import CandidateDataService from './api/services/candidate.service';
 import DepartmentDataService from './api/services/department.service';
 import { BsFillTrashFill } from 'react-icons/bs';
+import Pagination from '@/components/Pagination';
 
 export default function TalentPool() {
   const companyId = useSelector((state: any) => state.login.companyId);
@@ -36,7 +37,6 @@ export default function TalentPool() {
   const [educationParam, setEducationParam] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [idCandidateChecked, setIdCandidateChecked] = useState<string[]>([]);
-  const [selectAllCandidates, setSelectAllCandidates] = useState<boolean>(false);
   const [showButtonRescore, setShowButtonRescore] = useState(false);
   const [visibleTags, setVisibleTags] = useState(10);
   const [scoringLoading, setScoringLoading] = useState(false);
@@ -77,7 +77,13 @@ export default function TalentPool() {
   const filteredPositionDataList = positionDataList.filter(
     (positionData: PositionData) => !positionData.isTrash.isInTrash && !positionData.isResolved
   );
-
+  const departmentOptions = departmenDataList.map((department: Department) => {
+    return {
+      value: department.name,
+      label: department.name,
+    };
+  });
+  const departmentOptionsJson = JSON.stringify(departmentOptions);
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
   const [activeCandidateIndex, setActiveCandidateIndex] = useState<string | null>(null);
   const [activeFilteredListCandidate, setActiveFilteredListCandidate] = useState<string>('unfiltered');
@@ -317,28 +323,20 @@ export default function TalentPool() {
       setIdCandidateChecked((prevIdCandidateChecked) =>
         prevIdCandidateChecked.filter((idCandidate: string) => idCandidate !== id)
       );
-      setSelectAllCandidates(false); // Uncheck the radio button when any checkbox is manually unchecked
 
       // Check if all checkboxes are unchecked, then uncheck the radio button
-      if (idCandidateChecked.length === 1 && idCandidateChecked.includes(id)) {
-        setSelectAllCandidates(false);
-      }
     }
   };
-
-  const handleRadioChange = async () => {
-    const candidateDataForActiveIndex = candidateDataList.filter((candidate) => candidate.position === activeIndex);
-    const allCandidatesChecked =
-      idCandidateChecked.length === candidateDataForActiveIndex.length &&
-      idCandidateChecked.every((id) => candidateDataForActiveIndex.find((candidate) => candidate._id === id));
-
-    if (!selectAllCandidates || !allCandidatesChecked) {
-      const newIdCandidateChecked = candidateDataForActiveIndex.map((candidate) => candidate._id);
-      setIdCandidateChecked(newIdCandidateChecked);
-      setSelectAllCandidates(true);
+  const handleRadioChange = () => {
+    if (
+      idCandidateChecked.length !== candidateDataList.filter((candidate) => candidate.position === activeIndex).length
+    ) {
+      const candidatesToSelect = candidateDataList
+        .filter((candidate) => candidate.position === activeIndex)
+        .map((candidateData) => candidateData._id);
+      setIdCandidateChecked(candidatesToSelect);
     } else {
       setIdCandidateChecked([]);
-      setSelectAllCandidates(false);
     }
   };
 
@@ -427,6 +425,53 @@ export default function TalentPool() {
     setActiveFilteredListCandidate('unfiltered');
   };
 
+  const handleUncheckedAllCandidates = async () => {
+    setIdCandidateChecked([]);
+  };
+
+  const handleDeleteCandidates = async () => {
+    const index = candidateDataList.filter(
+      (candidate) => candidate.position === activeIndex && !idCandidateChecked.includes(candidate._id)
+    )[0]._id;
+    setActiveCandidateIndex(index);
+    setCandidateDataList((prevCandidateDataList) =>
+      prevCandidateDataList.filter((candidate) => !idCandidateChecked.includes(candidate._id))
+    );
+    setIdCandidateChecked([]);
+    const data = {
+      ids: [...idCandidateChecked],
+    };
+    try {
+      const responseCandidate = await CandidateDataService.delete(data, token.token);
+      console.log(responseCandidate.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Default number of items per page
+
+  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    setItemsPerPage(value);
+    setCurrentPage(1); // Reset to the first page when the number of items per page changes
+  };
+
+  // Calculate the index range of items to display based on the current page
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const displayedCandidates = candidateDataList
+    .filter((candidate: Candidate) => candidate.position === activeIndex)
+    .slice(startIndex, endIndex);
+
+  const totalCandidates = displayedCandidates.length;
+
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <Layout>
       <article className={`flex`}>
@@ -491,7 +536,7 @@ export default function TalentPool() {
                       activeIndex || ''
                     )}&selectedDepartment=${encodeURIComponent(departmentParam)}&selectedEducation=${encodeURIComponent(
                       educationParam
-                    )}`}
+                    )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                     className={`flex items-center justify-center text-primary_blue w-[108px] h-[47px] rounded gap-[6px] border border-primary_blue hover:border-2`}
                   >
                     Edit Posisi
@@ -587,15 +632,18 @@ export default function TalentPool() {
                   </button>
                 </div>
               </div>
-              {positionDataList.find((position) => position._id === activeIndex && position.uploadedCV > 0) ? (
-                <div className={`flex gap-[18px] `}>
+              {candidateDataList.filter((candidate) => candidate.position === activeIndex).length ? (
+                <div className={` relative flex gap-[18px] h-fit `}>
                   <div className={`flex flex-col w-[381px]  bg-light_neutral_200 rounded-md bg-scroll overflow-hidden`}>
                     {idCandidateChecked.length > 0 ? (
                       <div
                         className={`p-[18px] flex justify-between  items-center bg-primary_blue text-primary_white `}
                       >
                         <div className={`flex gap-[20px]`}>
-                          <button className={`w-[24px] h-[24px] flex items-center justify-center`}>
+                          <button
+                            onClick={handleUncheckedAllCandidates}
+                            className={`w-[24px] h-[24px] flex items-center justify-center`}
+                          >
                             <BiArrowBack className={`w-full h-full`} />
                           </button>
                           <button className={`w-[24px] h-[24px] flex items-center justify-center`}>
@@ -606,7 +654,10 @@ export default function TalentPool() {
                           <button className={`w-[24px] h-[24px] flex items-center justify-center`}>
                             <MdPersonAddAlt1 className={`w-full h-full`} />
                           </button>
-                          <button className={`w-[24px] h-[24px] flex items-center justify-center`}>
+                          <button
+                            onClick={handleDeleteCandidates}
+                            className={`w-[24px] h-[24px] flex items-center justify-center`}
+                          >
                             <BsFillTrashFill className={`w-full h-full`} />
                           </button>
                         </div>
@@ -631,7 +682,10 @@ export default function TalentPool() {
                             <input
                               type="radio"
                               className={`w-[8px] h-[8px] `}
-                              checked={selectAllCandidates}
+                              checked={
+                                idCandidateChecked.length ===
+                                candidateDataList.filter((candidate) => candidate.position === activeIndex).length
+                              }
                               onChange={handleRadioChange}
                             />
                           </div>
@@ -700,48 +754,39 @@ export default function TalentPool() {
                             </div>
                           ))
                       ) : (
-                        candidateDataList
-                          .filter((candidate: Candidate) => candidate.position === activeIndex)
-                          .map((candidate: Candidate) => (
+                        displayedCandidates.map((candidate: Candidate) => (
+                          <div
+                            key={candidate._id}
+                            className={`${
+                              activeCandidateIndex === candidate._id ? 'bg-semantic_blue_100' : ''
+                            } group px-[18px] hover:border-b-2 h-[48px] border-b border-mid_neutral_100 flex items-center justify-between gap-[18px]`}
+                            onClick={() => handleCandidateClick(candidate._id)}
+                          >
                             <div
-                              key={candidate._id}
-                              className={`${
-                                activeCandidateIndex === candidate._id ? 'bg-semantic_blue_100' : ''
-                              } group px-[18px] hover:border-b-2 h-[48px] border-b border-mid_neutral_100 flex items-center justify-between gap-[18px]`}
-                              onClick={() => handleCandidateClick(candidate._id)}
+                              className={`flex items-center gap-2 invisible group-hover:visible group-active:visible`}
                             >
-                              <div
-                                className={`flex items-center gap-2 invisible group-hover:visible group-active:visible`}
-                              >
-                                <RxDragHandleDots2 />
-                                <input
-                                  type="checkbox"
-                                  onChange={(e) => handleCheckedCandidate(e, candidate._id)}
-                                  className={`w-[13px] h-[13px] ${idCandidateChecked.length > 0 ? 'visible' : ''}`}
-                                  checked={idCandidateChecked.includes(candidate._id)}
-                                />
-                                <p className={`visible text-dark_neutral_300 text-lg font-semibold`}>
-                                  {candidate.name}
-                                </p>
-                              </div>
-                              <div className={`flex items-center gap-2`}>
-                                <div
-                                  className={`w-[47px] h-[25px] rounded-3xl text-center font-semibold bg-semantic_yellow_300 text-secondary_red border border-secondary_red`}
-                                >
-                                  New
-                                </div>
-                                <button onClick={() => handleQualified(candidate._id)}>
-                                  {candidate.isQualified ? (
-                                    <IoStarSharp
-                                      className={`text-semantic_yellow_600 outline-semantic_orange_600 text-2xl `}
-                                    />
-                                  ) : (
-                                    <IoStarOutline className={`text-mid_neutral_600 text-2xl`} />
-                                  )}
-                                </button>
-                              </div>
+                              <RxDragHandleDots2 />
+                              <input
+                                type="checkbox"
+                                onChange={(e) => handleCheckedCandidate(e, candidate._id)}
+                                className={`w-[13px] h-[13px] ${idCandidateChecked.length > 0 ? 'visible' : ''}`}
+                                checked={idCandidateChecked.includes(candidate._id)}
+                              />
+                              <p className={`visible text-dark_neutral_300 text-lg font-semibold`}>{candidate.name}</p>
                             </div>
-                          ))
+                            <div className={`flex items-center gap-2`}>
+                              <button onClick={() => handleQualified(candidate._id)}>
+                                {candidate.isQualified ? (
+                                  <IoStarSharp
+                                    className={`text-semantic_yellow_600 outline-semantic_orange_600 text-2xl `}
+                                  />
+                                ) : (
+                                  <IoStarOutline className={`text-mid_neutral_600 text-2xl`} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        ))
                       )}
                     </div>
                   </div>
@@ -887,6 +932,27 @@ export default function TalentPool() {
                         </div>
                       </>
                     )}
+                  </div>
+                  <div className="absolute bottom-5 left-3 drop-shadow-md bg-white py-4 px-8 gap-[24px] flex items-center justify-center">
+                    <div className="flex justify-center items-center">
+                      <label htmlFor="itemsPerPage" className="mr-2">
+                        Tampilkan (CV):
+                      </label>
+                      <input
+                        id="itemsPerPage"
+                        type="number"
+                        min="1"
+                        value={itemsPerPage}
+                        onChange={handleItemsPerPageChange}
+                        className={`w-[75px] px-2 py-1  border rounded`}
+                      />
+                    </div>
+                    <Pagination
+                      totalItems={totalCandidates}
+                      itemsPerPage={itemsPerPage}
+                      currentPage={currentPage}
+                      onPageChange={onPageChange}
+                    />
                   </div>
                 </div>
               ) : (
