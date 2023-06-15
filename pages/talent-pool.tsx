@@ -471,9 +471,9 @@ export default function TalentPool() {
     .slice(startIndex, endIndex);
 
   const totalCandidates =
-    activeFilteredListCandidate === 'filtered' ? candidateDataList
-    .filter((candidate) => candidate.position === activeIndex && (candidate.score ?? 0 > 0)).length : candidateDataList
-    .filter((candidate: Candidate) => candidate.position === activeIndex).length;
+    activeFilteredListCandidate === 'filtered'
+      ? candidateDataList.filter((candidate) => candidate.position === activeIndex && (candidate.score ?? 0 > 0)).length
+      : candidateDataList.filter((candidate: Candidate) => candidate.position === activeIndex).length;
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
@@ -489,9 +489,9 @@ export default function TalentPool() {
                 <AiOutlineSearch className={`text-dark_neutral_200`} />
                 <h2 className={`text-primary_dark`}>Daftar Posisi</h2>
               </div>
-              <button className={`w-[19px] h-[19px] text-dark_neutral_200`}>
+              <Link href="/jobs/add-new-position" className={`w-[19px] h-[19px] text-dark_neutral_200`}>
                 <GrFormAdd />
-              </button>
+              </Link>
             </div>
             {positionDisplayLoading ? (
               <div className={`flex justify-center items-center w-full h-[200px]`}>
