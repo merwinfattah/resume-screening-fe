@@ -466,7 +466,14 @@ export default function TalentPool() {
     .filter((candidate: Candidate) => candidate.position === activeIndex)
     .slice(startIndex, endIndex);
 
-  const totalCandidates = displayedCandidates.length;
+  const displayedScoredCandidates = candidateDataList
+    .filter((candidate) => candidate.position === activeIndex && (candidate.score ?? 0 > 0))
+    .slice(startIndex, endIndex);
+
+  const totalCandidates =
+    activeFilteredListCandidate === 'filtered' ? candidateDataList
+    .filter((candidate) => candidate.position === activeIndex && (candidate.score ?? 0 > 0)).length : candidateDataList
+    .filter((candidate: Candidate) => candidate.position === activeIndex).length;
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
@@ -633,8 +640,10 @@ export default function TalentPool() {
                 </div>
               </div>
               {candidateDataList.filter((candidate) => candidate.position === activeIndex).length ? (
-                <div className={` relative flex gap-[18px] h-fit `}>
-                  <div className={`flex flex-col w-[381px]  bg-light_neutral_200 rounded-md bg-scroll overflow-hidden`}>
+                <div className={` relative flex gap-[18px]  `}>
+                  <div
+                    className={`flex flex-col w-[381px] h-fit bg-light_neutral_200 rounded-md bg-scroll overflow-hidden`}
+                  >
                     {idCandidateChecked.length > 0 ? (
                       <div
                         className={`p-[18px] flex justify-between  items-center bg-primary_blue text-primary_white `}
@@ -705,8 +714,7 @@ export default function TalentPool() {
                           ></div>
                         </div>
                       ) : activeFilteredListCandidate === 'filtered' ? (
-                        candidateDataList
-                          .filter((candidate) => candidate.position === activeIndex && (candidate.score ?? 0 > 0))
+                        displayedScoredCandidates
                           .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
                           .map((candidate: Candidate, index: number) => (
                             <div
@@ -800,7 +808,7 @@ export default function TalentPool() {
                         ></div>
                       </div>
                     ) : (
-                      <>
+                      <div className={`h-fit`}>
                         <div className={`bg-light_neutral_300 h-auto `}>
                           <div
                             className={`h-[76px] flex items-center justify-between bg-light_neutral_200 border-b border-mid_neutral_200 pl-[32px] pr-[14px]`}
@@ -930,10 +938,10 @@ export default function TalentPool() {
                             />
                           </div>
                         </div>
-                      </>
+                      </div>
                     )}
                   </div>
-                  <div className="absolute bottom-5 left-3 drop-shadow-md bg-white py-4 px-8 gap-[24px] flex items-center justify-center">
+                  <div className="z-20 fixed bottom-5 left-[260px] drop-shadow-md bg-white py-4 px-8 gap-[24px] flex items-center justify-center">
                     <div className="flex justify-center items-center">
                       <label htmlFor="itemsPerPage" className="mr-2">
                         Tampilkan (CV):
@@ -951,7 +959,7 @@ export default function TalentPool() {
                       totalItems={totalCandidates}
                       itemsPerPage={itemsPerPage}
                       currentPage={currentPage}
-                      onPageChange={onPageChange}
+                      onPageChange={(page: number) => onPageChange(page)}
                     />
                   </div>
                 </div>
