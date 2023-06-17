@@ -39,6 +39,12 @@ export default function AddNewPosition() {
   });
 
   useEffect(() => {
+    if (!token) {
+      window.location.href = '/auth/login';
+    }
+  }, [token]);
+
+  useEffect(() => {
     const fetchDepartmentList = async () => {
       try {
         const response = await DepartmentDataService.getAll(token.token);

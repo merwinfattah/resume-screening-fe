@@ -26,6 +26,12 @@ export default function Jobs() {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
+    if (!token) {
+      window.location.href = '/auth/login';
+    }
+  }, [token]);
+
+  useEffect(() => {
     const fetchDataPosition = async () => {
       try {
         const positionDataResponse = await PositionDataService.getAll(token.token);
@@ -367,7 +373,7 @@ export default function Jobs() {
             </div>
             <div className={`flex gap-[18px] `}>
               <Link
-                href="/jobs/add-new-position"
+                href={`/jobs/add-new-position?departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                 className={`flex justify-center w-[181px] h-[47px] bg-primary_blue text-primary_white rounded  hover:text-primary_blue hover:bg-primary_white border border-primary_blue items-center `}
               >
                 <p>

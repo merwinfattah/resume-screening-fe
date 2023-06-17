@@ -25,6 +25,7 @@ import PositionDataService from './api/services/position.service';
 import CandidateDataService from './api/services/candidate.service';
 import DepartmentDataService from './api/services/department.service';
 import { BsFillTrashFill } from 'react-icons/bs';
+import { RiArrowUpDownLine } from 'react-icons/ri';
 import Pagination from '@/components/Pagination';
 
 export default function TalentPool() {
@@ -37,11 +38,60 @@ export default function TalentPool() {
   const [educationParam, setEducationParam] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [idCandidateChecked, setIdCandidateChecked] = useState<string[]>([]);
-  const [showButtonRescore, setShowButtonRescore] = useState(false);
-  const [visibleTags, setVisibleTags] = useState(10);
-  const [scoringLoading, setScoringLoading] = useState(false);
-  const [candidateDisplayLoading, setCandidateDisplayLoading] = useState(false);
-  const [positionDisplayLoading, setPositionDisplayLoading] = useState(false);
+  const [showButtonRescore, setShowButtonRescore] = useState<boolean>(false);
+  const [visibleTags, setVisibleTags] = useState<number>(10);
+  const [scoringLoading, setScoringLoading] = useState<boolean>(false);
+  const [candidateDisplayLoading, setCandidateDisplayLoading] = useState<boolean>(false);
+  const [positionDisplayLoading, setPositionDisplayLoading] = useState<boolean>(false);
+  const [searchCandidateTerm, setSearchCandidateTerm] = useState<string>('');
+  const [searchPositionTerm, setSearchPositionTerm] = useState<string>('');
+  const [isSearchPosition, setIsSearchPosition] = useState<boolean>(false);
+  const [sortedOrder, setSortedOrder] = useState<string>('asc');
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!token) {
+      window.location.href = '/auth/login';
+    }
+  }, [token]);
+
+  const handleSearchCandidateInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchPositionTerm(event.target.value);
+  };
+
+  const handleSearchCandidateIconClick = () => {
+    setIsSearchPosition(true);
+  };
+
+  const handleSearchCandidateInputBlur = () => {
+    setIsSearchPosition(false);
+    setSearchPositionTerm('');
+  };
+
+  const sortList = (order: string) => {
+    let sortedList: PositionData[] = [];
+
+    if (order === 'asc') {
+      sortedList = positionDataList.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (order === 'desc') {
+      sortedList = positionDataList.sort((a, b) => b.name.localeCompare(a.name));
+    }
+
+    return sortedList;
+  };
+
+  const handleSortClick = () => {
+    const newOrder = sortedOrder === 'asc' ? 'desc' : 'asc';
+    const sortedList = sortList(newOrder);
+
+    setSortedOrder(newOrder);
+    // You may update the activeIndex here if needed
+    setActiveIndex(sortedList[0]?._id);
+  };
+
+  const handleSearchCandidate = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchCandidateTerm(event.target.value);
+  };
 
   const handleHoverFilteredTab = () => {
     setShowButtonRescore(true);
@@ -149,6 +199,7 @@ export default function TalentPool() {
   }, [candidateDataList, activeCandidateIndex, activeIndex]);
 
   const onDrop = async (acceptedFiles: File[]) => {
+    setIsUploading(true);
     const fileList = acceptedFiles.filter((file) => {
       const fileExtension = file.name.split('.').pop();
       return fileExtension === 'pdf' || fileExtension === 'docx';
@@ -187,13 +238,13 @@ export default function TalentPool() {
             positionDataList.find((positionData: PositionData) => positionData._id === activeIndex)
               ?.qualifiedCandidates || 0,
         };
-        const responseCandidate = await CandidateDataService.upload(newCandidateUploadList, token.token);
-        const responsePosition = await PositionDataService.editNumber(data, token.token);
-        console.log(responseCandidate.data);
-        console.log(responsePosition.data);
+        await CandidateDataService.upload(newCandidateUploadList, token.token);
+        await PositionDataService.editNumber(data, token.token);
+        setIsUploading(false);
         window.location.reload();
       } catch (error) {
         console.log(error);
+        setIsUploading(false);
       }
     } else {
       // Handle no valid files
@@ -327,15 +378,17 @@ export default function TalentPool() {
       // Check if all checkboxes are unchecked, then uncheck the radio button
     }
   };
-  const handleRadioChange = () => {
+  const handleCheckAll = () => {
     if (
       idCandidateChecked.length !== candidateDataList.filter((candidate) => candidate.position === activeIndex).length
     ) {
+      console.log('masuk');
       const candidatesToSelect = candidateDataList
         .filter((candidate) => candidate.position === activeIndex)
         .map((candidateData) => candidateData._id);
       setIdCandidateChecked(candidatesToSelect);
     } else {
+      console.log('masuk2');
       setIdCandidateChecked([]);
     }
   };
@@ -365,6 +418,7 @@ export default function TalentPool() {
   };
 
   const handleFileUpload = async (event: any) => {
+    setIsUploading(true);
     const files = event.target.files;
 
     const fileList = Array.from(files).filter((file: any) => {
@@ -403,13 +457,13 @@ export default function TalentPool() {
             positionDataList.find((positionData: PositionData) => positionData._id === activeIndex)
               ?.qualifiedCandidates || 0,
         };
-        const responseCandidate = await CandidateDataService.upload(newCandidateUploadList, token.token);
-        const responsePosition = await PositionDataService.editNumber(data, token.token);
-        console.log(responseCandidate.data);
-        console.log(responsePosition.data);
+        await CandidateDataService.upload(newCandidateUploadList, token.token);
+        await PositionDataService.editNumber(data, token.token);
+        setIsUploading(false);
         window.location.reload();
       } catch (error) {
         console.log(error);
+        setIsUploading(false);
       }
     } else {
       // Handle no valid files
@@ -430,10 +484,18 @@ export default function TalentPool() {
   };
 
   const handleDeleteCandidates = async () => {
-    const index = candidateDataList.filter(
-      (candidate) => candidate.position === activeIndex && !idCandidateChecked.includes(candidate._id)
-    )[0]._id;
-    setActiveCandidateIndex(index);
+    if (
+      idCandidateChecked.length === candidateDataList.filter((candidate) => candidate.position === activeIndex).length
+    ) {
+      const positionNextIndex = positionDataList.filter((position) => position._id !== activeIndex)[0]._id;
+      setActiveIndex(positionNextIndex);
+      setActiveCandidateIndex(candidateDataList.filter((candidate) => candidate.position === positionNextIndex)[0]._id);
+    } else {
+      const candidateNextIndex = candidateDataList.filter(
+        (candidate) => candidate.position === activeIndex && !idCandidateChecked.includes(candidate._id)
+      )[0]._id;
+      setActiveCandidateIndex(candidateNextIndex);
+    }
     setCandidateDataList((prevCandidateDataList) =>
       prevCandidateDataList.filter((candidate) => !idCandidateChecked.includes(candidate._id))
     );
@@ -463,11 +525,19 @@ export default function TalentPool() {
   const endIndex = startIndex + itemsPerPage;
 
   const displayedCandidates = candidateDataList
-    .filter((candidate: Candidate) => candidate.position === activeIndex)
+    .filter(
+      (candidate: Candidate) =>
+        candidate.position === activeIndex && candidate.name.toLowerCase().includes(searchCandidateTerm.toLowerCase())
+    )
     .slice(startIndex, endIndex);
 
   const displayedScoredCandidates = candidateDataList
-    .filter((candidate) => candidate.position === activeIndex && (candidate.score ?? 0 > 0))
+    .filter(
+      (candidate) =>
+        candidate.position === activeIndex &&
+        (candidate.score ?? 0 > 0) &&
+        candidate.name.toLowerCase().includes(searchCandidateTerm.toLowerCase())
+    )
     .slice(startIndex, endIndex);
 
   const totalCandidates =
@@ -485,13 +555,33 @@ export default function TalentPool() {
         <section className={`w-[236px]   bg-light_neutral_200  border-r-2 border-semantic_blue_100`}>
           <aside>
             <div className={`flex items-center py-4 pr-4 pl-[33px] justify-between border-b border-mid_neutral_400`}>
-              <div className={`flex items-center gap-[6px]`}>
-                <AiOutlineSearch className={`text-dark_neutral_200`} />
-                <h2 className={`text-primary_dark`}>Daftar Posisi</h2>
-              </div>
-              <Link href="/jobs/add-new-position" className={`w-[19px] h-[19px] text-dark_neutral_200`}>
-                <GrFormAdd />
-              </Link>
+              {!isSearchPosition ? (
+                <>
+                  <div className={`flex items-center gap-[6px]`} onClick={handleSearchCandidateIconClick}>
+                    <AiOutlineSearch className={`text-dark_neutral_200`} />
+                    <h2 className={`text-primary_dark`}>Daftar Posisi</h2>
+                  </div>
+                  <button onClick={handleSortClick}>
+                    <RiArrowUpDownLine className={`text-dark_neutral_200`} />
+                  </button>
+                  <Link
+                    href={`/jobs/add-new-position?departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
+                    className={`w-[19px] h-[19px] text-dark_neutral_200`}
+                  >
+                    <GrFormAdd />
+                  </Link>
+                </>
+              ) : (
+                <input
+                  type="text"
+                  className={`text-primary_dark outline-none bg-transparent`}
+                  placeholder="Cari Posisi"
+                  value={searchPositionTerm}
+                  onChange={handleSearchCandidateInputChange}
+                  onBlur={handleSearchCandidateInputBlur}
+                  autoFocus
+                />
+              )}
             </div>
             {positionDisplayLoading ? (
               <div className={`flex justify-center items-center w-full h-[200px]`}>
@@ -499,8 +589,13 @@ export default function TalentPool() {
               </div>
             ) : (
               <ul>
-                {positionDataList
-                  .filter((position: PositionData) => !position.isTrash.isInTrash && !position.isResolved)
+                {sortList(sortedOrder)
+                  .filter(
+                    (position: PositionData) =>
+                      !position.isTrash.isInTrash &&
+                      !position.isResolved &&
+                      position.name.toLowerCase().includes(searchPositionTerm.toLowerCase())
+                  )
                   .map((positionData: PositionData) => (
                     <li
                       key={`position-${positionData._id}`}
@@ -576,7 +671,6 @@ export default function TalentPool() {
                           className={`rounded-[6px] z-20 py-[24px] px-[16px] modal-notification absolute top-[60px] right-0 bg-primary_white border flex flex-col justify-center items-center`}
                         >
                           <h2 className={`text-[18px]`}>Nilai Ulang CV?</h2>
-                          <p className={`font-normal`}>Terdeksi CV yang baru yang ditambakan</p>
                           <button
                             onClick={handleScoreCandidate}
                             className={`mt-[16px] flex justify-center items-center border hover:border-primary_blue bg-primary_blue hover:bg-primary_white text-primary_white hover:text-primary_blue rounded w-[177px] h-[47px]`}
@@ -620,15 +714,23 @@ export default function TalentPool() {
                   </div>
                   <div className={` w-[6px] h-[19px]  text-dark_neutral_100`}>|</div>
                   <button
-                    className={`flex justify-center  w-[291px] h-[47px] bg-primary_blue text-primary_white rounded  hover:text-primary_blue hover:bg-primary_white border border-primary_blue items-center `}
+                    className={`flex justify-center  w-[291px] h-[47px] ${
+                      isUploading ? 'bg-primary_white text-primary_blue' : 'bg-primary_blue text-primary_white'
+                    }  rounded  hover:text-primary_blue hover:bg-primary_white border border-primary_blue items-center `}
                   >
-                    <label htmlFor="file-upload" className="cursor-pointer">
-                      <p>
-                        <span className="mr-[6px] text-[19px]">+</span>
-                        Tambah Kandidat Baru
-                      </p>
-                      <input id="file-upload" type="file" multiple className="hidden" onChange={handleFileUpload} />
-                    </label>
+                    {isUploading ? (
+                      <div className={`flex justify-center items-center`}>
+                        <div className={`animate-spin rounded-full h-6 w-6 border-b-2 border-primary_blue`} />
+                      </div>
+                    ) : (
+                      <label htmlFor="file-upload" className="cursor-pointer">
+                        <p>
+                          <span className="mr-[6px] text-[19px]">+</span>
+                          Tambah Kandidat Baru
+                        </p>
+                        <input id="file-upload" type="file" multiple className="hidden" onChange={handleFileUpload} />
+                      </label>
+                    )}
                   </button>
                   <div className={` w-[6px] h-[19px]  text-dark_neutral_100`}>|</div>
                   <button
@@ -677,8 +779,10 @@ export default function TalentPool() {
                       >
                         <AiOutlineSearch />
                         <input
-                          placeholder="Saring berdasarkan nama"
+                          placeholder="Cari nama kandidat"
                           className={` w-full italic outline-none bg-transparent`}
+                          onChange={handleSearchCandidate}
+                          value={searchCandidateTerm}
                         />
                       </div>
                     )}
@@ -689,13 +793,13 @@ export default function TalentPool() {
                             className={`flex items-center justify-center w-[15.81px] h-[15.81px] border border-primary_blue`}
                           >
                             <input
-                              type="radio"
+                              type="checkbox"
                               className={`w-[8px] h-[8px] `}
                               checked={
                                 idCandidateChecked.length ===
                                 candidateDataList.filter((candidate) => candidate.position === activeIndex).length
                               }
-                              onChange={handleRadioChange}
+                              onChange={handleCheckAll}
                             />
                           </div>
                           <p className={`font-normal text-base text-dark_neutral_300`}>
@@ -965,32 +1069,45 @@ export default function TalentPool() {
                 </div>
               ) : (
                 <div className={` bg-light_neutral_200 h-[813px] w-full rounded-md pt-[184px] px-[638px]`}>
-                  <p className={`text-center font-bold mb-[30px] pl-[32px]`}>
-                    Start upload your CV to start automate your screening process!
-                  </p>
-                  <div
-                    {...getRootProps({
-                      className:
-                        'dropzone flex flex-col gap-[18px] py-[60.5px] px-[58.5px] w-[372px] h-[288px] text-center rounded-md border-[3px] border-dashed border-semantic_blue_600 bg-semantic_blue_50',
-                    })}
-                  >
-                    <input {...getInputProps()} />
+                  {isUploading ? (
                     <div className={`flex flex-col gap-[18px]`}>
-                      <MdOutlineDriveFolderUpload className={`container mx-auto text-3xl `} />
-                      <p>
-                        Drag and drop <span className={`font-bold`}>.pdf</span> files to upload
+                      <p className={`text-center text-dark_neutral_300  mb-[30px] pl-[32px]`}>
+                        CV anda sedang diunggah. Mohon ditunggu...
                       </p>
+                      <div className={`flex justify-center`}>
+                        <div className={`animate-spin rounded-full h-32 w-32 border-b-2 border-primary_blue`} />
+                      </div>
                     </div>
-                    <p className={`font-bold`}>or</p>
-                    <button
-                      type="button"
-                      onClick={open}
-                      className={`container mx-auto flex gap-[6px] items-center w-[139px] h-[47px] py-[14px] px-[10px] rounded bg-primary_blue text-primary_white`}
-                    >
-                      <TfiUpload />
-                      Upload Files
-                    </button>
-                  </div>
+                  ) : (
+                    <>
+                      <p className={`text-center font-bold mb-[30px] pl-[32px]`}>
+                        Start upload your CV to start automate your screening process!
+                      </p>
+                      <div
+                        {...getRootProps({
+                          className:
+                            'dropzone flex flex-col gap-[18px] py-[60.5px] px-[58.5px] w-[372px] h-[288px] text-center rounded-md border-[3px] border-dashed border-semantic_blue_600 bg-semantic_blue_50',
+                        })}
+                      >
+                        <input {...getInputProps()} />
+                        <div className={`flex flex-col gap-[18px]`}>
+                          <MdOutlineDriveFolderUpload className={`container mx-auto text-3xl `} />
+                          <p>
+                            Drag and drop <span className={`font-bold`}>.pdf</span> files to upload
+                          </p>
+                        </div>
+                        <p className={`font-bold`}>or</p>
+                        <button
+                          type="button"
+                          onClick={open}
+                          className={`container mx-auto flex gap-[6px] items-center w-[139px] h-[47px] py-[14px] px-[10px] rounded bg-primary_blue text-primary_white`}
+                        >
+                          <TfiUpload />
+                          Upload Files
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </>

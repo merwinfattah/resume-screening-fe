@@ -18,6 +18,7 @@ const Link = dynamic(() => import('next/link'));
 
 export default function Home() {
   const token = useSelector((state: any) => state.auth.token);
+
   const [positionDataList, setpositionDataList] = useState<PositionData[]>([]);
   const [departmentDataList, setdepartmentDataList] = useState<Department[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -28,8 +29,13 @@ export default function Home() {
   const [isLoadingPosition, setIsLoadingPosition] = useState<boolean>(false);
   const [selectedDepartment, setSelectedDepartment] = useState<string>('all');
   const [idSelectedDepartment, setIdSelectedDepartment] = useState<string>('');
-  const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadingId, setUploadingId] = useState<string>('');
+
+  useEffect(() => {
+    if (!token) {
+      window.location.href = '/auth/login';
+    }
+  }, [token]);
 
   useEffect(() => {
     const fetchDataPosition = async () => {
@@ -183,7 +189,7 @@ export default function Home() {
 
   const handleFileUpload = async (event: any, id: string) => {
     const files = event.target.files;
-    setIsUploading(true);
+    console.log('posisi', id);
     setUploadingId(id);
     const fileList = Array.from(files).filter((file: any) => {
       const fileExtension = file.name.split('.').pop();
@@ -220,16 +226,12 @@ export default function Home() {
           qualifiedCV:
             positionDataList.find((positionData: PositionData) => positionData._id === id)?.qualifiedCandidates || 0,
         };
-        const uploadCandidate = await CandidateDataService.upload(newCandidateUploadList, token.token);
-        const updatedNumber = await PositionDataService.editNumber(data, token.token);
-        console.log(uploadCandidate);
-        console.log(updatedNumber);
-        setIsUploading(false);
+        await CandidateDataService.upload(newCandidateUploadList, token.token);
+        await PositionDataService.editNumber(data, token.token);
         setUploadingId('');
         window.location.reload();
       } catch (error) {
         console.log(error);
-        setIsUploading(false);
         setUploadingId('');
       }
     } else {
@@ -339,12 +341,12 @@ export default function Home() {
                               </Link>
                               <button
                                 className={`${
-                                  isUploading && uploadingId === positionData._id
+                                  uploadingId === positionData._id
                                     ? 'bg-primary_white text-primary_blue border-primary_blue'
                                     : 'bg-primary_blue text-primary_white'
                                 } rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
                               >
-                                {isUploading ? (
+                                {uploadingId === positionData._id ? (
                                   <div className={`flex items-center gap-[6px]`}>
                                     <div
                                       className={`w-[20px] h-6 border-t-2 border-primary_blue rounded-full animate-spin`}
@@ -462,7 +464,7 @@ export default function Home() {
             </div>
             <div className={`flex gap-[18px] `}>
               <Link
-                href="/jobs/add-new-position"
+                href={`/jobs/add-new-position?departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                 className={`flex justify-center w-[181px] h-[47px] bg-primary_blue text-primary_white rounded  hover:text-primary_blue hover:bg-primary_white border border-primary_blue items-center `}
               >
                 <p>
@@ -510,7 +512,7 @@ export default function Home() {
                 </div>
                 <div>
                   <Link
-                    href="/jobs/add-new-position"
+                    href={`/jobs/add-new-position?departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                     className={`text-primary_blue  bg-primary_white border hover:border-[2px] border-primary_blue py-[14px] px-[10px] rounded`}
                   >
                     Tambah Posisi Baru
@@ -582,12 +584,12 @@ export default function Home() {
                                 </Link>
                                 <button
                                   className={`${
-                                    isUploading && uploadingId === positionData._id
+                                    uploadingId === positionData._id
                                       ? 'bg-primary_white text-primary_blue border-primary_blue'
                                       : 'bg-primary_blue text-primary_white'
                                   } rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
                                 >
-                                  {isUploading ? (
+                                  {uploadingId === positionData._id ? (
                                     <div className={`flex items-center gap-[6px]`}>
                                       <div
                                         className={`w-[20px] h-6 border-t-2 border-primary_blue rounded-full animate-spin`}
@@ -706,12 +708,12 @@ export default function Home() {
                                 </Link>
                                 <button
                                   className={`${
-                                    isUploading && uploadingId === positionData._id
+                                    uploadingId === positionData._id
                                       ? 'bg-primary_white text-primary_blue border-primary_blue'
                                       : 'bg-primary_blue text-primary_white'
                                   } bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
                                 >
-                                  {isUploading ? (
+                                  {uploadingId === positionData._id ? (
                                     <div className={`flex items-center gap-[6px]`}>
                                       <div
                                         className={`w-[20px] h-6 border-t-2 border-primary_blue rounded-full animate-spin`}

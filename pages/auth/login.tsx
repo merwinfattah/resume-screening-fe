@@ -75,7 +75,7 @@ export default function Login() {
           >
             <h1 className={`text-[32px] font-bold mb-[12px] text-primary_blue text-center`}>Selamat Datang!</h1>
             <p className={`text-center text-dark_neutral_300 text-[20px]`}>
-              Masukkan email Anda yang telah terdaftar sebelumnya untuk mengakses sistem ini
+              Masukkan email Anda yang telah terdaftar sebelumnya untuk mengakses sistem resume screening
             </p>
             <hr className={`w-full border-2 border-primary_blue my-[56px]`} />
             <form onSubmit={handleSubmitLogin}>

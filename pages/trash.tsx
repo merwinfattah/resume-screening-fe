@@ -23,6 +23,12 @@ export default function Trash() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
+    if (!token) {
+      window.location.href = '/auth/login';
+    }
+  }, [token]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const responseDepartment = await DepartmentDataService.getAll(token.token);

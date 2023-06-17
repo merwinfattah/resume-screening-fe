@@ -59,6 +59,13 @@ export default function EditPosition() {
     qualification: '',
     minWorkExp: 0,
   });
+
+  useEffect(() => {
+    if (!token) {
+      window.location.href = '/auth/login';
+    }
+  }, [token]);
+
   useEffect(() => {
     const fetchPositionData = async () => {
       try {
