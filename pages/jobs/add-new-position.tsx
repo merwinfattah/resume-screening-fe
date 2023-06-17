@@ -215,11 +215,6 @@ export default function AddNewPosition() {
           </div>
           <div className={`flex gap-[18px] text-dark_neutral_200`}>
             <button
-              className={`bg-primary_white py-[14px] px-[10px] text-primary_blue border border-primary_blue rounded hover:border-2`}
-            >
-              Simpan Draft
-            </button>
-            <button
               className={`rounded bg-primary_blue text-primary_white py-[14px] px-[10px] border  hover:bg-primary_white hover:text-primary_blue hover:border-primary_blue`}
               form="job-detail"
               type="submit"

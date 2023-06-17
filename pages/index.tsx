@@ -29,7 +29,6 @@ export default function Home() {
   const [isLoadingPosition, setIsLoadingPosition] = useState<boolean>(false);
   const [selectedDepartment, setSelectedDepartment] = useState<string>('all');
   const [idSelectedDepartment, setIdSelectedDepartment] = useState<string>('');
-  const [uploadingId, setUploadingId] = useState<string>('');
 
   useEffect(() => {
     if (!token) {
@@ -187,59 +186,6 @@ export default function Home() {
     }
   };
 
-  const handleFileUpload = async (event: any, id: string) => {
-    const files = event.target.files;
-    console.log('posisi', id);
-    setUploadingId(id);
-    const fileList = Array.from(files).filter((file: any) => {
-      const fileExtension = file.name.split('.').pop();
-      return fileExtension === 'pdf' || fileExtension === 'docx';
-    });
-
-    if (fileList.length > 0) {
-      // Handle valid files
-      const newCandidateUploadList = new FormData();
-
-      fileList.forEach((file: any, index: number) => {
-        const name = file.name.split('_')[0];
-        const email = file.name.split('_')[1];
-        const domicile = file.name.split('_')[2].split('.')[0];
-        newCandidateUploadList.append(`candidates[${index}][name]`, name);
-        newCandidateUploadList.append(`candidates[${index}][email]`, email);
-        newCandidateUploadList.append(`candidates[${index}][domicile]`, domicile);
-        newCandidateUploadList.append(`candidates[${index}][positionId]`, id || '');
-        newCandidateUploadList.append('cvFiles', file);
-      });
-
-      const entriesIterator = newCandidateUploadList.entries();
-      let currentEntry = entriesIterator.next();
-
-      while (!currentEntry.done) {
-        const [key, value] = currentEntry.value;
-        console.log(key, value);
-        currentEntry = entriesIterator.next();
-      }
-
-      try {
-        const data = {
-          id: id,
-          qualifiedCV:
-            positionDataList.find((positionData: PositionData) => positionData._id === id)?.qualifiedCandidates || 0,
-        };
-        await CandidateDataService.upload(newCandidateUploadList, token.token);
-        await PositionDataService.editNumber(data, token.token);
-        setUploadingId('');
-        window.location.reload();
-      } catch (error) {
-        console.log(error);
-        setUploadingId('');
-      }
-    } else {
-      // Handle no valid files
-      console.log('No valid files found.');
-    }
-  };
-
   return (
     <Layout>
       {isDelete ? (
@@ -339,35 +285,7 @@ export default function Home() {
                                 <FiEdit2 />
                                 Edit Posisi
                               </Link>
-                              <button
-                                className={`${
-                                  uploadingId === positionData._id
-                                    ? 'bg-primary_white text-primary_blue border-primary_blue'
-                                    : 'bg-primary_blue text-primary_white'
-                                } rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
-                              >
-                                {uploadingId === positionData._id ? (
-                                  <div className={`flex items-center gap-[6px]`}>
-                                    <div
-                                      className={`w-[20px] h-6 border-t-2 border-primary_blue rounded-full animate-spin`}
-                                    />
-                                    <p>Uploading</p>
-                                  </div>
-                                ) : (
-                                  <label htmlFor="file-upload" className="cursor-pointer">
-                                    <p>
-                                      <span className="mr-[6px] text-[19px]">+</span> Tambah Kandidat Baru
-                                    </p>
-                                    <input
-                                      id="file-upload"
-                                      type="file"
-                                      multiple
-                                      className="hidden"
-                                      onChange={(e) => handleFileUpload(e, positionData._id)}
-                                    />
-                                  </label>
-                                )}
-                              </button>
+
                               <Popover className={`relative`}>
                                 <Popover.Button className={`focus:bg-light_neutral_500 h-[44px] rounded-xl `}>
                                   <RxDotsVertical className={`w-[20px] h-6`} />
@@ -399,15 +317,9 @@ export default function Home() {
                               <p>CV yang terunggah</p>
                             </div>
                             <div className={`border border-dark_neutral_100 h-[79.27px]`} />
-                            <button
-                              className={`flex items-center justify-center w-[139px] h-[47px] rounded  bg-light_neutral_500`}
-                            >
-                              Nilai Semua CV
-                            </button>
-                            <div className={`border border-dark_neutral_100  h-[79.27px]`} />
                             <div className={`text-center`}>
                               <span className={`font-semibold text-2xl`}>{positionData.filteredCV}</span>
-                              <p>Kandidat Terpilih</p>
+                              <p>CV yang Tersaring</p>
                             </div>
                             <div className={`border border-dark_neutral_100  h-[79.27px]`} />
                             <div className={`text-center`}>
@@ -582,35 +494,7 @@ export default function Home() {
                                   <FiEdit2 />
                                   Edit Posisi
                                 </Link>
-                                <button
-                                  className={`${
-                                    uploadingId === positionData._id
-                                      ? 'bg-primary_white text-primary_blue border-primary_blue'
-                                      : 'bg-primary_blue text-primary_white'
-                                  } rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
-                                >
-                                  {uploadingId === positionData._id ? (
-                                    <div className={`flex items-center gap-[6px]`}>
-                                      <div
-                                        className={`w-[20px] h-6 border-t-2 border-primary_blue rounded-full animate-spin`}
-                                      />
-                                      <p>Uploading</p>
-                                    </div>
-                                  ) : (
-                                    <label htmlFor="file-upload" className="cursor-pointer">
-                                      <p>
-                                        <span className="mr-[6px] text-[19px]">+</span> Tambah Kandidat Baru
-                                      </p>
-                                      <input
-                                        id="file-upload"
-                                        type="file"
-                                        multiple
-                                        className="hidden"
-                                        onChange={(e) => handleFileUpload(e, positionData._id)}
-                                      />
-                                    </label>
-                                  )}
-                                </button>
+
                                 <Popover className={`relative`}>
                                   <Popover.Button className={`focus:bg-light_neutral_500 h-[44px] rounded-xl `}>
                                     <RxDotsVertical className={`w-[20px] h-6  `} />
@@ -642,12 +526,15 @@ export default function Home() {
                                 <p>CV yang Terunggah</p>
                               </div>
                               <div className={`border border-dark_neutral_100 h-[79.27px]`} />
-                              <button
-                                className={`flex items-center justify-center w-[139px] h-[47px] rounded  bg-light_neutral_500`}
-                              >
-                                Nilai Semua CV
-                              </button>
+                              <div className={`text-center`}>
+                                <span className={`font-semibold text-2xl`}>{positionData.filteredCV}</span>
+                                <p>CV yang Tersaring</p>
+                              </div>
                               <div className={`border border-dark_neutral_100  h-[79.27px]`} />
+                              <div className={`text-center`}>
+                                <span className={`font-semibold text-2xl`}>{positionData.qualifiedCandidates}</span>
+                                <p>Kandidat Terkualifikasi</p>
+                              </div>
                             </div>
                             <div className={`flex justify-between`}>
                               <div className={`flex items-center gap-[6px] `}>
@@ -706,35 +593,7 @@ export default function Home() {
                                   <FiEdit2 />
                                   Edit Posisi
                                 </Link>
-                                <button
-                                  className={`${
-                                    uploadingId === positionData._id
-                                      ? 'bg-primary_white text-primary_blue border-primary_blue'
-                                      : 'bg-primary_blue text-primary_white'
-                                  } bg-primary_blue text-primary_white rounded py-[14px] px-[10px] text-center hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue border`}
-                                >
-                                  {uploadingId === positionData._id ? (
-                                    <div className={`flex items-center gap-[6px]`}>
-                                      <div
-                                        className={`w-[20px] h-6 border-t-2 border-primary_blue rounded-full animate-spin`}
-                                      />
-                                      <p>Uploading</p>
-                                    </div>
-                                  ) : (
-                                    <label htmlFor="file-upload" className="cursor-pointer">
-                                      <p>
-                                        <span className="mr-[6px] text-[19px]">+</span> Tambah Kandidat Baru
-                                      </p>
-                                      <input
-                                        id="file-upload"
-                                        type="file"
-                                        multiple
-                                        className="hidden"
-                                        onChange={(e) => handleFileUpload(e, positionData._id)}
-                                      />
-                                    </label>
-                                  )}
-                                </button>
+
                                 <Popover className={`relative`}>
                                   <Popover.Button className={`focus:bg-light_neutral_500 h-[44px] rounded-xl `}>
                                     <RxDotsVertical className={`w-[20px] h-6`} />
