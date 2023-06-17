@@ -81,7 +81,7 @@ export const Modal: React.FC<ModalProps> = ({ type, headline, content, isOpen, o
               onClick={onOk}
               className="w-[189px] h-[47px] text-primary_white bg-primary_blue border hover:bg-primary_white hover:border-primary_blue hover:text-primary_blue rounded"
             >
-              Selesaikan
+              {headline === 'Buka Posisi' ? 'Buka' : 'Tutup'}
             </button>
           </div>
         )}

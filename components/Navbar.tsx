@@ -49,7 +49,7 @@ export default function Navbar(): JSX.Element {
         <div className={`flex items-center justify-between gap-[359px]`}>
           <div className={`flex items-center gap-3`}>
             <div className={` bg-primary_white w-9 h-9 rounded-full`}>
-              <div className={`h-full w-full bg-primary_blue rotate-45 transform origin-bottom-left`}></div>
+              <div className={` bg-primary_blue rotate-45 transform origin-bottom-left`}></div>
             </div>
             <div>
               <div>{companyData.name}</div>
@@ -124,7 +124,7 @@ export default function Navbar(): JSX.Element {
         <div className={`flex items-center gap-[18px]`}>
           <IoSettingsOutline className={`text-[32px]`} />
           <button className={` bg-primary_white w-8 h-8 rounded-full`} onClick={handleHoverUser}>
-            <FaUser className={`w-full h-full text-dark_neutral_100`} />
+            <FaUser className={` text-dark_neutral_100`} />
           </button>
           {isShow && (
             <div
