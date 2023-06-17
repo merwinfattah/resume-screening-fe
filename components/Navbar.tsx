@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux';
 import { logoutUser } from '@/redux/store/reducers/loginReducer';
 import { clearToken } from '@/redux/store/reducers/authReducer';
 import { FaUser } from 'react-icons/fa';
+import { RiBuilding2Fill } from 'react-icons/ri';
 
 export default function Navbar(): JSX.Element {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function Navbar(): JSX.Element {
         <div className={`flex items-center justify-between gap-[359px]`}>
           <div className={`flex items-center gap-3`}>
             <div className="bg-primary_white w-9 h-9 rounded-full flex items-center justify-center">
-              <div className="bg-primary_blue w-5 h-5 rotate-45 transform origin-bottom-left"></div>
+              <RiBuilding2Fill className={`text-primary_blue text-[20px]`} />
             </div>
             <div>
               <div>{companyData.name}</div>
