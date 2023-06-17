@@ -444,17 +444,18 @@ export default function EditPosition() {
                     ) : (
                       <>
                         <button
-                          type="button"
                           className={` mt-[8px] rounded bg-primary_blue text-primary_white py-[14px] px-[10px] border  hover:bg-primary_white hover:text-primary_blue hover:border-primary_blue`}
                         >
+                          <label htmlFor="job-desc-upload" className="cursor-pointer">
+                            <p>Unggah File Job Desc</p>
+                          </label>
                           <input
                             type="file"
-                            id="uploadInput"
+                            id="job-desc-upload"
                             accept=".pdf"
-                            className="absolute left-0 top-0 opacity-0"
+                            className="hidden"
                             onChange={handleFileUpload}
                           />
-                          Unggah File Job Desc
                         </button>
                       </>
                     )}
