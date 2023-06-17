@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-const apiKey = process.env.API_URL_BACKEND;
 export const api = axios.create({
   baseURL: 'http://localhost:8010/proxy',
   headers: {
