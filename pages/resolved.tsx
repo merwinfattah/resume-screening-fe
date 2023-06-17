@@ -779,7 +779,7 @@ export default function TalentPool() {
                     onClick={showModal}
                     className={`flex justify-center items-center w-[224px] h-[47px]  rounded border hover:border-semantic_green_600 bg-semantic_green_600 hover:bg-primary_white text-center text-primary_white hover:text-semantic_green_600`}
                   >
-                    Selesaikan Posisi
+                    Buka Posisi
                   </button>
                 </div>
               </div>
@@ -1179,8 +1179,8 @@ export default function TalentPool() {
           isOpen={isModalOpen}
           onOk={handleResolvePosition}
           onClose={closeModal}
-          headline="Tutup Posisi"
-          content="Posisi yang ditutup dapat dibuka kembali di halaman Arsip"
+          headline="Buka Posisi"
+          content="Posisi yang dibuka dapat dilihat kembali di halaman Talent Pool."
         />
       )}
     </Layout>

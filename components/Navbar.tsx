@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { logoutUser } from '@/redux/store/reducers/loginReducer';
 import { clearToken } from '@/redux/store/reducers/authReducer';
+import { FaUser } from 'react-icons/fa';
 
 export default function Navbar(): JSX.Element {
   const router = useRouter();
@@ -47,7 +48,9 @@ export default function Navbar(): JSX.Element {
       <div className={` max-w-full  px-8 py-[14px] flex justify-between items-center text-primary_white`}>
         <div className={`flex items-center justify-between gap-[359px]`}>
           <div className={`flex items-center gap-3`}>
-            <div className={` bg-primary_white w-9 h-9 rounded-full`}>{/*Logo*/}</div>
+            <div className={` bg-primary_white w-9 h-9 rounded-full`}>
+              <div className={`h-full w-full bg-primary_blue rotate-45 transform origin-bottom-left`}></div>
+            </div>
             <div>
               <div>{companyData.name}</div>
               <div>
@@ -120,9 +123,9 @@ export default function Navbar(): JSX.Element {
         </div>
         <div className={`flex items-center gap-[18px]`}>
           <IoSettingsOutline className={`text-[32px]`} />
-          <div className={` bg-primary_white w-8 h-8 rounded-full`} onClick={handleHoverUser}>
-            {/*User*/}
-          </div>
+          <button className={` bg-primary_white w-8 h-8 rounded-full`} onClick={handleHoverUser}>
+            <FaUser className={`w-full h-full text-dark_neutral_100`} />
+          </button>
           {isShow && (
             <div
               className={`flex flex-col gap-[20px] absolute top-[60px] right-[20px] bg-primary_white w-auto h-auto p-3 z-50 rounded drop-shadow-lg`}
