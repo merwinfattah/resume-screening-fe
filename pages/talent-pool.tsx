@@ -549,6 +549,48 @@ export default function TalentPool() {
     setCurrentPage(page);
   };
 
+  const handleSendEmail = async () => {
+    const name = candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.name;
+    const position = positionDataList.find((position) => position._id === activeIndex)?.name;
+    const email = candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.email;
+
+    try {
+      const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000?mailer?email_recipient=${email}&nama_kandidat=${name}&posisi_dilamar=${position}`;
+
+      const sendEmailResponse = await fetch(url, {
+        method: 'POST',
+      });
+
+      if (sendEmailResponse.ok) {
+        window.alert('Email berhasil dikirim');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSendMultipleEmail = async () => {
+    try {
+      for (let idCandidate of idCandidateChecked) {
+        const name = candidateDataList.find((candidate) => candidate._id === idCandidate)?.name;
+        const position = positionDataList.find((position) => position._id === idCandidate)?.name;
+        const email = candidateDataList.find((candidate) => candidate._id === idCandidate)?.email;
+
+        const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000?mailer?email_recipient=${email}&nama_kandidat=${name}&posisi_dilamar=${position}`;
+
+        const sendEmailResponse = await fetch(url, {
+          method: 'POST',
+        });
+
+        if (sendEmailResponse.ok) {
+          window.alert('Email berhasil dikirim');
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Layout>
       <article className={`flex`}>
@@ -757,7 +799,10 @@ export default function TalentPool() {
                           >
                             <BiArrowBack className={`w-full h-full`} />
                           </button>
-                          <button className={`w-[24px] h-[24px] flex items-center justify-center`}>
+                          <button
+                            onClick={handleSendMultipleEmail}
+                            className={`w-[24px] h-[24px] flex items-center justify-center`}
+                          >
                             <HiOutlineMail className={`w-full h-full`} />
                           </button>
                         </div>
@@ -941,12 +986,13 @@ export default function TalentPool() {
                                   Tambahkan sebagai <span className={`font-bold`}>Kandidat Terkualifikasi</span>
                                 </p>
                               </button>
-                              <div
+                              <button
+                                onClick={handleSendEmail}
                                 className={`w-[135px] h-[44px] items-center border border-mid_neutral_100 rounded justify-center flex gap-[6px] bg-primary_white text-primary_blue`}
                               >
                                 <HiOutlineMail />
                                 <p>Kirim Email</p>
-                              </div>
+                              </button>
                             </div>
                           </div>
                           <div className={`py-[18px] px-[32px]`}>
