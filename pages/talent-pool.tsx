@@ -294,6 +294,10 @@ export default function TalentPool() {
 
   const handleResolvePosition = async () => {
     const positionData = positionDataList.find((positionData) => positionData._id === activeIndex);
+    const nextActiveIndex = filteredPositionDataList.filter((positionData) => positionData._id !== activeIndex)[0]?._id;
+    const nextActiveCandidateIndex = candidateDataList.filter(
+      (candidateData) => candidateData.position === nextActiveIndex
+    )[0]?._id;
     if (positionData) {
       const newPositionDataList = positionDataList.map((positionData) => {
         if (positionData._id === activeIndex) {
@@ -308,8 +312,8 @@ export default function TalentPool() {
       try {
         const responsePosition = await PositionDataService.resolve(data, token.token);
         console.log(responsePosition);
-        setActiveIndex(null);
-        setActiveCandidateIndex(null);
+        setActiveIndex(nextActiveIndex || '');
+        setActiveCandidateIndex(nextActiveCandidateIndex);
         setIsModalOpen(false);
       } catch (error) {
         console.log(error);
