@@ -1,55 +1,52 @@
 import axios from 'axios';
 
+const baseURL = 'http://ec2-44-202-51-145.compute-1.amazonaws.com:5000';
+
+const commonHeaders = {
+  'ngrok-skip-browser-warning': true,
+};
+
 export const api = axios.create({
-  baseURL: 'http://localhost:8010/proxy',
+  baseURL,
   headers: {
     'Content-type': 'application/json',
-    'ngrok-skip-browser-warning': true,
+    ...commonHeaders,
   },
 });
 
 export const ApiAuthForm = (token: any) => {
-  const apiAuthFormWithToken = axios.create({
-    baseURL: 'http://localhost:8010/proxy',
+  return axios.create({
+    baseURL,
     headers: {
       'Content-type': 'multipart/form-data',
-      'ngrok-skip-browser-warning': true,
+      ...commonHeaders,
       Authorization: token,
     },
   });
-
-  return apiAuthFormWithToken;
 };
 
 export const apiGet = axios.create({
-  baseURL: 'http://localhost:8010/proxy',
-  headers: {
-    'ngrok-skip-browser-warning': true,
-  },
+  baseURL,
+  headers: commonHeaders,
 });
 
 export const ApiAuth = (token: any) => {
-  const apiAuthWithToken = axios.create({
-    baseURL: 'http://localhost:8010/proxy',
+  return axios.create({
+    baseURL,
     headers: {
       'Content-type': 'application/json',
-      'ngrok-skip-browser-warning': true,
+      ...commonHeaders,
       Authorization: token,
     },
   });
-  console.log('apiAuthWithToken', apiAuthWithToken);
-  return apiAuthWithToken;
 };
 
 export const ApiAuthGet = (token: any) => {
-  // Set the token in the headers
-  const apiAuthGetWithToken = axios.create({
-    baseURL: 'http://localhost:8010/proxy',
+  return axios.create({
+    baseURL,
     headers: {
-      'ngrok-skip-browser-warning': true,
+      ...commonHeaders,
       Authorization: token,
     },
   });
-
-  return apiAuthGetWithToken;
 };
