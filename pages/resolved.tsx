@@ -19,43 +19,14 @@ import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { Modal } from '@/components/Modal';
-import { BiCheckDouble } from 'react-icons/bi';
+import { Divider, Space, Tag } from 'antd';
 import { useSelector } from 'react-redux';
 import PositionDataService from './api/services/position.service';
 import CandidateDataService from './api/services/candidate.service';
 import DepartmentDataService from './api/services/department.service';
 import { BsFillTrashFill } from 'react-icons/bs';
-
-type SortingOption = {
-  label: string;
-  value: string;
-};
-
-const sortingOptions: SortingOption[] = [
-  { label: 'Asc', value: 'asc' },
-  { label: 'Desc', value: 'desc' },
-];
-
-const sortItems = (applicants: Candidate[], option: SortingOption, direction: 'asc' | 'desc'): Candidate[] => {
-  const sortedItems = [...applicants];
-
-  switch (option.value) {
-    case 'asc':
-      sortedItems.sort((a, b) => (a.name > b.name ? 1 : -1));
-      break;
-    case 'desc':
-      sortedItems.sort((a, b) => (a.name < b.name ? 1 : -1));
-      break;
-    default:
-      break;
-  }
-
-  if (direction === 'desc') {
-    sortedItems.reverse();
-  }
-
-  return sortedItems;
-};
+import { RiArrowUpDownLine } from 'react-icons/ri';
+import Pagination from '@/components/Pagination';
 
 export default function TalentPool() {
   const companyId = useSelector((state: any) => state.login.companyId);
@@ -66,12 +37,74 @@ export default function TalentPool() {
   const [departmentParam, setDepartmentParam] = useState<string>('');
   const [educationParam, setEducationParam] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [candidateChecked, setCandidateChecked] = useState(0);
   const [idCandidateChecked, setIdCandidateChecked] = useState<string[]>([]);
-  const [selectAllCandidates, setSelectAllCandidates] = useState<boolean>(false);
+  const [showButtonRescore, setShowButtonRescore] = useState<boolean>(false);
+  const [visibleTags, setVisibleTags] = useState<number>(10);
+  const [scoringLoading, setScoringLoading] = useState<boolean>(false);
+  const [candidateDisplayLoading, setCandidateDisplayLoading] = useState<boolean>(false);
+  const [positionDisplayLoading, setPositionDisplayLoading] = useState<boolean>(false);
+  const [searchCandidateTerm, setSearchCandidateTerm] = useState<string>('');
+  const [searchPositionTerm, setSearchPositionTerm] = useState<string>('');
+  const [isSearchPosition, setIsSearchPosition] = useState<boolean>(false);
+  const [sortedOrder, setSortedOrder] = useState<string>('asc');
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!token) {
+      window.location.href = '/auth/login';
+    }
+  }, [token]);
+
+  const handleSearchCandidateInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchPositionTerm(event.target.value);
+  };
+
+  const handleSearchCandidateIconClick = () => {
+    setIsSearchPosition(true);
+  };
+
+  const handleSearchCandidateInputBlur = () => {
+    setIsSearchPosition(false);
+    setSearchPositionTerm('');
+  };
+
+  const sortList = (order: string) => {
+    let sortedList: PositionData[] = [];
+
+    if (order === 'asc') {
+      sortedList = positionDataList.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (order === 'desc') {
+      sortedList = positionDataList.sort((a, b) => b.name.localeCompare(a.name));
+    }
+
+    return sortedList;
+  };
+
+  const handleSortClick = () => {
+    const newOrder = sortedOrder === 'asc' ? 'desc' : 'asc';
+    const sortedList = sortList(newOrder);
+
+    setSortedOrder(newOrder);
+    // You may update the activeIndex here if needed
+    setActiveIndex(sortedList[0]?._id);
+  };
+
+  const handleSearchCandidate = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchCandidateTerm(event.target.value);
+  };
+
+  const handleHoverFilteredTab = () => {
+    setShowButtonRescore(true);
+  };
+
+  const handleLeaveFilteredTab = () => {
+    setShowButtonRescore(false);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
+      setCandidateDisplayLoading(true);
+      setPositionDisplayLoading(true);
       try {
         const departmentDataListResponse = await DepartmentDataService.getAll(token.token);
         const positionDataListResponse = await PositionDataService.getAll(token.token);
@@ -79,26 +112,39 @@ export default function TalentPool() {
         setDepartmentDataList(departmentDataListResponse.data);
         setPositionDataList(positionDataListResponse.data);
         setCandidateDataList(candidateDataListResponse.data);
+        console.log('lolo', candidateDataListResponse.data);
+        setCandidateDisplayLoading(false);
+        setPositionDisplayLoading(false);
       } catch (error) {
         console.log(error);
+        setCandidateDisplayLoading(false);
+        setPositionDisplayLoading(false);
       }
     };
     fetchData();
   }, [companyId, token]);
 
   const filteredPositionDataList = positionDataList.filter(
-    (positionData) => !positionData.isTrash.isInTrash && positionData.isResolved
+    (positionData: PositionData) => !positionData.isTrash.isInTrash && positionData.isResolved
   );
-
+  const departmentOptions = departmenDataList.map((department: Department) => {
+    return {
+      value: department.name,
+      label: department.name,
+    };
+  });
+  const departmentOptionsJson = JSON.stringify(departmentOptions);
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
   const [activeCandidateIndex, setActiveCandidateIndex] = useState<string | null>(null);
-  const [activeFilteredListCandidate, setActiveFilteredListCandidate] = useState<Boolean>(false);
+  const [activeFilteredListCandidate, setActiveFilteredListCandidate] = useState<string>('unfiltered');
   const newPlugin = defaultLayoutPlugin();
-  const activeCandidate = candidateDataList.find((candidate) => candidate._id === activeCandidateIndex);
+  const activeCandidate = candidateDataList.find((candidate: Candidate) => candidate._id === activeCandidateIndex);
   const filteredCandidates = candidateDataList.filter(
-    (candidate) => candidate.position === activeIndex && candidate.score !== null && candidate.score > 0
+    (candidate: Candidate) => candidate.position === activeIndex && candidate.score !== null && candidate.score > 0
   );
-  const sortedScores = filteredCandidates.map((candidate) => candidate.score).sort((a, b) => (b ?? 0) - (a ?? 0));
+  const sortedScores = filteredCandidates
+    .map((candidate: Candidate) => candidate.score)
+    .sort((a, b) => (b ?? 0) - (a ?? 0));
   const activeCandidateScore = activeCandidate?.score ?? null;
 
   const rank = activeCandidateScore !== null ? sortedScores.indexOf(activeCandidateScore) + 1 : null;
@@ -106,35 +152,54 @@ export default function TalentPool() {
   const totalCount = filteredCandidates.length;
 
   const rankText = rank !== null ? `${rank} / ${totalCount}` : '';
+
+  const skills = candidateDataList.find(
+    (candidate: Candidate) => candidate._id === activeCandidateIndex && (candidate.score ?? 0 > 0)
+  )?.skills;
+  const handleExpandTags = () => {
+    if (skills && skills.length > 10) {
+      if (visibleTags === skills.length) {
+        setVisibleTags(10); // Reset visibleTags to the initial value of 10 when collapsing
+      } else {
+        const remainingTags = skills.length - visibleTags; // Calculate the remaining tags when expanding
+        const additionalTags = Math.min(remainingTags, 10); // Calculate the number of additional tags to show (up to 10)
+        setVisibleTags(visibleTags + additionalTags); // Update the visibleTags state by adding the additionalTags
+      }
+    }
+  };
+
+  const visibleSkills = skills ? skills.slice(0, visibleTags) : [];
+  const remainingTags = skills ? skills.length - visibleTags : 0;
   useEffect(() => {
     if (filteredPositionDataList.length > 0 && activeIndex === null) {
       const firstItemId = filteredPositionDataList[0]._id;
       setActiveIndex(firstItemId);
       setDepartmentParam(
         departmenDataList.find(
-          (departmentData) =>
+          (departmentData: Department) =>
             departmentData._id ===
-            filteredPositionDataList.find((positionData) => positionData._id === firstItemId)?.department
+            filteredPositionDataList.find((positionData: PositionData) => positionData._id === firstItemId)?.department
         )?.name || ''
       );
       setEducationParam(
-        filteredPositionDataList.find((positionData) => positionData._id === firstItemId)?.education || ''
+        filteredPositionDataList.find((positionData: PositionData) => positionData._id === firstItemId)?.education || ''
       );
     }
   }, [filteredPositionDataList, activeIndex, departmenDataList]);
 
   useEffect(() => {
     if (
-      candidateDataList.filter((candidate) => candidate.position === activeIndex).length > 0 &&
+      candidateDataList.filter((candidate: Candidate) => candidate.position === activeIndex).length > 0 &&
       activeCandidateIndex === null
     ) {
-      const firstItemId = candidateDataList.find((candidate) => candidate.position === activeIndex)?._id || '';
+      const firstItemId =
+        candidateDataList.find((candidate: Candidate) => candidate.position === activeIndex)?._id || '';
       setActiveCandidateIndex(firstItemId);
     }
   }, [candidateDataList, activeCandidateIndex, activeIndex]);
-  const [sortingOption, setSortingOption] = useState<SortingOption>(sortingOptions[0]);
-  const [sortingDirection] = useState<'asc' | 'desc'>('asc');
+
   const onDrop = async (acceptedFiles: File[]) => {
+    setIsUploading(true);
     const fileList = acceptedFiles.filter((file) => {
       const fileExtension = file.name.split('.').pop();
       return fileExtension === 'pdf' || fileExtension === 'docx';
@@ -146,7 +211,7 @@ export default function TalentPool() {
       // let newPositionDataList = await getItem('positionDataList');
       const newCandidateUploadList = new FormData();
 
-      fileList.forEach((file, index) => {
+      fileList.forEach((file: File, index: number) => {
         const name = file.name.split('_')[0];
         const email = file.name.split('_')[1];
         const domicile = file.name.split('_')[2].split('.')[0];
@@ -170,15 +235,16 @@ export default function TalentPool() {
         const data = {
           id: activeIndex,
           qualifiedCV:
-            positionDataList.find((positionData) => positionData._id === activeIndex)?.qualifiedCandidates || 0,
+            positionDataList.find((positionData: PositionData) => positionData._id === activeIndex)
+              ?.qualifiedCandidates || 0,
         };
-        const responseCandidate = await CandidateDataService.upload(newCandidateUploadList, token.token);
-        const responsePosition = await PositionDataService.editNumber(data, token.token);
-        console.log(responseCandidate.data);
-        console.log(responsePosition.data);
+        await CandidateDataService.upload(newCandidateUploadList, token.token);
+        await PositionDataService.editNumber(data, token.token);
+        setIsUploading(false);
         window.location.reload();
       } catch (error) {
         console.log(error);
+        setIsUploading(false);
       }
     } else {
       // Handle no valid files
@@ -196,12 +262,6 @@ export default function TalentPool() {
     noKeyboard: true,
   });
 
-  const sortedItems = sortItems(
-    candidateDataList.filter((candidate) => candidate.position === activeIndex),
-    sortingOption,
-    sortingDirection
-  );
-
   const handleTabClick = (id: string) => {
     setActiveIndex(id);
     setActiveCandidateIndex(candidateDataList.find((candidateData) => candidateData.position === id)?._id || '');
@@ -213,6 +273,7 @@ export default function TalentPool() {
     );
     setEducationParam(filteredPositionDataList.find((positionData) => positionData._id === id)?.education || '');
     setIdCandidateChecked([]);
+    setActiveFilteredListCandidate('unfiltered');
   };
 
   const handleCandidateClick = (id: string) => {
@@ -269,14 +330,14 @@ export default function TalentPool() {
   };
 
   const handleQualified = async (id: string) => {
-    const newCandidateDataList = candidateDataList.map((candidateData) => {
+    const newCandidateDataList = candidateDataList.map((candidateData: Candidate) => {
       if (candidateData._id === id) {
         candidateData.isQualified = !candidateData.isQualified;
       }
       return candidateData;
     });
     setCandidateDataList(newCandidateDataList);
-    const newPositionDataList = positionDataList.map((positionData) => {
+    const newPositionDataList = positionDataList.map((positionData: PositionData) => {
       if (positionData._id === activeIndex) {
         if (newCandidateDataList.find((candidateData) => candidateData._id === id)?.isQualified) {
           positionData.qualifiedCandidates = positionData.qualifiedCandidates + 1;
@@ -292,8 +353,8 @@ export default function TalentPool() {
     };
     const newPositionData = {
       id: activeIndex,
-      uploadedCV: positionDataList.find((position) => position._id === activeIndex)?.uploadedCV,
-      filteredCV: positionDataList.find((position) => position._id === activeIndex)?.filteredCV,
+      uploadedCV: positionDataList.find((position: PositionData) => position._id === activeIndex)?.uploadedCV,
+      filteredCV: positionDataList.find((position: PositionData) => position._id === activeIndex)?.filteredCV,
       qualifiedCandidates: positionDataList.find((position) => position._id === activeIndex)?.qualifiedCandidates,
     };
     try {
@@ -309,42 +370,35 @@ export default function TalentPool() {
   const handleCheckedCandidate = async (event: React.ChangeEvent<HTMLInputElement>, id: string) => {
     if (event.target.checked) {
       setIdCandidateChecked((prev) => [...prev, id]);
-      setCandidateChecked((prev) => prev + 1);
     } else {
       setIdCandidateChecked((prevIdCandidateChecked) =>
         prevIdCandidateChecked.filter((idCandidate: string) => idCandidate !== id)
       );
-      setCandidateChecked((prev) => prev - 1);
-      setSelectAllCandidates(false); // Uncheck the radio button when any checkbox is manually unchecked
 
       // Check if all checkboxes are unchecked, then uncheck the radio button
-      if (idCandidateChecked.length === 1 && idCandidateChecked.includes(id)) {
-        setSelectAllCandidates(false);
-      }
     }
   };
-
-  const handleRadioChange = async () => {
-    const candidateDataForActiveIndex = candidateDataList.filter((candidate) => candidate.position === activeIndex);
-    const allCandidatesChecked =
-      idCandidateChecked.length === candidateDataForActiveIndex.length &&
-      idCandidateChecked.every((id) => candidateDataForActiveIndex.find((candidate) => candidate._id === id));
-
-    if (!selectAllCandidates || !allCandidatesChecked) {
-      const newIdCandidateChecked = candidateDataForActiveIndex.map((candidate) => candidate._id);
-      setIdCandidateChecked(newIdCandidateChecked);
-      setCandidateChecked(newIdCandidateChecked.length);
-      setSelectAllCandidates(true);
+  const handleCheckAll = () => {
+    if (
+      idCandidateChecked.length !== candidateDataList.filter((candidate) => candidate.position === activeIndex).length
+    ) {
+      console.log('masuk');
+      const candidatesToSelect = candidateDataList
+        .filter((candidate) => candidate.position === activeIndex)
+        .map((candidateData) => candidateData._id);
+      setIdCandidateChecked(candidatesToSelect);
     } else {
+      console.log('masuk2');
       setIdCandidateChecked([]);
-      setCandidateChecked(0);
-      setSelectAllCandidates(false);
     }
   };
 
   const handleScoreCandidate = async () => {
+    console.log('ini id', activeIndex);
+    console.log('token', token.token);
+    setScoringLoading(true);
     try {
-      const url = `https://e754-36-85-233-125.ngrok-free.app/resume_scoring?positionId=${activeIndex}&token_value=${token.token}&companyId=${companyId}`;
+      const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/resume_scoring?positionId=${activeIndex}&token_value=${token.token}`;
 
       const scoringResponse = await fetch(url, {
         method: 'POST',
@@ -354,14 +408,17 @@ export default function TalentPool() {
         const scoringData = await scoringResponse.json();
         console.log(scoringData);
       }
-      setActiveFilteredListCandidate(true);
+      setActiveFilteredListCandidate('filtered');
+      setScoringLoading(false);
       window.location.reload();
     } catch (error) {
       console.log(error);
+      setScoringLoading(false);
     }
   };
 
   const handleFileUpload = async (event: any) => {
+    setIsUploading(true);
     const files = event.target.files;
 
     const fileList = Array.from(files).filter((file: any) => {
@@ -373,7 +430,7 @@ export default function TalentPool() {
       // Handle valid files
       const newCandidateUploadList = new FormData();
 
-      fileList.forEach((file: any, index) => {
+      fileList.forEach((file: any, index: number) => {
         const name = file.name.split('_')[0];
         const email = file.name.split('_')[1];
         const domicile = file.name.split('_')[2].split('.')[0];
@@ -397,15 +454,16 @@ export default function TalentPool() {
         const data = {
           id: activeIndex,
           qualifiedCV:
-            positionDataList.find((positionData) => positionData._id === activeIndex)?.qualifiedCandidates || 0,
+            positionDataList.find((positionData: PositionData) => positionData._id === activeIndex)
+              ?.qualifiedCandidates || 0,
         };
-        const responseCandidate = await CandidateDataService.upload(newCandidateUploadList, token.token);
-        const responsePosition = await PositionDataService.editNumber(data, token.token);
-        console.log(responseCandidate.data);
-        console.log(responsePosition.data);
+        await CandidateDataService.upload(newCandidateUploadList, token.token);
+        await PositionDataService.editNumber(data, token.token);
+        setIsUploading(false);
         window.location.reload();
       } catch (error) {
         console.log(error);
+        setIsUploading(false);
       }
     } else {
       // Handle no valid files
@@ -413,8 +471,124 @@ export default function TalentPool() {
     }
   };
 
-  const handleFilteredCvTab = async () => {
-    setActiveFilteredListCandidate(!activeFilteredListCandidate);
+  const handleSwitchToFilteredTab = async () => {
+    setActiveFilteredListCandidate('filtered');
+  };
+
+  const handleSwitchToUnfilteredTab = async () => {
+    setActiveFilteredListCandidate('unfiltered');
+  };
+
+  const handleUncheckedAllCandidates = async () => {
+    setIdCandidateChecked([]);
+  };
+
+  const handleDeleteCandidates = async () => {
+    if (
+      idCandidateChecked.length === candidateDataList.filter((candidate) => candidate.position === activeIndex).length
+    ) {
+      const positionNextIndex = positionDataList.filter((position) => position._id !== activeIndex)[0]._id;
+      setActiveIndex(positionNextIndex);
+      setActiveCandidateIndex(candidateDataList.filter((candidate) => candidate.position === positionNextIndex)[0]._id);
+    } else {
+      const candidateNextIndex = candidateDataList.filter(
+        (candidate) => candidate.position === activeIndex && !idCandidateChecked.includes(candidate._id)
+      )[0]._id;
+      setActiveCandidateIndex(candidateNextIndex);
+    }
+    setCandidateDataList((prevCandidateDataList) =>
+      prevCandidateDataList.filter((candidate) => !idCandidateChecked.includes(candidate._id))
+    );
+    setIdCandidateChecked([]);
+    const data = {
+      ids: [...idCandidateChecked],
+    };
+    try {
+      const responseCandidate = await CandidateDataService.delete(data, token.token);
+      console.log(responseCandidate.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Default number of items per page
+
+  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    setItemsPerPage(value);
+    setCurrentPage(1); // Reset to the first page when the number of items per page changes
+  };
+
+  // Calculate the index range of items to display based on the current page
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const displayedCandidates = candidateDataList
+    .filter(
+      (candidate: Candidate) =>
+        candidate.position === activeIndex && candidate.name.toLowerCase().includes(searchCandidateTerm.toLowerCase())
+    )
+    .slice(startIndex, endIndex);
+
+  const displayedScoredCandidates = candidateDataList
+    .filter(
+      (candidate) =>
+        candidate.position === activeIndex &&
+        (candidate.score ?? 0 > 0) &&
+        candidate.name.toLowerCase().includes(searchCandidateTerm.toLowerCase())
+    )
+    .slice(startIndex, endIndex);
+
+  const totalCandidates =
+    activeFilteredListCandidate === 'filtered'
+      ? candidateDataList.filter((candidate) => candidate.position === activeIndex && (candidate.score ?? 0 > 0)).length
+      : candidateDataList.filter((candidate: Candidate) => candidate.position === activeIndex).length;
+
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleSendEmail = async () => {
+    const name = candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.name;
+    const position = positionDataList.find((position) => position._id === activeIndex)?.name;
+    const email = candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.email;
+
+    try {
+      const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000?mailer?email_recipient=${email}&nama_kandidat=${name}&posisi_dilamar=${position}`;
+
+      const sendEmailResponse = await fetch(url, {
+        method: 'POST',
+      });
+
+      if (sendEmailResponse.ok) {
+        window.alert('Email berhasil dikirim');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSendMultipleEmail = async () => {
+    try {
+      for (let idCandidate of idCandidateChecked) {
+        const name = candidateDataList.find((candidate) => candidate._id === idCandidate)?.name;
+        const position = positionDataList.find((position) => position._id === idCandidate)?.name;
+        const email = candidateDataList.find((candidate) => candidate._id === idCandidate)?.email;
+
+        const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000?mailer?email_recipient=${email}&nama_kandidat=${name}&posisi_dilamar=${position}`;
+
+        const sendEmailResponse = await fetch(url, {
+          method: 'POST',
+        });
+
+        if (sendEmailResponse.ok) {
+          window.alert('Email berhasil dikirim');
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -423,42 +597,73 @@ export default function TalentPool() {
         <section className={`w-[236px]   bg-light_neutral_200  border-r-2 border-semantic_blue_100`}>
           <aside>
             <div className={`flex items-center py-4 pr-4 pl-[33px] justify-between border-b border-mid_neutral_400`}>
-              <div className={`flex items-center gap-[6px]`}>
-                <AiOutlineSearch className={`text-dark_neutral_200`} />
-                <h2 className={`text-primary_dark`}>Daftar Posisi</h2>
-              </div>
-              <button className={`w-[19px] h-[19px] text-dark_neutral_200`}>
-                <GrFormAdd />
-              </button>
-            </div>
-            <ul>
-              {positionDataList
-                .filter((position: PositionData) => !position.isTrash.isInTrash && position.isResolved)
-                .map((positionData: PositionData) => (
-                  <li
-                    key={`position-${positionData._id}`}
-                    className={` hover: cursor-pointer flex items-center gap-[6px] py-4 pr-4 pl-[33px] border-b-2 border-semantic_blue_100 ${
-                      activeIndex === positionData._id ? 'bg-primary_blue' : ''
-                    } `}
-                    onClick={() => handleTabClick(positionData._id)}
+              {!isSearchPosition ? (
+                <>
+                  <div className={`flex items-center gap-[6px]`} onClick={handleSearchCandidateIconClick}>
+                    <AiOutlineSearch className={`text-dark_neutral_200`} />
+                    <h2 className={`text-primary_dark`}>Daftar Posisi</h2>
+                  </div>
+                  <button onClick={handleSortClick}>
+                    <RiArrowUpDownLine className={`text-dark_neutral_200`} />
+                  </button>
+                  <Link
+                    href={`/jobs/add-new-position?departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
+                    className={`w-[19px] h-[19px] text-dark_neutral_200`}
                   >
-                    <p
-                      className={`w-[154px] text-left  ${
-                        activeIndex === positionData._id ? 'text-primary_white' : 'text-dark_neutral_400'
-                      }`}
+                    <GrFormAdd />
+                  </Link>
+                </>
+              ) : (
+                <input
+                  type="text"
+                  className={`text-primary_dark outline-none bg-transparent`}
+                  placeholder="Cari Posisi"
+                  value={searchPositionTerm}
+                  onChange={handleSearchCandidateInputChange}
+                  onBlur={handleSearchCandidateInputBlur}
+                  autoFocus
+                />
+              )}
+            </div>
+            {positionDisplayLoading ? (
+              <div className={`flex justify-center items-center w-full h-[200px]`}>
+                <div className={`w-[50px] h-[50px] border-t-2 border-primary_blue rounded-full animate-spin`} />
+              </div>
+            ) : (
+              <ul>
+                {sortList(sortedOrder)
+                  .filter(
+                    (position: PositionData) =>
+                      !position.isTrash.isInTrash &&
+                      position.isResolved &&
+                      position.name.toLowerCase().includes(searchPositionTerm.toLowerCase())
+                  )
+                  .map((positionData: PositionData) => (
+                    <li
+                      key={`position-${positionData._id}`}
+                      className={` hover: cursor-pointer flex items-center gap-[6px] py-4 pr-4 pl-[33px] border-b-2 border-semantic_blue_100 ${
+                        activeIndex === positionData._id ? 'bg-primary_blue' : ''
+                      } `}
+                      onClick={() => handleTabClick(positionData._id)}
                     >
-                      {positionData.name}
-                      <span> - </span>
-                      {departmenDataList.find((department) => department._id === positionData.department)?.name}
-                    </p>
-                  </li>
-                ))}
-            </ul>
+                      <p
+                        className={`w-[154px] text-left  ${
+                          activeIndex === positionData._id ? 'text-primary_white' : 'text-dark_neutral_400'
+                        }`}
+                      >
+                        {positionData.name}
+                        <span> - </span>
+                        {departmenDataList.find((department) => department._id === positionData.department)?.name}
+                      </p>
+                    </li>
+                  ))}
+              </ul>
+            )}
           </aside>
         </section>
         <section
           className={` flex flex-col gap-[18px] w-[1648px] ${
-            positionDataList.filter((position: PositionData) => !position.isTrash.isInTrash && !position.isResolved)
+            positionDataList.filter((position: PositionData) => !position.isTrash.isInTrash && position.isResolved)
               .length > 0
               ? 'h-fit'
               : ''
@@ -468,24 +673,24 @@ export default function TalentPool() {
             <>
               <div className={`flex gap-[18px] w-full `}>
                 <div
-                  className={` z-10 drop-shadow-md  w-1/2 h-[78px] bg-light_neutral_200 rounded-md flex gap-[40px] items-center justify-center`}
+                  className={` relative z-10 drop-shadow-md  w-1/2 h-[78px] bg-light_neutral_200 rounded-md flex gap-[40px] items-center justify-center`}
                 >
                   <Link
                     href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
                       activeIndex || ''
                     )}&selectedDepartment=${encodeURIComponent(departmentParam)}&selectedEducation=${encodeURIComponent(
                       educationParam
-                    )}`}
+                    )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                     className={`flex items-center justify-center text-primary_blue w-[108px] h-[47px] rounded gap-[6px] border border-primary_blue hover:border-2`}
                   >
                     Edit Posisi
                   </Link>
                   <div className={` w-[6px] h-[19px]  text-dark_neutral_100`}>|</div>
                   <button
-                    onClick={handleFilteredCvTab}
+                    onClick={handleSwitchToUnfilteredTab}
                     className={`w-[197px] h-[54px] flex flex-col ${
-                      !activeFilteredListCandidate ? 'bg-semantic_blue_100' : ''
-                    } justify-center items-center rounded-[68px] text-center font-bold text-dark_neutral_400 hover:border-semantic_blue_100 hover:cursor-pointer`}
+                      activeFilteredListCandidate === 'unfiltered' ? 'bg-semantic_blue_100' : ''
+                    } justify-center items-center rounded-[68px] text-center font-bold text-dark_neutral_400 border hover:border-semantic_blue_100 hover:cursor-pointer`}
                   >
                     {positionDataList.find((position: PositionData) => position._id === activeIndex)?.uploadedCV}
                     <p className={`font-medium`}>Cv yang Terunggah</p>
@@ -493,26 +698,53 @@ export default function TalentPool() {
                   <div className={` w-[6px] h-[19px]  text-dark_neutral_100`}>|</div>
                   {positionDataList.find((position) => position._id === activeIndex && position.filteredCV > 0) ? (
                     <button
-                      onClick={handleFilteredCvTab}
+                      onClick={handleSwitchToFilteredTab}
+                      onMouseEnter={handleHoverFilteredTab}
+                      onMouseLeave={handleLeaveFilteredTab}
                       className={`w-[188px] h-[54px] rounded-[68px] flex flex-col ${
-                        activeFilteredListCandidate ? 'bg-semantic_blue_100' : ''
+                        activeFilteredListCandidate === 'filtered' ? 'bg-semantic_blue_100' : ''
                       } justify-center items-center text-center font-bold text-dark_neutral_400 border hover:border-semantic_blue_100 hover:cursor-pointer`}
                     >
                       {positionDataList.find((position) => position._id === activeIndex)?.filteredCV} /{' '}
                       {positionDataList.find((position) => position._id === activeIndex)?.uploadedCV}{' '}
                       <p className={`font-medium`}>CV yang tersaring</p>
+                      {showButtonRescore && (
+                        <div
+                          className={`rounded-[6px] z-20 py-[24px] px-[16px] modal-notification absolute top-[60px] right-0 bg-primary_white border flex flex-col justify-center items-center`}
+                        >
+                          <h2 className={`text-[18px]`}>Nilai Ulang CV?</h2>
+                          <button
+                            onClick={handleScoreCandidate}
+                            className={`mt-[16px] flex justify-center items-center border hover:border-primary_blue bg-primary_blue hover:bg-primary_white text-primary_white hover:text-primary_blue rounded w-[177px] h-[47px]`}
+                          >
+                            {scoringLoading ? (
+                              <div className={`flex justify-center items-center`}>
+                                <div className={`animate-spin rounded-full h-6 w-6 border-b-2 border-primary_blue`} />
+                              </div>
+                            ) : (
+                              <p>Nilai Semua CV</p>
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </button>
                   ) : (
                     <button
                       onClick={handleScoreCandidate}
                       className={` w-[161px] h-[47px] flex justify-center items-center rounded bg-primary_white border border-primary_blue text-primary_blue hover:border-2`}
                     >
-                      Nilai Semua CV
+                      {scoringLoading ? (
+                        <div className={`flex justify-center items-center`}>
+                          <div className={`animate-spin rounded-full h-6 w-6 border-b-2 border-primary_blue`} />
+                        </div>
+                      ) : (
+                        <p>Nilai Semua CV</p>
+                      )}
                     </button>
                   )}
                 </div>
                 <div
-                  className={`z-10 justify drop-shadow-md flex gap-[30px] w-1/2 h-[78px] rounded-lg bg-light_neutral_200 py-3 px-4 items-center`}
+                  className={`relative z-10 justify drop-shadow-md flex gap-[30px] w-1/2 h-[78px] rounded-lg bg-light_neutral_200 py-3 px-4 items-center`}
                 >
                   <div
                     className={`flex flex-col justify-center items-center h-[54px] w-[290px]  rounded-[68px] text-center text-sm font-bold text-dark_neutral_400`}
@@ -524,37 +756,53 @@ export default function TalentPool() {
                   </div>
                   <div className={` w-[6px] h-[19px]  text-dark_neutral_100`}>|</div>
                   <button
-                    className={`flex justify-center  w-[291px] h-[47px] bg-primary_blue text-primary_white rounded  hover:text-primary_blue hover:bg-primary_white border border-primary_blue items-center `}
+                    className={`flex justify-center  w-[291px] h-[47px] ${
+                      isUploading ? 'bg-primary_white text-primary_blue' : 'bg-primary_blue text-primary_white'
+                    }  rounded  hover:text-primary_blue hover:bg-primary_white border border-primary_blue items-center `}
                   >
-                    <label htmlFor="file-upload" className="cursor-pointer">
-                      <p>
-                        <span className="mr-[6px] text-[19px]">+</span>
-                        Tambah Kandidat Baru
-                      </p>
-                      <input id="file-upload" type="file" multiple className="hidden" onChange={handleFileUpload} />
-                    </label>
+                    {isUploading ? (
+                      <div className={`flex justify-center items-center`}>
+                        <div className={`animate-spin rounded-full h-6 w-6 border-b-2 border-primary_blue`} />
+                      </div>
+                    ) : (
+                      <label htmlFor="file-upload" className="cursor-pointer">
+                        <p>
+                          <span className="mr-[6px] text-[19px]">+</span>
+                          Tambah Kandidat Baru
+                        </p>
+                        <input id="file-upload" type="file" multiple className="hidden" onChange={handleFileUpload} />
+                      </label>
+                    )}
                   </button>
                   <div className={` w-[6px] h-[19px]  text-dark_neutral_100`}>|</div>
                   <button
                     onClick={showModal}
                     className={`flex justify-center items-center w-[224px] h-[47px]  rounded border hover:border-semantic_green_600 bg-semantic_green_600 hover:bg-primary_white text-center text-primary_white hover:text-semantic_green_600`}
                   >
-                    Buka Posisi
+                    Selesaikan Posisi
                   </button>
                 </div>
               </div>
-              {positionDataList.find((position) => position._id === activeIndex && position.uploadedCV > 0) ? (
-                <div className={`flex gap-[18px] `}>
-                  <div className={`flex flex-col w-[381px]  bg-light_neutral_200 rounded-md bg-scroll overflow-hidden`}>
+              {candidateDataList.filter((candidate) => candidate.position === activeIndex).length ? (
+                <div className={` relative flex gap-[18px]  `}>
+                  <div
+                    className={`flex flex-col w-[381px] h-fit bg-light_neutral_200 rounded-md bg-scroll overflow-hidden`}
+                  >
                     {idCandidateChecked.length > 0 ? (
                       <div
                         className={`p-[18px] flex justify-between  items-center bg-primary_blue text-primary_white `}
                       >
                         <div className={`flex gap-[20px]`}>
-                          <button className={`w-[24px] h-[24px] flex items-center justify-center`}>
+                          <button
+                            onClick={handleUncheckedAllCandidates}
+                            className={`w-[24px] h-[24px] flex items-center justify-center`}
+                          >
                             <BiArrowBack className={`w-full h-full`} />
                           </button>
-                          <button className={`w-[24px] h-[24px] flex items-center justify-center`}>
+                          <button
+                            onClick={handleSendMultipleEmail}
+                            className={`w-[24px] h-[24px] flex items-center justify-center`}
+                          >
                             <HiOutlineMail className={`w-full h-full`} />
                           </button>
                         </div>
@@ -562,7 +810,10 @@ export default function TalentPool() {
                           <button className={`w-[24px] h-[24px] flex items-center justify-center`}>
                             <MdPersonAddAlt1 className={`w-full h-full`} />
                           </button>
-                          <button className={`w-[24px] h-[24px] flex items-center justify-center`}>
+                          <button
+                            onClick={handleDeleteCandidates}
+                            className={`w-[24px] h-[24px] flex items-center justify-center`}
+                          >
                             <BsFillTrashFill className={`w-full h-full`} />
                           </button>
                         </div>
@@ -573,254 +824,332 @@ export default function TalentPool() {
                       >
                         <AiOutlineSearch />
                         <input
-                          placeholder="Saring berdasarkan nama"
+                          placeholder="Cari nama kandidat"
                           className={` w-full italic outline-none bg-transparent`}
+                          onChange={handleSearchCandidate}
+                          value={searchCandidateTerm}
                         />
                       </div>
                     )}
                     <div className={`py-[18px] px-[18px] `}>
                       {idCandidateChecked.length > 0 ? (
                         <div className={`flex justify-between  items-center`}>
-                          <div
-                            className={`flex items-center justify-center w-[15.81px] h-[15.81px] border border-primary_blue`}
-                          >
-                            <input
-                              type="radio"
-                              className={`w-[8px] h-[8px] `}
-                              checked={selectAllCandidates}
-                              onChange={handleRadioChange}
-                            />
-                          </div>
+                          <input
+                            type="checkbox"
+                            className={`w-[15.81px] h-[15.81px] `}
+                            checked={
+                              idCandidateChecked.length ===
+                              candidateDataList.filter((candidate) => candidate.position === activeIndex).length
+                            }
+                            onChange={handleCheckAll}
+                          />
                           <p className={`font-normal text-base text-dark_neutral_300`}>
                             <span className={`font-bold`}>{idCandidateChecked.length}</span> dipilih
                           </p>
                         </div>
                       ) : (
-                        <div className={`flex items-center`}>
-                          <label htmlFor="sorting" className={`text-base font-bold`}>
-                            Urutkan :
-                          </label>
-                          <select
-                            id="sorting"
-                            className={`bg-transparent outline-none`}
-                            value={sortingOption.value}
-                            onChange={(e) =>
-                              setSortingOption(sortingOptions.find((option) => option.value === e.target.value)!)
-                            }
-                          >
-                            {sortingOptions.map((option) => (
-                              <option key={option.value} value={option.value}>
-                                {option.label}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                        <div className={`flex items-center`}></div>
                       )}
                     </div>
                     <div className={`w-full `}>
-                      {activeFilteredListCandidate
-                        ? sortedItems
-                            .filter((candidate) => candidate.score ?? 0 > 0)
-                            .map((item: Candidate, index: number) => (
-                              <div
-                                key={item._id}
-                                className={`${
-                                  activeCandidateIndex === item._id ? 'bg-semantic_blue_100' : ''
-                                } group py-[18px] pl-[27px] pr-[10.78px] flex justify-between items-start hover:border-b-2 border-b border-mid_neutral_100 `}
-                                onClick={() => handleCandidateClick(item._id)}
-                              >
-                                <div className={`flex items-start`}>
-                                  <RxDragHandleDots2 className={`invisible group-hover:visible mt-[4px]`} />
-                                  <p>{index + 1}</p>
-                                  <input
-                                    type="checkbox"
-                                    className={`group-hover:visible ${
-                                      idCandidateChecked.length > 0 ? 'visible' : 'invisible'
-                                    } ml-[19px] mr-[11.69px] w-[13px] h-[13px] mt-[6px]`}
-                                    onChange={(e) => handleCheckedCandidate(e, item._id)}
-                                    checked={idCandidateChecked.includes(item._id)}
-                                  />
-                                  <div className={`flex flex-col gap-[7px] ml-[11.69px]`}>
-                                    <p className={`text-dark_neutral_300 text-lg font-semibold`}>{item.name}</p>
-                                    <div className={`flex flex-col gap-[4px]`}>
-                                      <p className={`text-semantic_blue_500 font-semibold text-base`}>
-                                        Skor: {item.score} /100
-                                      </p>
-                                      <p className={`text-dark_neutral_300 font-normal text-base`}>{item.domicile}</p>
-                                    </div>
+                      {candidateDisplayLoading ? (
+                        <div className={`flex justify-center items-center w-full h-[200px]`}>
+                          <div
+                            className={`w-[50px] h-[50px] border-t-2 border-primary_blue rounded-full animate-spin`}
+                          ></div>
+                        </div>
+                      ) : activeFilteredListCandidate === 'filtered' ? (
+                        displayedScoredCandidates
+                          .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+                          .map((candidate: Candidate, index: number) => (
+                            <div
+                              key={candidate._id}
+                              className={`${
+                                activeCandidateIndex === candidate._id ? 'bg-semantic_blue_100' : ''
+                              } group py-[18px] pl-[27px] pr-[10.78px] flex justify-between items-start hover:border-b-2 border-b border-mid_neutral_100 `}
+                              onClick={() => handleCandidateClick(candidate._id)}
+                            >
+                              <div className={`flex items-start`}>
+                                <RxDragHandleDots2 className={`invisible group-hover:visible mt-[4px]`} />
+                                <p>{index + 1}</p>
+                                <input
+                                  type="checkbox"
+                                  className={`group-hover:visible ${
+                                    idCandidateChecked.length > 0 ? 'visible' : 'invisible'
+                                  } ml-[19px] mr-[11.69px] w-[13px] h-[13px] mt-[6px]`}
+                                  onChange={(e) => handleCheckedCandidate(e, candidate._id)}
+                                  checked={idCandidateChecked.includes(candidate._id)}
+                                />
+                                <div className={`flex flex-col gap-[7px] ml-[11.69px]`}>
+                                  <p className={`text-dark_neutral_300 text-lg font-semibold`}>{candidate.name}</p>
+                                  <div className={`flex flex-col gap-[4px]`}>
+                                    <p className={`text-semantic_blue_500 font-semibold text-base`}>
+                                      Skor: {candidate.score} /100
+                                    </p>
+                                    <p className={`text-dark_neutral_300 font-normal text-base`}>
+                                      {candidate.domicile}
+                                    </p>
                                   </div>
                                 </div>
+                              </div>
 
-                                <div className={`flex flex-col items-center gap-2`}>
-                                  <button onClick={() => handleQualified(item._id)}>
-                                    {item.isQualified ? (
-                                      <IoStarSharp
-                                        className={`text-semantic_yellow_600 outline-semantic_orange_600 text-2xl `}
-                                      />
-                                    ) : (
-                                      <IoStarOutline className={`text-mid_neutral_600 text-2xl`} />
-                                    )}
-                                  </button>
-                                </div>
+                              <div className={`flex flex-col items-center gap-2`}>
+                                <button onClick={() => handleQualified(candidate._id)}>
+                                  {candidate.isQualified ? (
+                                    <IoStarSharp
+                                      className={`text-semantic_yellow_600 outline-semantic_orange_600 text-2xl `}
+                                    />
+                                  ) : (
+                                    <IoStarOutline className={`text-mid_neutral_600 text-2xl`} />
+                                  )}
+                                </button>
                               </div>
-                            ))
-                        : sortedItems
-                            .filter((candidate) => !candidate.score)
-                            .map((item: Candidate) => (
-                              <div
-                                key={item._id}
-                                className={`${
-                                  activeCandidateIndex === item._id ? 'bg-semantic_blue_100' : ''
-                                } group px-[18px] hover:border-b-2 h-[48px] border-b border-mid_neutral_100 flex items-center justify-between gap-[18px]`}
-                                onClick={() => handleCandidateClick(item._id)}
-                              >
-                                <div
-                                  className={`flex items-center gap-2 invisible group-hover:visible group-active:visible`}
-                                >
-                                  <RxDragHandleDots2 />
-                                  <input
-                                    type="checkbox"
-                                    onChange={(e) => handleCheckedCandidate(e, item._id)}
-                                    className={`w-[13px] h-[13px] ${idCandidateChecked.length > 0 ? 'visible' : ''}`}
-                                    checked={idCandidateChecked.includes(item._id)}
+                            </div>
+                          ))
+                      ) : (
+                        displayedCandidates.map((candidate: Candidate) => (
+                          <div
+                            key={candidate._id}
+                            className={`${
+                              activeCandidateIndex === candidate._id ? 'bg-semantic_blue_100' : ''
+                            } group px-[18px] hover:border-b-2 h-[48px] border-b border-mid_neutral_100 flex items-center justify-between gap-[18px]`}
+                            onClick={() => handleCandidateClick(candidate._id)}
+                          >
+                            <div
+                              className={`flex items-center gap-2 invisible group-hover:visible group-active:visible`}
+                            >
+                              <RxDragHandleDots2 />
+                              <input
+                                type="checkbox"
+                                onChange={(e) => handleCheckedCandidate(e, candidate._id)}
+                                className={`w-[13px] h-[13px] ${idCandidateChecked.length > 0 ? 'visible' : ''}`}
+                                checked={idCandidateChecked.includes(candidate._id)}
+                              />
+                              <p className={`visible text-dark_neutral_300 text-lg font-semibold`}>{candidate.name}</p>
+                            </div>
+                            <div className={`flex items-center gap-2`}>
+                              <button onClick={() => handleQualified(candidate._id)}>
+                                {candidate.isQualified ? (
+                                  <IoStarSharp
+                                    className={`text-semantic_yellow_600 outline-semantic_orange_600 text-2xl `}
                                   />
-                                  <p className={`visible text-dark_neutral_300 text-lg font-semibold`}>{item.name}</p>
-                                </div>
-                                <div className={`flex items-center gap-2`}>
-                                  <div
-                                    className={`w-[47px] h-[25px] rounded-3xl text-center font-semibold bg-semantic_yellow_300 text-secondary_red border border-secondary_red`}
-                                  >
-                                    New
-                                  </div>
-                                  <button onClick={() => handleQualified(item._id)}>
-                                    {item.isQualified ? (
-                                      <IoStarSharp
-                                        className={`text-semantic_yellow_600 outline-semantic_orange_600 text-2xl `}
-                                      />
-                                    ) : (
-                                      <IoStarOutline className={`text-mid_neutral_600 text-2xl`} />
-                                    )}
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
+                                ) : (
+                                  <IoStarOutline className={`text-mid_neutral_600 text-2xl`} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                   <div
                     className={` w-[1249px]  bg-light_neutral_200 border border-mid_neutral_200 rounded-t-md overflow-hidden`}
                   >
-                    <div className={`bg-light_neutral_300 h-[206px] `}>
-                      <div
-                        className={`h-[76px] flex items-center justify-between bg-light_neutral_200 border-b border-mid_neutral_200 pl-[32px] pr-[14px]`}
-                      >
-                        <h2 className={` text-[28px] text-primary_blue font-semibold`}>
-                          {candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.name}
-                        </h2>
-                        <div className={`flex gap-[16px]`}>
-                          <button
-                            onClick={() => handleQualified(activeCandidateIndex || '')}
-                            className={`flex  h-[44px] px-[10px] items-center border border-mid_neutral_100 rounded justify-center  gap-[6px]  ${
-                              candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.isQualified
-                                ? 'bg-primary_blue text-primary_white'
-                                : 'bg-primary_white text-primary_blue'
-                            }  `}
+                    {candidateDisplayLoading ? (
+                      <div className={`flex justify-center items-center w-full h-[200px]`}>
+                        <div
+                          className={`w-[50px] h-[50px] border-t-2 border-primary_blue rounded-full animate-spin`}
+                        ></div>
+                      </div>
+                    ) : (
+                      <div className={`h-fit`}>
+                        <div className={`bg-light_neutral_300 h-auto `}>
+                          <div
+                            className={`h-[76px] flex items-center justify-between bg-light_neutral_200 border-b border-mid_neutral_200 pl-[32px] pr-[14px]`}
                           >
-                            <div className={` rounded-full border border-primary_blue`}>
-                              <MdPersonAddAlt1 />
+                            <h2 className={` text-[28px] text-primary_blue font-semibold`}>
+                              {
+                                candidateDataList.find((candidate: Candidate) => candidate._id === activeCandidateIndex)
+                                  ?.name
+                              }
+                            </h2>
+                            <div className={`flex gap-[16px]`}>
+                              <button
+                                onClick={() => handleQualified(activeCandidateIndex || '')}
+                                className={`flex  h-[44px] px-[10px] items-center border border-mid_neutral_100 rounded justify-center  gap-[6px]  ${
+                                  candidateDataList.find(
+                                    (candidate: Candidate) => candidate._id === activeCandidateIndex
+                                  )?.isQualified
+                                    ? 'bg-primary_blue text-primary_white'
+                                    : 'bg-primary_white text-primary_blue'
+                                }  `}
+                              >
+                                <div className={` rounded-full border border-primary_blue`}>
+                                  <MdPersonAddAlt1 />
+                                </div>
+                                <p>
+                                  Tambahkan sebagai <span className={`font-bold`}>Kandidat Terkualifikasi</span>
+                                </p>
+                              </button>
+                              <button
+                                onClick={handleSendEmail}
+                                className={`w-[135px] h-[44px] items-center border border-mid_neutral_100 rounded justify-center flex gap-[6px] bg-primary_white text-primary_blue`}
+                              >
+                                <HiOutlineMail />
+                                <p>Kirim Email</p>
+                              </button>
                             </div>
-                            <p>
-                              Tambahkan sebagai <span className={`font-bold`}>Kandidat Terkualifikasi</span>
+                          </div>
+                          <div className={`py-[18px] px-[32px]`}>
+                            <div className={`flex justify-between`}>
+                              <div className={`flex gap-[24px]`}>
+                                <div>
+                                  <p className={`text-[18px] text-dark_neutral_400 font-semibold`}>Email</p>
+                                  <p className={`text-[18px] text-dark_neutral_400 font-semibold`}>Domisili</p>
+                                </div>
+                                <div>
+                                  <p className={`text-dark_neutral_400 text-lg font-normal`}>
+                                    {
+                                      candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)
+                                        ?.email
+                                    }
+                                  </p>
+                                  <p className={`text-dark_neutral_400 text-lg font-normal`}>
+                                    {
+                                      candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)
+                                        ?.domicile
+                                    }
+                                  </p>
+                                </div>
+                              </div>
+                              <div>
+                                {candidateDataList.find(
+                                  (candidate) => candidate._id === activeCandidateIndex && candidate.score
+                                ) !== undefined && activeFilteredListCandidate === 'filtered' ? (
+                                  <div
+                                    className={`w-[142px]  h-[82px] text-[16px] flex flex-col justify-center items-center  text-primary_blue font-medium rounded bg-semantic_blue_50 border-2 border-secondary_blue`}
+                                  >
+                                    Peringkat: {rankText}
+                                    <p className={`font-bold text-semantic_blue_600 text-[32px]`}>
+                                      {
+                                        candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)
+                                          ?.score
+                                      }
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <div className={`w-[142px] h-[82px]`} />
+                                )}
+                              </div>
+                            </div>
+                            {activeFilteredListCandidate === 'filtered' &&
+                              (candidateDataList.find(
+                                (candidate) => candidate._id == activeCandidateIndex && (candidate.score ?? 0 > 0)
+                              )?.score ??
+                                0 > 0) && (
+                                <div>
+                                  <Divider orientation="left" style={{ fontSize: '18px' }}>
+                                    Skills
+                                  </Divider>
+                                  <Space size={[0, 8]} wrap>
+                                    {visibleSkills.map((skill: string, index: number) => (
+                                      <Tag color="blue" key={index} style={{ borderRadius: '32px', fontSize: '14px' }}>
+                                        {skill}
+                                      </Tag>
+                                    ))}
+                                    {skills && skills.length > 10 && (
+                                      <Tag
+                                        color="blue"
+                                        onClick={handleExpandTags}
+                                        style={{ borderRadius: '32px', fontSize: '14px' }}
+                                      >
+                                        {remainingTags > 0 ? '...' : 'Less'}
+                                      </Tag>
+                                    )}
+                                  </Space>
+                                </div>
+                              )}
+                          </div>
+                        </div>
+                        <div className={``}>
+                          <div className={`flex justify-between pl-[18px] pr-[32px] pt-6`}>
+                            <p className={`text-center font-bold border-b-[7px] border-primary_blue w-[56px] `}>CV</p>
+                            <p className={`text-lg`}>
+                              <span className={`font-semibold`}>Diunggah pada</span>{' '}
+                              {formattedDate(
+                                candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)
+                                  ?.createdDate
+                              )}
                             </p>
-                          </button>
-                          <div
-                            className={`w-[135px] h-[44px] items-center border border-mid_neutral_100 rounded justify-center flex gap-[6px] bg-primary_white text-primary_blue`}
-                          >
-                            <HiOutlineMail />
-                            <p>Kirim Email</p>
+                          </div>
+                          <hr className={`mx-[18px] bg-mid_neutral_100 mb-[22px]`} />
+                          <div>
+                            <Viewer
+                              fileUrl={
+                                candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.cvFile ??
+                                ''
+                              }
+                              plugins={[newPlugin]}
+                            />
                           </div>
                         </div>
                       </div>
-                      <div className={`flex justify-between py-[18px] px-[32px]`}>
-                        <div className={`flex gap-[24px]`}>
-                          <div>
-                            <p className={`text-[18px] text-dark_neutral_400 font-semibold`}>Email</p>
-                            <p className={`text-[18px] text-dark_neutral_400 font-semibold`}>Domisili</p>
-                          </div>
-                          <div>
-                            <p className={`text-dark_neutral_400 text-lg font-normal`}>
-                              {candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.email}
-                            </p>
-                            <p className={`text-dark_neutral_400 text-lg font-normal`}>
-                              {candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.domicile}
-                            </p>
-                          </div>
-                        </div>
-                        {candidateDataList.find(
-                          (candidate) => candidate._id === activeCandidateIndex && candidate.score
-                        ) !== undefined ? (
-                          <div
-                            className={`w-[142px] h-[82px] text-[16px] flex flex-col justify-center items-center  text-primary_blue font-medium rounded bg-semantic_blue_50 border-2 border-secondary_blue`}
-                          >
-                            Peringkat: {rankText}
-                            <p className={`font-bold text-semantic_blue_600 text-[32px]`}>
-                              {candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.score}
-                            </p>
-                          </div>
-                        ) : (
-                          <></>
-                        )}
-                      </div>
+                    )}
+                  </div>
+                  <div className="text-dark_neutral_500 z-20 fixed bottom-5 left-[260px] drop-shadow-md bg-white py-4 px-8 gap-[24px] flex items-center justify-center rounded">
+                    <div className="flex justify-center items-center">
+                      <label htmlFor="itemsPerPage" className="mr-2">
+                        Tampilkan (CV):
+                      </label>
+                      <input
+                        id="itemsPerPage"
+                        type="number"
+                        min="1"
+                        value={itemsPerPage}
+                        onChange={handleItemsPerPageChange}
+                        className={`w-[75px] px-2 py-1  border rounded`}
+                      />
                     </div>
-                    <div>
-                      <div className={`flex justify-between pl-[18px] pr-[32px] pt-6`}>
-                        <p className={`text-center font-bold border-b-[7px] border-primary_blue w-[56px] `}>CV</p>
-                        <p className={`text-lg`}>
-                          <span className={`font-semibold`}>Diunggah pada</span>{' '}
-                          {formattedDate(
-                            candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.createdDate
-                          )}
-                        </p>
-                      </div>
-                      <hr className={`mx-[18px] bg-mid_neutral_100 mb-[22px]`} />
-                      <div>
-                        <Viewer
-                          fileUrl={
-                            candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.cvFile ?? ''
-                          }
-                          plugins={[newPlugin]}
-                        />
-                      </div>
-                    </div>
+                    <Pagination
+                      totalItems={totalCandidates}
+                      itemsPerPage={itemsPerPage}
+                      currentPage={currentPage}
+                      onPageChange={(page: number) => onPageChange(page)}
+                    />
                   </div>
                 </div>
               ) : (
                 <div className={` bg-light_neutral_200 h-[813px] w-full rounded-md pt-[184px] px-[638px]`}>
-                  <p className={`text-center font-bold mb-[30px] pl-[32px]`}>
-                    Start upload your CV to start automate your screening process!
-                  </p>
-                  <div
-                    {...getRootProps({
-                      className:
-                        'dropzone flex flex-col gap-[18px] py-[60.5px] px-[58.5px] w-[372px] h-[288px] text-center rounded-md border-[3px] border-dashed border-semantic_blue_600 bg-semantic_blue_50',
-                    })}
-                  >
-                    <input {...getInputProps()} />
+                  {isUploading ? (
                     <div className={`flex flex-col gap-[18px]`}>
-                      <MdOutlineDriveFolderUpload className={`container mx-auto text-3xl `} />
-                      <p>
-                        Drag and drop <span className={`font-bold`}>.pdf</span> files to upload
+                      <p className={`text-center text-dark_neutral_300  mb-[30px] pl-[32px]`}>
+                        CV anda sedang diunggah. Mohon ditunggu...
                       </p>
+                      <div className={`flex justify-center`}>
+                        <div className={`animate-spin rounded-full h-32 w-32 border-b-2 border-primary_blue`} />
+                      </div>
                     </div>
-                    <p className={`font-bold`}>or</p>
-                    <button
-                      type="button"
-                      onClick={open}
-                      className={`container mx-auto flex gap-[6px] items-center w-[139px] h-[47px] py-[14px] px-[10px] rounded bg-primary_blue text-primary_white`}
-                    >
-                      <TfiUpload />
-                      Upload Files
-                    </button>
-                  </div>
+                  ) : (
+                    <>
+                      <p className={`text-center font-bold mb-[30px] pl-[32px]`}>
+                        Start upload your CV to start automate your screening process!
+                      </p>
+                      <div
+                        {...getRootProps({
+                          className:
+                            'dropzone flex flex-col gap-[18px] py-[60.5px] px-[58.5px] w-[372px] h-[288px] text-center rounded-md border-[3px] border-dashed border-semantic_blue_600 bg-semantic_blue_50',
+                        })}
+                      >
+                        <input {...getInputProps()} />
+                        <div className={`flex flex-col gap-[18px]`}>
+                          <MdOutlineDriveFolderUpload className={`container mx-auto text-3xl `} />
+                          <p>
+                            Drag and drop <span className={`font-bold`}>.pdf</span> files to upload
+                          </p>
+                        </div>
+                        <p className={`font-bold`}>or</p>
+                        <button
+                          type="button"
+                          onClick={open}
+                          className={`container mx-auto flex gap-[6px] items-center w-[139px] h-[47px] py-[14px] px-[10px] rounded bg-primary_blue text-primary_white`}
+                        >
+                          <TfiUpload />
+                          Upload Files
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </>

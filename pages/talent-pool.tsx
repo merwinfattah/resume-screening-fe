@@ -834,19 +834,15 @@ export default function TalentPool() {
                     <div className={`py-[18px] px-[18px] `}>
                       {idCandidateChecked.length > 0 ? (
                         <div className={`flex justify-between  items-center`}>
-                          <div
-                            className={`flex items-center justify-center w-[15.81px] h-[15.81px] border border-primary_blue`}
-                          >
-                            <input
-                              type="checkbox"
-                              className={`w-[8px] h-[8px] `}
-                              checked={
-                                idCandidateChecked.length ===
-                                candidateDataList.filter((candidate) => candidate.position === activeIndex).length
-                              }
-                              onChange={handleCheckAll}
-                            />
-                          </div>
+                          <input
+                            type="checkbox"
+                            className={`w-[15.81px] h-[15.81px] `}
+                            checked={
+                              idCandidateChecked.length ===
+                              candidateDataList.filter((candidate) => candidate.position === activeIndex).length
+                            }
+                            onChange={handleCheckAll}
+                          />
                           <p className={`font-normal text-base text-dark_neutral_300`}>
                             <span className={`font-bold`}>{idCandidateChecked.length}</span> dipilih
                           </p>
@@ -1091,7 +1087,7 @@ export default function TalentPool() {
                       </div>
                     )}
                   </div>
-                  <div className="z-20 fixed bottom-5 left-[260px] drop-shadow-md bg-white py-4 px-8 gap-[24px] flex items-center justify-center">
+                  <div className="text-dark_neutral_500 z-20 fixed bottom-5 left-[260px] drop-shadow-md bg-white py-4 px-8 gap-[24px] flex items-center justify-center rounded">
                     <div className="flex justify-center items-center">
                       <label htmlFor="itemsPerPage" className="mr-2">
                         Tampilkan (CV):
