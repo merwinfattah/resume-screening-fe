@@ -1,4 +1,5 @@
-import { ApiAuth, ApiAuthGet } from '../http-common';
+import { ApiAuth } from '../http-auth';
+import { ApiAuthGet } from '../http-auth-get';
 
 const PositionDataService = {
   create(data: any, token: any) {

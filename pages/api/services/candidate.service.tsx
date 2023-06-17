@@ -1,4 +1,6 @@
-import { ApiAuth, ApiAuthGet, ApiAuthForm } from '../http-common';
+import { ApiAuthGet } from './../http-auth-get';
+import { ApiAuthForm } from './../http-auth-form';
+import { ApiAuth } from './../http-auth';
 
 const CandidateDataService = {
   get(id: string, token: any) {

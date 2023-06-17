@@ -1,4 +1,6 @@
-import { api, apiGet, ApiAuth } from '../http-common';
+import { api } from '../http-common';
+import { apiGet } from '../http-get';
+import { ApiAuth } from '../http-auth';
 
 const UserDataService = {
   create(data: any) {
