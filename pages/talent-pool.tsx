@@ -591,6 +591,7 @@ export default function TalentPool() {
           window.alert('Email berhasil dikirim');
         }
       }
+      setIdCandidateChecked([]);
     } catch (error) {
       console.log(error);
     }
