@@ -517,10 +517,14 @@ export default function TalentPool() {
 
   const handleSwitchToFilteredTab = async () => {
     setActiveFilteredListCandidate('filtered');
+    setActiveCandidateIndex(
+      candidateDataList.filter((candidate) => candidate.position === activeIndex && (candidate.score ?? 0 > 0))[0]._id
+    );
   };
 
   const handleSwitchToUnfilteredTab = async () => {
     setActiveFilteredListCandidate('unfiltered');
+    setActiveCandidateIndex(candidateDataList.filter((candidate) => candidate.position === activeIndex)[0]._id);
   };
 
   const handleUncheckedAllCandidates = async () => {
@@ -543,13 +547,25 @@ export default function TalentPool() {
     setCandidateDataList((prevCandidateDataList) =>
       prevCandidateDataList.filter((candidate) => !idCandidateChecked.includes(candidate._id))
     );
-    setIdCandidateChecked([]);
+    setPositionDataList((prevPositionDataList) =>
+      prevPositionDataList.map((position) => {
+        if (position._id === activeIndex) {
+          return {
+            ...position,
+            qualifiedCandidates: position.qualifiedCandidates - idCandidateChecked.length,
+          };
+        }
+        return position;
+      })
+    );
+
     const data = {
       ids: [...idCandidateChecked],
     };
     try {
       const responseCandidate = await CandidateDataService.delete(data, token.token);
       console.log(responseCandidate.data);
+      setIdCandidateChecked([]);
     } catch (error) {
       console.log(error);
     }
