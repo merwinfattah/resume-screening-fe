@@ -404,10 +404,9 @@ export default function TalentPool() {
       qualifiedCandidates: positionDataList.find((position) => position._id === activeIndex)?.qualifiedCandidates,
     };
     try {
-      const responseCandidate = await CandidateDataService.qualify(candidateData, token.token);
-      const responsePosition = await PositionDataService.editNumber(newPositionData, token.token);
-      console.log(responseCandidate);
-      console.log(responsePosition);
+      await CandidateDataService.qualify(candidateData, token.token);
+      await PositionDataService.editNumber(newPositionData, token.token);
+      setIdCandidateChecked([]);
     } catch (error) {
       console.log(error);
     }
