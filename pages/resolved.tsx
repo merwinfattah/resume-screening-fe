@@ -87,6 +87,7 @@ export default function TalentPool() {
     setSortedOrder(newOrder);
     // You may update the activeIndex here if needed
     setActiveIndex(sortedList[0]?._id);
+    setActiveCandidateIndex(candidateDataList.filter((candidate) => candidate.position === sortedList[0]?._id)[0]?._id);
   };
 
   const handleSearchCandidate = async (event: React.ChangeEvent<HTMLInputElement>) => {
