@@ -582,14 +582,11 @@ export default function TalentPool() {
         const modifiedEmail = email.replace('@', '%40');
         const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/mailer?email_recipient=${modifiedEmail}&nama_kandidat=${name}&posisi_dilamar=${position}`;
 
-        const sendEmailResponse = await fetch(url, {
+        await fetch(url, {
           method: 'POST',
         });
-
-        if (sendEmailResponse.ok) {
-          window.alert('Email berhasil dikirim');
-        }
       }
+      window.alert('Email berhasil dikirim');
       setIdCandidateChecked([]);
     } catch (error) {
       console.log(error);
