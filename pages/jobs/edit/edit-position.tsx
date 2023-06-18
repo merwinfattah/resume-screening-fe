@@ -149,6 +149,10 @@ export default function EditPosition() {
       ...prevState,
       minWorkExp: parseInt(event.target.value),
     }));
+    setPositionData((prevState) => ({
+      ...prevState,
+      minWorkExp: parseInt(event.target.value),
+    }));
   };
 
   const handleDescriptionInputChange = async (value: string) => {
@@ -184,8 +188,16 @@ export default function EditPosition() {
         ...prevState,
         minWorkExp: prevState.minWorkExp + 1,
       }));
+      setEditedPositionData((prevState) => ({
+        ...prevState,
+        minWorkExp: prevState.minWorkExp + 1,
+      }));
     } else {
       setPositionData((prevState) => ({
+        ...prevState,
+        minWorkExp: 0,
+      }));
+      setEditedPositionData((prevState) => ({
         ...prevState,
         minWorkExp: 0,
       }));
