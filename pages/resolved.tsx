@@ -111,7 +111,7 @@ export default function TalentPool() {
         const candidateDataListResponse = await CandidateDataService.getAll(token.token);
         setDepartmentDataList(departmentDataListResponse.data);
         setPositionDataList(positionDataListResponse.data);
-        setCandidateDataList(candidateDataListResponse.data);
+        setCandidateDataList(candidateDataListResponse.data['candidates']);
         console.log('lolo', candidateDataListResponse.data);
         setCandidateDisplayLoading(false);
         setPositionDisplayLoading(false);
