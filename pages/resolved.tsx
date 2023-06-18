@@ -533,6 +533,18 @@ export default function TalentPool() {
   };
 
   const handleDeleteCandidates = async () => {
+    let filteredSum = 0;
+    let qualifiedSum = 0;
+    for (let candidate of candidateDataList) {
+      if (idCandidateChecked.includes(candidate._id) && (candidate.score ?? 0 > 0)) {
+        filteredSum += 1;
+      }
+    }
+    for (let candidate of candidateDataList) {
+      if (idCandidateChecked.includes(candidate._id) && candidate.isQualified) {
+        qualifiedSum += 1;
+      }
+    }
     if (
       idCandidateChecked.length === candidateDataList.filter((candidate) => candidate.position === activeIndex).length
     ) {
@@ -550,13 +562,31 @@ export default function TalentPool() {
     );
     setPositionDataList((prevPositionDataList) =>
       prevPositionDataList.map((position) => {
-        if (position._id === activeIndex) {
+        if (position._id === activeIndex && filteredSum > 0 && qualifiedSum > 0) {
           return {
             ...position,
-            qualifiedCandidates: position.qualifiedCandidates - idCandidateChecked.length,
+            uploadedCV: position.uploadedCV - idCandidateChecked.length,
+            filteredCV: position.filteredCV - filteredSum,
+            qualifiedCandidates: position.qualifiedCandidates - qualifiedSum,
+          };
+        } else if (position._id === activeIndex && filteredSum > 0 && qualifiedSum === 0) {
+          return {
+            ...position,
+            uploadedCV: position.uploadedCV - idCandidateChecked.length,
+            filteredCV: position.filteredCV - filteredSum,
+          };
+        } else if (position._id === activeIndex && filteredSum === 0 && qualifiedSum > 0) {
+          return {
+            ...position,
+            uploadedCV: position.uploadedCV - idCandidateChecked.length,
+            qualifiedCandidates: position.qualifiedCandidates - qualifiedSum,
+          };
+        } else {
+          return {
+            ...position,
+            uploadedCV: position.uploadedCV - idCandidateChecked.length,
           };
         }
-        return position;
       })
     );
 
