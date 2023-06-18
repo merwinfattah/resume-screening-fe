@@ -353,7 +353,49 @@ export default function TalentPool() {
     });
     setPositionDataList(newPositionDataList);
     const candidateData = {
-      id: id,
+      ids: [id],
+    };
+    const newPositionData = {
+      id: activeIndex,
+      uploadedCV: positionDataList.find((position: PositionData) => position._id === activeIndex)?.uploadedCV,
+      filteredCV: positionDataList.find((position: PositionData) => position._id === activeIndex)?.filteredCV,
+      qualifiedCandidates: positionDataList.find((position) => position._id === activeIndex)?.qualifiedCandidates,
+    };
+    try {
+      const responseCandidate = await CandidateDataService.qualify(candidateData, token.token);
+      const responsePosition = await PositionDataService.editNumber(newPositionData, token.token);
+      console.log(responseCandidate);
+      console.log(responsePosition);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleMultipleQualified = async () => {
+    const newCandidateDataList = candidateDataList.map((candidateData: Candidate) => {
+      if (idCandidateChecked.includes(candidateData._id)) {
+        candidateData.isQualified = !candidateData.isQualified;
+      }
+      return candidateData;
+    });
+    setCandidateDataList(newCandidateDataList);
+    const newPositionDataList = positionDataList.map((positionData: PositionData) => {
+      if (positionData._id === activeIndex) {
+        if (
+          idCandidateChecked.every(
+            (id) => newCandidateDataList.find((candidateData) => candidateData._id === id)?.isQualified
+          )
+        ) {
+          positionData.qualifiedCandidates = positionData.qualifiedCandidates + idCandidateChecked.length;
+        } else {
+          positionData.qualifiedCandidates = positionData.qualifiedCandidates - idCandidateChecked.length;
+        }
+      }
+      return positionData;
+    });
+    setPositionDataList(newPositionDataList);
+    const candidateData = {
+      ids: [...idCandidateChecked],
     };
     const newPositionData = {
       id: activeIndex,
@@ -809,7 +851,10 @@ export default function TalentPool() {
                           </button>
                         </div>
                         <div className={`flex gap-[20px]`}>
-                          <button className={`w-[24px] h-[24px] flex items-center justify-center`}>
+                          <button
+                            onClick={handleMultipleQualified}
+                            className={`w-[24px] h-[24px] flex items-center justify-center`}
+                          >
                             <MdPersonAddAlt1 className={`w-full h-full`} />
                           </button>
                           <button
