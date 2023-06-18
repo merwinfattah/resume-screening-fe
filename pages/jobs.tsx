@@ -545,9 +545,9 @@ export default function Jobs() {
           headline={`${
             isCheckedDelete
               ? 'Apa anda yakin?'
-              : `Delete "${deletePosition}" position on ${
+              : `Hapus posisi "${deletePosition}" pada departemen ${
                   departmentList.find((department) => department._id === deleteDepartment)?.name
-                } department?`
+                } ?`
           }`}
           content={`${
             isCheckedDelete

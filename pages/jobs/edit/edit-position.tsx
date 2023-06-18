@@ -21,9 +21,11 @@ export default function EditPosition() {
   const token = useSelector((state: any) => state.auth.token);
   const companyId = useSelector((state: any) => state.login.companyId);
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [showDescription, setShowDescription] = useState('');
-  const [showQualification, setShowQualification] = useState('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showDescription, setShowDescription] = useState<string>('');
+  const [showQualification, setShowQualification] = useState<string>('');
+  const [positionName, setPositionName] = useState<string>('');
+  const [domicile, setDomicile] = useState<string>('');
   const { positionId, selectedDepartment, selectedEducation, departmentOptions } = router.query;
   const pssId = Array.isArray(positionId) ? '' : positionId ?? '';
   const initialDepartmentOptions = departmentOptions ? JSON.parse(departmentOptions as string) : [];
@@ -73,6 +75,8 @@ export default function EditPosition() {
         setPositionData(responsePosition.data);
         setShowDescription(responsePosition.data.description);
         setShowQualification(responsePosition.data.qualification);
+        setPositionName(responsePosition.data.name);
+        setDomicile(responsePosition.data.location);
         setEditedPositionData((prevState) => ({
           ...prevState,
           id: responsePosition.data._id,
@@ -105,6 +109,7 @@ export default function EditPosition() {
   // Create a new list of objects with name and label properties
 
   const handlePositionInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPositionName(event.target.value);
     setEditedPositionData((prevState) => ({
       ...prevState,
       name: event.target.value,
@@ -112,6 +117,7 @@ export default function EditPosition() {
   };
 
   const handleLocationInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDomicile(event.target.value);
     setEditedPositionData((prevState) => ({
       ...prevState,
       location: event.target.value,
@@ -138,6 +144,7 @@ export default function EditPosition() {
   };
 
   const handleExperienceInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('exp', event.target.value);
     setEditedPositionData((prevState) => ({
       ...prevState,
       minWorkExp: parseInt(event.target.value),
@@ -319,7 +326,7 @@ export default function EditPosition() {
                         placeholder="Example : Associate Manager"
                         className={`bg-transparent w-full outline-none `}
                         onChange={handlePositionInputChange}
-                        value={positionData.name}
+                        value={positionName}
                       />
                     </div>
                     <p className={`text-dark_neutral_300`}>80 karakter tersisa.</p>
@@ -371,7 +378,7 @@ export default function EditPosition() {
                         placeholder="Example : Jakarta, Bogor, atau Bandung"
                         className={`bg-transparent w-full outline-none`}
                         onChange={handleLocationInputChange}
-                        value={positionData.location}
+                        value={domicile}
                       />
                     </div>
                     <p className={`text-dark_neutral_300`}>Sertakan lokasi pekerjaan</p>

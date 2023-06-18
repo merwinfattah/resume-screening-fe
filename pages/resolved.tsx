@@ -1204,15 +1204,14 @@ export default function TalentPool() {
               className={` h-screen  gap-[36px] bg-light_neutral_200 rounded-[6px] drop-shadow-md flex flex-col items-center justify-center`}
             >
               <p className={`text-center w-[865px] font-bold text-dark_neutral_300`}>
-                Untuk memulai, buatlah posisi baru dan isi posisi tersebut dengan semua requirement. Setelah itu, unggah
-                CV Anda dan otomatiskan proses penyaringan Anda.
+                Silahkan tutup posisi pada halaman Talent Pool
               </p>
               <div className={`flex items-center justify-center w-[372px] bg-semantic_blue_50 rounded-[6px] h-[138px]`}>
                 <Link
-                  href="/jobs/add-new-position"
+                  href="/talent-pool"
                   className={`flex items-center justify-center bg-primary_blue w-[195px] h-[47px]  rounded text-primary_white border hover:border-primary_blue hover:bg-primary_white hover:text-primary_blue hover:transition`}
                 >
-                  + Tambah Posisi Baru
+                  Tutup posisi
                 </Link>
               </div>
             </div>
