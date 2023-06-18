@@ -712,7 +712,7 @@ export default function TalentPool() {
               : ''
           } p-[18px]`}
         >
-          {positionDataList.length > 0 ? (
+          {positionDataList.filter((position) => !position.isTrash.isInTrash && position.isResolved).length > 0 ? (
             <>
               <div className={`flex gap-[18px] w-full `}>
                 <div
