@@ -425,17 +425,30 @@ export default function TalentPool() {
     }
   };
   const handleCheckAll = () => {
-    if (
-      idCandidateChecked.length !== candidateDataList.filter((candidate) => candidate.position === activeIndex).length
-    ) {
-      console.log('masuk');
-      const candidatesToSelect = candidateDataList
-        .filter((candidate) => candidate.position === activeIndex)
-        .map((candidateData) => candidateData._id);
-      setIdCandidateChecked(candidatesToSelect);
+    if (activeFilteredListCandidate === 'filtered') {
+      if (
+        idCandidateChecked.length !==
+        candidateDataList.filter((candidate) => candidate.position === activeIndex && (candidate?.score ?? 0 > 0))
+          .length
+      ) {
+        const candidatesToSelect = candidateDataList
+          .filter((candidate) => candidate.position === activeIndex && (candidate?.score ?? 0 > 0))
+          .map((candidateData) => candidateData._id);
+        setIdCandidateChecked(candidatesToSelect);
+      } else {
+        setIdCandidateChecked([]);
+      }
     } else {
-      console.log('masuk2');
-      setIdCandidateChecked([]);
+      if (
+        idCandidateChecked.length !== candidateDataList.filter((candidate) => candidate.position === activeIndex).length
+      ) {
+        const candidatesToSelect = candidateDataList
+          .filter((candidate) => candidate.position === activeIndex)
+          .map((candidateData) => candidateData._id);
+        setIdCandidateChecked(candidatesToSelect);
+      } else {
+        setIdCandidateChecked([]);
+      }
     }
   };
 
@@ -931,8 +944,13 @@ export default function TalentPool() {
                             type="checkbox"
                             className={`w-[15.81px] h-[15.81px] `}
                             checked={
-                              idCandidateChecked.length ===
-                              candidateDataList.filter((candidate) => candidate.position === activeIndex).length
+                              activeFilteredListCandidate === 'filtered'
+                                ? idCandidateChecked.length ===
+                                  candidateDataList.filter(
+                                    (candidate) => candidate.position === activeIndex && (candidate?.score ?? 0 > 0)
+                                  ).length
+                                : idCandidateChecked.length ===
+                                  candidateDataList.filter((candidate) => candidate.position === activeIndex).length
                             }
                             onChange={handleCheckAll}
                           />

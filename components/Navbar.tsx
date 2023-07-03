@@ -88,7 +88,7 @@ export default function Navbar(): JSX.Element {
               )}
             </Link>
             <Link href="/jobs">
-              {router.pathname === '/jobs' || router.pathname === '/jobs/add-new-position' ? (
+              {router.pathname === '/jobs' ? (
                 <p
                   className={` font-bold w-[70px] h-[37px] py-[10px] text-center rounded-[32px] bg-primary_white text-primary_blue`}
                 >
