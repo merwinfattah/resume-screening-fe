@@ -13,7 +13,7 @@ const Layout = ({ children }: any) => {
       <header>
         <Navbar />
       </header>
-      <main className={`bg-light_neutral_400 h-screen overflow-scroll  `}>{children}</main>
+      <main className={`bg-light_neutral_400 min-h-screen overflow-scroll  `}>{children}</main>
     </>
   );
 };
