@@ -299,12 +299,6 @@ export default function EditPosition() {
                   className={` h-auto flex justify-between py-[10px] px-[12px] rounded text-semantic_purple_600  bg-semantic_purple_100 border border-semantic_purple_600`}
                 >
                   <p>Catatan: Ini akan terlihat sebagai Posisi Pekerjaan - Departemen pada Talent Pool</p>
-                  <div className={`flex gap-3 `}>
-                    <p className={`underline`}>jangan tampilkan lagi</p>
-                    <button>
-                      <GrClose />
-                    </button>
-                  </div>
                 </div>
                 <div className={`flex gap-[49px]`}>
                   <div className={` w-1/2 h-[113px]`}>
@@ -348,16 +342,10 @@ export default function EditPosition() {
                   className={` h-auto flex justify-between py-[10px] px-[12px] rounded text-semantic_purple_600  bg-semantic_purple_100 border border-semantic_purple_600`}
                 >
                   <p className={`w-[749px]`}>
-                    Edukasi and lokasi pekerjaan bersifat opsional dan Anda bisa memilih untuk tidak mengisinya. Jika
+                    Edukasi dan lokasi pekerjaan bersifat opsional dan Anda bisa memilih untuk tidak mengisinya. Jika
                     Anda mengisinya, sistem akan memilah kandidat berdasarkan pendidikan dan / atau lokasi pekerjaan
                     yang dibutuhkan
                   </p>
-                  <div className={`flex gap-3 items-center`}>
-                    <p className={`underline`}>jangan tampilkan lagi</p>
-                    <button>
-                      <GrClose />
-                    </button>
-                  </div>
                 </div>
                 <div className={`flex gap-[49px]`}>
                   <div className={` w-1/2 h-[113px]`}>
@@ -442,12 +430,6 @@ export default function EditPosition() {
                   Sistem akan menyaring kandidat Anda berdasarkan tingkat kesesuaian CV kandidat dengan requirement
                   pekerjaan ini.
                 </p>
-                <div className={`flex gap-3 `}>
-                  <p className={`underline`}>jangan tampilkan lagi</p>
-                  <button>
-                    <GrClose />
-                  </button>
-                </div>
               </div>
               <div className={`flex flex-col gap-[18px]`}>
                 <div>

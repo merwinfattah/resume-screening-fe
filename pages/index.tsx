@@ -398,9 +398,6 @@ export default function Home() {
                 isSearching ? 'hidden' : 'visible'
               } relative container mx-auto text-center  text-dark_neutral_300 w-[1147px] h-[169px] bg-semantic_blue_50 py-8 px-[107px] border border-mid_neutral_600 rounded-md`}
             >
-              <button className={`absolute z-10 right-4 mt-[-16px]`}>
-                <VscChromeClose className={`text-2xl`} />
-              </button>
               <h1 className={` font-bold text-2xl`}>Selamat datang di sistem Screening CV otomatis!</h1>
               <p className={`mt-[22px] `}>
                 Seluruh fitur di dalam sistem ini akan membantu Anda menyaring CV lebih cepat, lebih akurat, dan

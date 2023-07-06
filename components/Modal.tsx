@@ -31,12 +31,7 @@ export const Modal: React.FC<ModalProps> = ({ type, headline, content, isOpen, o
           {headline}
         </h2>
         <p className="max-w-[391px] text-center text-[18px] mb-[32px]">{content}</p>
-        <div className="flex justify-center items-center gap-[8px] mb-[24px]">
-          <input type="checkbox" name="dontShowAgain" id="dontShowAgain" />
-          <label htmlFor="dontShowAgain" className="text-[14px] text-dark_neutral_200">
-            don&apos;t show this again
-          </label>
-        </div>
+
         {type.includes('delete') && (
           <div className="flex justify-between">
             <button

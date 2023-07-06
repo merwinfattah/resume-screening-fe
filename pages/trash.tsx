@@ -177,12 +177,6 @@ export default function Trash() {
                 Catatan: Setiap item yang Anda hapus akan tetap berada di halaman Sampah selama 30 hari sebelum dihapus
                 secara permanen
               </p>
-              <div className={`flex gap-3 `}>
-                <p className={`underline`}>don’t show again</p>
-                <button>
-                  <GrClose />
-                </button>
-              </div>
             </div>
             <div className={` mx-[32px] mt-8 flex flex-col gap-6`}>
               {filteredDepartmentList.map((department: Department) => {

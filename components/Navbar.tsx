@@ -1,5 +1,4 @@
 import { HiLocationMarker } from 'react-icons/hi';
-import { IoSettingsOutline } from 'react-icons/io5';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -123,7 +122,6 @@ export default function Navbar(): JSX.Element {
           </div>
         </div>
         <div className={`flex items-center gap-[18px]`}>
-          <IoSettingsOutline className={`text-[32px]`} />
           <button
             className={`flex items-center justify-center bg-primary_white w-8 h-8 rounded-full`}
             onClick={handleHoverUser}
