@@ -6,8 +6,8 @@ import { BsFillTrashFill } from 'react-icons/bs';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { GrClose } from 'react-icons/gr';
 import { useSelector } from 'react-redux';
-import DepartmentDataService from './api/services/department.service';
-import PositionDataService from './api/services/position.service';
+import DepartmentDataService from '../api/services/department.service';
+import PositionDataService from '../api/services/position.service';
 import Department from '@/interfaces/Department';
 
 export default function Trash() {

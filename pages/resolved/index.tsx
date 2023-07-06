@@ -1,4 +1,4 @@
-import Layout from '../components/Layout';
+import Layout from '../../components/Layout';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { AiOutlineSearch } from 'react-icons/ai';
@@ -11,9 +11,9 @@ import { RxDragHandleDots2 } from 'react-icons/rx';
 import { IoStarOutline, IoStarSharp } from 'react-icons/io5';
 import { MdPersonAddAlt1 } from 'react-icons/md';
 import { HiOutlineMail } from 'react-icons/hi';
-import PositionData from './../interfaces/PositionData';
-import Candidate from './../interfaces/Candidate';
-import Department from './../interfaces/Department';
+import PositionData from '../../interfaces/PositionData';
+import Candidate from '../../interfaces/Candidate';
+import Department from '../../interfaces/Department';
 import { Viewer } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css';
@@ -21,9 +21,9 @@ import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { Modal } from '@/components/Modal';
 import { Divider, Space, Tag } from 'antd';
 import { useSelector } from 'react-redux';
-import PositionDataService from './api/services/position.service';
-import CandidateDataService from './api/services/candidate.service';
-import DepartmentDataService from './api/services/department.service';
+import PositionDataService from '../api/services/position.service';
+import CandidateDataService from '../api/services/candidate.service';
+import DepartmentDataService from '../api/services/department.service';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { RiArrowUpDownLine } from 'react-icons/ri';
 import Pagination from '@/components/Pagination';
@@ -113,6 +113,7 @@ export default function TalentPool() {
         setDepartmentDataList(departmentDataListResponse.data);
         setPositionDataList(positionDataListResponse.data);
         setCandidateDataList(candidateDataListResponse.data['candidates']);
+        console.log('lolo', candidateDataListResponse.data);
         setCandidateDisplayLoading(false);
         setPositionDisplayLoading(false);
       } catch (error) {
@@ -125,7 +126,7 @@ export default function TalentPool() {
   }, [companyId, token]);
 
   const filteredPositionDataList = positionDataList.filter(
-    (positionData: PositionData) => !positionData.isTrash.isInTrash && !positionData.isResolved
+    (positionData: PositionData) => !positionData.isTrash.isInTrash && positionData.isResolved
   );
   const departmentOptions = departmenDataList.map((department: Department) => {
     return {
@@ -301,7 +302,7 @@ export default function TalentPool() {
     if (positionData) {
       const newPositionDataList = positionDataList.map((positionData) => {
         if (positionData._id === activeIndex) {
-          positionData.isResolved = true;
+          positionData.isResolved = false;
         }
         return positionData;
       });
@@ -452,6 +453,8 @@ export default function TalentPool() {
   };
 
   const handleScoreCandidate = async () => {
+    console.log('ini id', activeIndex);
+    console.log('token', token.token);
     setScoringLoading(true);
     try {
       const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/resume_scoring?positionId=${activeIndex}&token_value=${token.token}`;
@@ -556,7 +559,6 @@ export default function TalentPool() {
         qualifiedSum += 1;
       }
     }
-
     if (
       idCandidateChecked.length === candidateDataList.filter((candidate) => candidate.position === activeIndex).length
     ) {
@@ -657,7 +659,6 @@ export default function TalentPool() {
     const position = positionDataList.find((position) => position._id === activeIndex)?.name;
     const email = candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.email ?? '';
     const modifiedEmail = email.replace('@', '%40');
-
     try {
       const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/mailer?email_recipient=${modifiedEmail}&nama_kandidat=${name}&posisi_dilamar=${position}`;
 
@@ -737,7 +738,7 @@ export default function TalentPool() {
                   .filter(
                     (position: PositionData) =>
                       !position.isTrash.isInTrash &&
-                      !position.isResolved &&
+                      position.isResolved &&
                       position.name.toLowerCase().includes(searchPositionTerm.toLowerCase())
                   )
                   .map((positionData: PositionData) => (
@@ -765,13 +766,13 @@ export default function TalentPool() {
         </section>
         <section
           className={` flex flex-col gap-[18px] w-[1648px] ${
-            positionDataList.filter((position: PositionData) => !position.isTrash.isInTrash && !position.isResolved)
+            positionDataList.filter((position: PositionData) => !position.isTrash.isInTrash && position.isResolved)
               .length > 0
               ? 'h-fit'
               : ''
           } p-[18px]`}
         >
-          {positionDataList.filter((position) => !position.isTrash.isInTrash && !position.isResolved).length > 0 ? (
+          {positionDataList.filter((position) => !position.isTrash.isInTrash && position.isResolved).length > 0 ? (
             <>
               <div className={`flex gap-[18px] w-full `}>
                 <div
@@ -881,7 +882,7 @@ export default function TalentPool() {
                     onClick={showModal}
                     className={`flex justify-center items-center w-[224px] h-[47px]  rounded border hover:border-semantic_green_600 bg-semantic_green_600 hover:bg-primary_white text-center text-primary_white hover:text-semantic_green_600`}
                   >
-                    Tutup Posisi
+                    Buka Posisi
                   </button>
                 </div>
               </div>
@@ -1268,15 +1269,14 @@ export default function TalentPool() {
               className={` h-screen  gap-[36px] bg-light_neutral_200 rounded-[6px] drop-shadow-md flex flex-col items-center justify-center`}
             >
               <p className={`text-center w-[865px] font-bold text-dark_neutral_300`}>
-                Untuk memulai, buatlah posisi baru dan isi posisi tersebut dengan semua requirement. Setelah itu, unggah
-                CV Anda dan otomatiskan proses penyaringan Anda.
+                Silahkan tutup posisi pada halaman Talent Pool
               </p>
               <div className={`flex items-center justify-center w-[372px] bg-semantic_blue_50 rounded-[6px] h-[138px]`}>
                 <Link
-                  href="/jobs/add-new-position"
+                  href="/talent-pool"
                   className={`flex items-center justify-center bg-primary_blue w-[195px] h-[47px]  rounded text-primary_white border hover:border-primary_blue hover:bg-primary_white hover:text-primary_blue hover:transition`}
                 >
-                  + Tambah Posisi Baru
+                  Tutup posisi
                 </Link>
               </div>
             </div>
@@ -1289,8 +1289,8 @@ export default function TalentPool() {
           isOpen={isModalOpen}
           onOk={handleResolvePosition}
           onClose={closeModal}
-          headline="Tutup Posisi"
-          content="Posisi yang ditutup dapat dilihat kembali di halaman Arsip"
+          headline="Buka Posisi"
+          content="Posisi yang dibuka dapat dilihat kembali di halaman Talent Pool."
         />
       )}
     </Layout>
