@@ -358,7 +358,7 @@ export default function Jobs() {
                 className={` flex items-center justify-between w-[676px] h-[47px] border border-dark_neutral_100  rounded`}
               >
                 <input
-                  placeholder="Cari department, posisi"
+                  placeholder="Cari department"
                   className={`  outline-none mx-[10px] my-[12.5px] bg-light_neutral_200 w-full`}
                   onChange={handleSearchChange}
                   value={searchTerm}
