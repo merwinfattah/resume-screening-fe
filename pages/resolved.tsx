@@ -1234,7 +1234,7 @@ export default function TalentPool() {
                   ) : (
                     <>
                       <p className={`text-center font-bold mb-[30px] pl-[32px]`}>
-                        Start upload your CV to start automate your screening process!
+                        Mulai unggah CV untuk mulai mengotomatiskan proses penyaringan Anda!
                       </p>
                       <div
                         {...getRootProps({

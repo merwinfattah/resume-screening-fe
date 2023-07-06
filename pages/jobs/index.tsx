@@ -12,8 +12,8 @@ import PositionData from '@/interfaces/PositionData';
 import Department from '@/interfaces/Department';
 import { Modal } from '@/components/Modal';
 import { useSelector } from 'react-redux';
-import DepartmentDataService from './api/services/department.service';
-import PositionDataService from './api/services/position.service';
+import DepartmentDataService from '../api/services/department.service';
+import PositionDataService from '../api/services/position.service';
 
 export default function Jobs() {
   const companyId = useSelector((state: any) => state.login.companyId);

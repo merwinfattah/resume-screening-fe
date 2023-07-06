@@ -771,7 +771,7 @@ export default function TalentPool() {
               : ''
           } p-[18px]`}
         >
-          {positionDataList.filter((position) => !position.isTrash.isInTrash).length > 0 ? (
+          {positionDataList.filter((position) => !position.isTrash.isInTrash && !position.isResolved).length > 0 ? (
             <>
               <div className={`flex gap-[18px] w-full `}>
                 <div
@@ -1233,7 +1233,7 @@ export default function TalentPool() {
                   ) : (
                     <>
                       <p className={`text-center font-bold mb-[30px] pl-[32px]`}>
-                        Start upload your CV to start automate your screening process!
+                        Mulai unggah CV untuk mulai mengotomatiskan proses penyaringan Anda!
                       </p>
                       <div
                         {...getRootProps({
