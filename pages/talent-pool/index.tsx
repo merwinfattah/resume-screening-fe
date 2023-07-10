@@ -1193,18 +1193,14 @@ export default function TalentPool() {
                             </p>
                           </div>
                           <hr className={`mx-[18px] bg-mid_neutral_100 mb-[22px]`} />
-                          <div className="w-full">
-                            <div className="aspect-w-16 aspect-h-9">
-                              <div className="relative">
-                                <Viewer
-                                  fileUrl={
-                                    candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)
-                                      ?.cvFile ?? ''
-                                  }
-                                  plugins={[newPlugin]}
-                                />
-                              </div>
-                            </div>
+                          <div>
+                            <Viewer
+                              fileUrl={
+                                candidateDataList.find((candidate) => candidate._id === activeCandidateIndex)?.cvFile ??
+                                ''
+                              }
+                              plugins={[newPlugin]}
+                            />
                           </div>
                         </div>
                       </div>
