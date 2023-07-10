@@ -105,9 +105,6 @@ export default function Login() {
                   <label htmlFor="password" className={`block text-[18px] text-primary_dark mb-[12px] font-medium`}>
                     Password
                   </label>
-                  <a href="#" className="text-xs text-gray-500 dark:text-gray-300 hover:underline">
-                    Lupa Password?
-                  </a>
                 </div>
                 <div
                   className={`${
