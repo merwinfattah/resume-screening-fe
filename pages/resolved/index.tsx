@@ -1,32 +1,41 @@
-import Layout from '../../components/Layout';
+import dynamic from 'next/dynamic';
+import { Modal } from '@/components/Modal';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { AiOutlineSearch } from 'react-icons/ai';
-import { GrFormAdd } from 'react-icons/gr';
-import { MdOutlineDriveFolderUpload } from 'react-icons/md';
-import { TfiUpload } from 'react-icons/tfi';
 import { useDropzone } from 'react-dropzone';
-import { BiArrowBack } from 'react-icons/bi';
-import { RxDragHandleDots2 } from 'react-icons/rx';
-import { IoStarOutline, IoStarSharp } from 'react-icons/io5';
-import { MdPersonAddAlt1 } from 'react-icons/md';
-import { HiOutlineMail } from 'react-icons/hi';
+import { useSelector } from 'react-redux';
+import { Viewer } from '@react-pdf-viewer/core';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import PositionData from '../../interfaces/PositionData';
 import Candidate from '../../interfaces/Candidate';
 import Department from '../../interfaces/Department';
-import { Viewer } from '@react-pdf-viewer/core';
-import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import '@react-pdf-viewer/default-layout/lib/styles/index.css';
-import { Modal } from '@/components/Modal';
-import { Divider, Space, Tag } from 'antd';
-import { useSelector } from 'react-redux';
 import PositionDataService from '../api/services/position.service';
 import CandidateDataService from '../api/services/candidate.service';
 import DepartmentDataService from '../api/services/department.service';
+import { IoStarOutline, IoStarSharp } from 'react-icons/io5';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { RiArrowUpDownLine } from 'react-icons/ri';
-import Pagination from '@/components/Pagination';
+import { Divider, Space, Tag } from 'antd';
+
+// Lazy-loaded components
+const Layout = dynamic(() => import('@/components/Layout'));
+const Pagination = dynamic(() => import('@/components/Pagination'));
+const Link = dynamic(() => import('next/link'));
+const AiOutlineSearch = dynamic(() => import('react-icons/ai').then((icons) => ({ default: icons.AiOutlineSearch })));
+const GrFormAdd = dynamic(() => import('react-icons/gr').then((icons) => ({ default: icons.GrFormAdd })));
+const MdOutlineDriveFolderUpload = dynamic(() =>
+  import('react-icons/md').then((icons) => ({ default: icons.MdOutlineDriveFolderUpload }))
+);
+const TfiUpload = dynamic(() => import('react-icons/tfi').then((icons) => ({ default: icons.TfiUpload })));
+const BiArrowBack = dynamic(() => import('react-icons/bi').then((icons) => ({ default: icons.BiArrowBack })));
+const RxDragHandleDots2 = dynamic(() =>
+  import('react-icons/rx').then((icons) => ({ default: icons.RxDragHandleDots2 }))
+);
+const MdPersonAddAlt1 = dynamic(() => import('react-icons/md').then((icons) => ({ default: icons.MdPersonAddAlt1 })));
+const HiOutlineMail = dynamic(() => import('react-icons/hi').then((icons) => ({ default: icons.HiOutlineMail })));
+
+// Lazy-loaded styles
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
 export default function TalentPool() {
   const companyId = useSelector((state: any) => state.login.companyId);

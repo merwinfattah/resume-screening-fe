@@ -1,13 +1,15 @@
+import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
-import Layout from '@/components/Layout';
 import PositionData from '@/interfaces/PositionData';
 import { Modal } from '@/components/Modal';
-import { BsFillTrashFill } from 'react-icons/bs';
-import { AiOutlineSearch } from 'react-icons/ai';
 import { useSelector } from 'react-redux';
 import DepartmentDataService from '../api/services/department.service';
 import PositionDataService from '../api/services/position.service';
 import Department from '@/interfaces/Department';
+
+const Layout = dynamic(() => import('@/components/Layout'));
+const BsFillTrashFill = dynamic(() => import('react-icons/bs').then((module) => module.BsFillTrashFill));
+const AiOutlineSearch = dynamic(() => import('react-icons/ai').then((module) => module.AiOutlineSearch));
 
 export default function Trash() {
   const companyId = useSelector((state: any) => state.login.companyId);
