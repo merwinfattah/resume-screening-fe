@@ -793,7 +793,7 @@ export default function TalentPool() {
                   className={` relative z-10 drop-shadow-md  w-1/2 h-[78px] bg-light_neutral_200 rounded-md flex gap-[40px] items-center justify-center`}
                 >
                   <Link
-                    href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
+                    href={`/jobs/edit-position?positionId=${encodeURIComponent(
                       activeIndex || ''
                     )}&selectedDepartment=${encodeURIComponent(departmentParam)}&selectedEducation=${encodeURIComponent(
                       educationParam

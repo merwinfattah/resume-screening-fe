@@ -322,7 +322,7 @@ export default function Jobs() {
                                     <div className={` text-mid_neutral_400  font-semibold`}>|</div>
 
                                     <Link
-                                      href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
+                                      href={`/jobs/edit-position?positionId=${encodeURIComponent(
                                         position._id
                                       )}&selectedDepartment=${encodeURIComponent(
                                         department.name
@@ -502,7 +502,7 @@ export default function Jobs() {
                                         <div className={` text-mid_neutral_400  font-semibold`}>|</div>
 
                                         <Link
-                                          href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
+                                          href={`/jobs/edit-position?positionId=${encodeURIComponent(
                                             position._id
                                           )}&selectedDepartment=${encodeURIComponent(
                                             department.name
