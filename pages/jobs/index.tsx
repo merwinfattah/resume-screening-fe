@@ -1,6 +1,6 @@
 import Layout from '@/components/Layout';
 import Link from 'next/link';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { IoMdArrowDropdown } from 'react-icons/io';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { GrAdd } from 'react-icons/gr';

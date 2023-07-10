@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { BiArrowBack } from 'react-icons/bi';
-import { GrClose } from 'react-icons/gr';
 import { MdArrowDropUp, MdArrowDropDown } from 'react-icons/md';
 import { educationOptions } from '@/components/SelectOptions';
 import 'react-quill/dist/quill.snow.css';

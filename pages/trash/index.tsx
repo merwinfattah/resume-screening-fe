@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import PositionData from '@/interfaces/PositionData';
 import { Modal } from '@/components/Modal';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { AiOutlineSearch } from 'react-icons/ai';
-import { GrClose } from 'react-icons/gr';
 import { useSelector } from 'react-redux';
 import DepartmentDataService from '../api/services/department.service';
 import PositionDataService from '../api/services/position.service';
