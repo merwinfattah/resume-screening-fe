@@ -7,6 +7,7 @@ import DepartmentDataService from '../api/services/department.service';
 import PositionDataService from '../api/services/position.service';
 import Department from '@/interfaces/Department';
 
+// Dynamic Components
 const Layout = dynamic(() => import('@/components/Layout'));
 const BsFillTrashFill = dynamic(() => import('react-icons/bs').then((module) => module.BsFillTrashFill));
 const AiOutlineSearch = dynamic(() => import('react-icons/ai').then((module) => module.AiOutlineSearch));

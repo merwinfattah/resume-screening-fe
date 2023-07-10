@@ -1,11 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, use } from 'react';
-import Layout from './../components/Layout';
-import { BsFillTrashFill } from 'react-icons/bs';
-import { AiOutlineSearch } from 'react-icons/ai';
-import { VscChromeClose } from 'react-icons/vsc';
-import { AiOutlineCheck } from 'react-icons/ai';
-import { FiEdit2 } from 'react-icons/fi';
-import { RxDotsVertical } from 'react-icons/rx';
+import { useState, useEffect, useMemo } from 'react';
 import { Popover } from '@headlessui/react';
 import dynamic from 'next/dynamic';
 import PositionData from '@/interfaces/PositionData';
@@ -13,8 +6,16 @@ import PositionDataService from './api/services/position.service';
 import DepartmentDataService from './api/services/department.service';
 import { useSelector } from 'react-redux';
 import Department from '@/interfaces/Department';
-import CandidateDataService from './api/services/candidate.service';
+
+//dynamic imports
+const Layout = dynamic(() => import('./../components/Layout'));
 const Link = dynamic(() => import('next/link'));
+const BsFillTrashFill = dynamic(() => import('react-icons/bs').then((mod) => mod.BsFillTrashFill));
+const AiOutlineCheck = dynamic(() => import('react-icons/ai').then((mod) => mod.AiOutlineCheck));
+const FiEdit2 = dynamic(() => import('react-icons/fi').then((mod) => mod.FiEdit2));
+const RxDotsVertical = dynamic(() => import('react-icons/rx').then((mod) => mod.RxDotsVertical));
+const AiOutlineSearch = dynamic(() => import('react-icons/ai').then((mod) => mod.AiOutlineSearch));
+const VscChromeClose = dynamic(() => import('react-icons/vsc').then((mod) => mod.VscChromeClose));
 
 export default function Home() {
   const token = useSelector((state: any) => state.auth.token);

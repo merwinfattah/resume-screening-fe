@@ -1,19 +1,22 @@
-import Layout from '@/components/Layout';
-import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
-import { IoMdArrowDropdown } from 'react-icons/io';
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { GrAdd } from 'react-icons/gr';
-import { AiOutlineSearch } from 'react-icons/ai';
-import { Disclosure, Transition } from '@headlessui/react';
-import EditorInput from '@/components/EditorInput';
-import { BsFillTrashFill } from 'react-icons/bs';
 import PositionData from '@/interfaces/PositionData';
 import Department from '@/interfaces/Department';
 import { Modal } from '@/components/Modal';
 import { useSelector } from 'react-redux';
 import DepartmentDataService from '../api/services/department.service';
 import PositionDataService from '../api/services/position.service';
+import { Disclosure, Transition } from '@headlessui/react';
+
+//Dynamic Imports
+const Layout = dynamic(() => import('@/components/Layout'));
+const Link = dynamic(() => import('next/link'));
+const IoMdArrowDropdown = dynamic(() => import('react-icons/io').then((module) => module.IoMdArrowDropdown));
+const IoAddCircleOutline = dynamic(() => import('react-icons/io5').then((module) => module.IoAddCircleOutline));
+const GrAdd = dynamic(() => import('react-icons/gr').then((module) => module.GrAdd));
+const AiOutlineSearch = dynamic(() => import('react-icons/ai').then((module) => module.AiOutlineSearch));
+const EditorInput = dynamic(() => import('@/components/EditorInput'));
+const BsFillTrashFill = dynamic(() => import('react-icons/bs').then((module) => module.BsFillTrashFill));
 
 export default function Jobs() {
   const companyId = useSelector((state: any) => state.login.companyId);
@@ -35,7 +38,6 @@ export default function Jobs() {
     const fetchDataPosition = async () => {
       try {
         const positionDataResponse = await PositionDataService.getAll(token.token);
-        console.log('ini position data', positionDataResponse.data);
         setPositionDataList(positionDataResponse.data);
       } catch (error) {
         console.error('Error fetching position data:', error);
@@ -63,13 +65,11 @@ export default function Jobs() {
     };
     try {
       const response = await DepartmentDataService.create(newItem, token.token);
-      console.log(response.data.msg);
       setDepartmentList((prevState) => {
         const newState = [...prevState];
         newState.push(response.data.department);
         return newState;
       });
-      console.log(response.data);
     } catch (error) {
       console.error('Error adding item:', error);
     }
@@ -116,7 +116,6 @@ export default function Jobs() {
     };
     try {
       const response = await PositionDataService.remove(data, token.token);
-      console.log(response.data);
       setIsModalOpen(false);
     } catch (error) {
       console.error('Error deleting position:', error);
@@ -149,7 +148,6 @@ export default function Jobs() {
 
     try {
       const response = await DepartmentDataService.edit(data, token.token);
-      console.log(response.data);
     } catch (error) {
       console.error('Error updating department name:', error);
     }
