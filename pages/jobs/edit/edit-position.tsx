@@ -1,6 +1,11 @@
+import Layout from '@/components/Layout';
+import SelectItems from '@/components/SelectItems';
+import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { BiArrowBack } from 'react-icons/bi';
+import { MdArrowDropUp, MdArrowDropDown } from 'react-icons/md';
 import { educationOptions } from '@/components/SelectOptions';
 import 'react-quill/dist/quill.snow.css';
 import PositionDataService from '@/pages/api/services/position.service';
@@ -9,14 +14,7 @@ import Department from '@/interfaces/Department';
 import DepartmentDataService from '@/pages/api/services/department.service';
 import PositionData from '@/interfaces/PositionData';
 
-// dynamic imports
-const Layout = dynamic(() => import('@/components/Layout'));
-const Link = dynamic(() => import('next/link'));
-const SelectItems = dynamic(() => import('@/components/SelectItems'));
-const ReactQuill = dynamic(() => import('react-quill'));
-const BiArrowBack = dynamic(() => import('react-icons/bi').then((mod) => mod.BiArrowBack));
-const MdArrowDropUp = dynamic(() => import('react-icons/md').then((mod) => mod.MdArrowDropUp));
-const MdArrowDropDown = dynamic(() => import('react-icons/md').then((mod) => mod.MdArrowDropDown));
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export default function EditPosition() {
   const token = useSelector((state: any) => state.auth.token);
