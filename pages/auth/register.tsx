@@ -1,10 +1,12 @@
-import AuthLayout from '@/components/AuthLayout';
+import dynamic from 'next/dynamic';
 import SelectItems from '@/components/SelectItems';
 import User from '@/interfaces/User';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import CompanyDataService from '../api/services/company.service';
 import UserDataService from '../api/services/user.service';
+
+const AuthLayout = dynamic(() => import('@/components/AuthLayout'), { ssr: false });
 
 export default function Register() {
   const router = useRouter();

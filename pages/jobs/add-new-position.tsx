@@ -7,14 +7,13 @@ import PositionDataService from '@/pages/api/services/position.service';
 import DepartmentDataService from '@/pages/api/services/department.service';
 import { useSelector } from 'react-redux';
 import Department from '@/interfaces/Department';
+import Layout from '@/components/Layout';
+import Link from 'next/link';
+import SelectItems from '@/components/SelectItems';
+import { BiArrowBack } from 'react-icons/bi';
+import { MdArrowDropUp, MdArrowDropDown } from 'react-icons/md';
 
 // Dynamic Components
-const Layout = dynamic(() => import('@/components/Layout'));
-const Link = dynamic(() => import('next/link'));
-const SelectItems = dynamic(() => import('@/components/SelectItems'));
-const BiArrowBack = dynamic(() => import('react-icons/bi').then((mod) => mod.BiArrowBack));
-const MdArrowDropUp = dynamic(() => import('react-icons/md').then((mod) => mod.MdArrowDropUp));
-const MdArrowDropDown = dynamic(() => import('react-icons/md').then((mod) => mod.MdArrowDropDown));
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export default function AddNewPosition() {

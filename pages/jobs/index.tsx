@@ -1,4 +1,5 @@
-import dynamic from 'next/dynamic';
+import Layout from '@/components/Layout';
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import PositionData from '@/interfaces/PositionData';
 import Department from '@/interfaces/Department';
@@ -7,16 +8,12 @@ import { useSelector } from 'react-redux';
 import DepartmentDataService from '../api/services/department.service';
 import PositionDataService from '../api/services/position.service';
 import { Disclosure, Transition } from '@headlessui/react';
-
-//Dynamic Imports
-const Layout = dynamic(() => import('@/components/Layout'));
-const Link = dynamic(() => import('next/link'));
-const IoMdArrowDropdown = dynamic(() => import('react-icons/io').then((module) => module.IoMdArrowDropdown));
-const IoAddCircleOutline = dynamic(() => import('react-icons/io5').then((module) => module.IoAddCircleOutline));
-const GrAdd = dynamic(() => import('react-icons/gr').then((module) => module.GrAdd));
-const AiOutlineSearch = dynamic(() => import('react-icons/ai').then((module) => module.AiOutlineSearch));
-const EditorInput = dynamic(() => import('@/components/EditorInput'));
-const BsFillTrashFill = dynamic(() => import('react-icons/bs').then((module) => module.BsFillTrashFill));
+import { IoMdArrowDropdown } from 'react-icons/io';
+import { IoAddCircleOutline } from 'react-icons/io5';
+import { GrAdd } from 'react-icons/gr';
+import { AiOutlineSearch } from 'react-icons/ai';
+import EditorInput from '@/components/EditorInput';
+import { BsFillTrashFill } from 'react-icons/bs';
 
 export default function Jobs() {
   const companyId = useSelector((state: any) => state.login.companyId);

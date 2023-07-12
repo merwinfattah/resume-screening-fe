@@ -1,4 +1,4 @@
-import AuthLayout from '@/components/AuthLayout';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
@@ -6,6 +6,8 @@ import { setToken } from '@/redux/store/reducers/authReducer';
 import { setUser } from '@/redux/store/reducers/loginReducer';
 import AuthDataService from '../api/services/auth.service';
 import UserDataService from '../api/services/user.service';
+
+const AuthLayout = dynamic(() => import('@/components/AuthLayout'), { ssr: false });
 
 export default function Login() {
   const router = useRouter();

@@ -1,4 +1,20 @@
-import dynamic from 'next/dynamic';
+import Layout from '@/components/Layout';
+import Pagination from '@/components/Pagination';
+import Link from 'next/link';
+import { Viewer } from '@react-pdf-viewer/core';
+import { AiOutlineSearch } from 'react-icons/ai';
+import { GrFormAdd } from 'react-icons/gr';
+import { MdOutlineDriveFolderUpload } from 'react-icons/md';
+import { TfiUpload } from 'react-icons/tfi';
+import { BiArrowBack } from 'react-icons/bi';
+import { RxDragHandleDots2 } from 'react-icons/rx';
+import { MdPersonAddAlt1 } from 'react-icons/md';
+import { HiOutlineMail } from 'react-icons/hi';
+import { IoStarOutline } from 'react-icons/io5';
+import { IoStarSharp } from 'react-icons/io5';
+import { BsFillTrashFill } from 'react-icons/bs';
+import { RiArrowUpDownLine } from 'react-icons/ri';
+import { Divider, Space, Tag } from 'antd';
 import { Modal } from '@/components/Modal';
 import { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -10,35 +26,6 @@ import Department from '@/interfaces/Department';
 import PositionDataService from '@/pages/api/services/position.service';
 import CandidateDataService from '@/pages/api/services/candidate.service';
 import DepartmentDataService from '@/pages/api/services/department.service';
-
-// Lazy-loaded components
-const Layout = dynamic(() => import('@/components/Layout'));
-const Pagination = dynamic(() => import('@/components/Pagination'));
-const Link = dynamic(() => import('next/link'));
-const Viewer = dynamic(() => import('@react-pdf-viewer/core').then((module) => module.Viewer));
-const AiOutlineSearch = dynamic(() => import('react-icons/ai').then((icons) => ({ default: icons.AiOutlineSearch })));
-const GrFormAdd = dynamic(() => import('react-icons/gr').then((icons) => ({ default: icons.GrFormAdd })));
-const MdOutlineDriveFolderUpload = dynamic(() =>
-  import('react-icons/md').then((icons) => ({ default: icons.MdOutlineDriveFolderUpload }))
-);
-const TfiUpload = dynamic(() => import('react-icons/tfi').then((icons) => ({ default: icons.TfiUpload })));
-const BiArrowBack = dynamic(() => import('react-icons/bi').then((icons) => ({ default: icons.BiArrowBack })));
-const RxDragHandleDots2 = dynamic(() =>
-  import('react-icons/rx').then((icons) => ({ default: icons.RxDragHandleDots2 }))
-);
-const MdPersonAddAlt1 = dynamic(() => import('react-icons/md').then((icons) => ({ default: icons.MdPersonAddAlt1 })));
-const HiOutlineMail = dynamic(() => import('react-icons/hi').then((icons) => ({ default: icons.HiOutlineMail })));
-const IoStarOutline = dynamic(() => import('react-icons/io5').then((icons) => ({ default: icons.IoStarOutline })));
-const IoStarSharp = dynamic(() => import('react-icons/io5').then((icons) => ({ default: icons.IoStarSharp })));
-const BsFillTrashFill = dynamic(() => import('react-icons/bs').then((icons) => ({ default: icons.BsFillTrashFill })));
-const RiArrowUpDownLine = dynamic(() =>
-  import('react-icons/ri').then((icons) => ({ default: icons.RiArrowUpDownLine }))
-);
-const Divider = dynamic(() => import('antd').then((antd) => ({ default: antd.Divider })));
-const Space = dynamic(() => import('antd').then((antd) => ({ default: antd.Space })));
-const Tag = dynamic(() => import('antd').then((antd) => ({ default: antd.Tag })));
-
-// Lazy-loaded styles
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
