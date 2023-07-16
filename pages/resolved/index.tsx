@@ -574,12 +574,8 @@ export default function TalentPool() {
       }
     }
     if (
-      idCandidateChecked.length === candidateDataList.filter((candidate) => candidate.position === activeIndex).length
+      idCandidateChecked.length < candidateDataList.filter((candidate) => candidate.position === activeIndex).length
     ) {
-      const positionNextIndex = positionDataList.filter((position) => position._id !== activeIndex)[0]._id;
-      setActiveIndex(positionNextIndex);
-      setActiveCandidateIndex(candidateDataList.filter((candidate) => candidate.position === positionNextIndex)[0]._id);
-    } else {
       const candidateNextIndex = candidateDataList.filter(
         (candidate) => candidate.position === activeIndex && !idCandidateChecked.includes(candidate._id)
       )[0]._id;
