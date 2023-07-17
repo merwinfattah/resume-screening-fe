@@ -86,9 +86,13 @@ export default function TalentPool() {
     let sortedList: PositionData[] = [];
 
     if (order === 'asc') {
-      sortedList = positionDataList.sort((a, b) => a.name.localeCompare(b.name));
+      sortedList = positionDataList
+        .filter((position) => position.isResolved && !position.isTrash.isInTrash)
+        .sort((a, b) => a.name.localeCompare(b.name));
     } else if (order === 'desc') {
-      sortedList = positionDataList.sort((a, b) => b.name.localeCompare(a.name));
+      sortedList = positionDataList
+        .filter((position) => position.isResolved && !position.isTrash.isInTrash)
+        .sort((a, b) => b.name.localeCompare(a.name));
     }
 
     return sortedList;
