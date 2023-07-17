@@ -603,11 +603,13 @@ export default function TalentPool() {
             uploadedCV: position.uploadedCV - idCandidateChecked.length,
             qualifiedCandidates: position.qualifiedCandidates - qualifiedSum,
           };
-        } else {
+        } else if (position._id === activeIndex && filteredSum === 0 && qualifiedSum === 0) {
           return {
             ...position,
             uploadedCV: position.uploadedCV - idCandidateChecked.length,
           };
+        } else {
+          return position;
         }
       })
     );
