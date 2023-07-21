@@ -400,14 +400,12 @@ export default function TalentPool() {
     setCandidateDataList(newCandidateDataList);
     const newPositionDataList = positionDataList.map((positionData: PositionData) => {
       if (positionData._id === activeIndex) {
-        if (
-          idCandidateChecked.every(
-            (id) => newCandidateDataList.find((candidateData) => candidateData._id === id)?.isQualified
-          )
-        ) {
-          positionData.qualifiedCandidates = positionData.qualifiedCandidates + idCandidateChecked.length;
-        } else {
-          positionData.qualifiedCandidates = positionData.qualifiedCandidates - idCandidateChecked.length;
+        for (let idCandidate of idCandidateChecked) {
+          if (newCandidateDataList.find((candidateData) => candidateData._id === idCandidate)?.isQualified) {
+            positionData.qualifiedCandidates = positionData.qualifiedCandidates + 1;
+          } else {
+            positionData.qualifiedCandidates = positionData.qualifiedCandidates - 1;
+          }
         }
       }
       return positionData;
