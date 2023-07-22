@@ -269,7 +269,7 @@ export default function Home() {
                             </p>
                             <div className={`flex items-center gap-[18px]`}>
                               <Link
-                                href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
+                                href={`/jobs/edit-position?positionId=${encodeURIComponent(
                                   positionData._id
                                 )}&selectedDepartment=${encodeURIComponent(
                                   departmentDataList.find((department) => department._id === positionData.department)
@@ -475,7 +475,7 @@ export default function Home() {
                               </p>
                               <div className={`flex items-center gap-[18px]`}>
                                 <Link
-                                  href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
+                                  href={`/jobs/edit-position?positionId=${encodeURIComponent(
                                     positionData._id
                                   )}&selectedDepartment=${encodeURIComponent(
                                     departmentDataList.find((department) => department._id === positionData.department)
@@ -574,7 +574,7 @@ export default function Home() {
                               </p>
                               <div className={`flex items-center gap-[18px]`}>
                                 <Link
-                                  href={`/jobs/edit/edit-position?positionId=${encodeURIComponent(
+                                  href={`/jobs/edit-position?positionId=${encodeURIComponent(
                                     positionData._id
                                   )}&selectedDepartment=${encodeURIComponent(
                                     departmentDataList.find((department) => department._id === positionData.department)

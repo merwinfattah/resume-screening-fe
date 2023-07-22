@@ -234,8 +234,11 @@ export default function EditPosition() {
         if (response.ok) {
           const { job_description, qualification } = await response.json();
           // Process the response data as needed
-          setShowDescription(job_description);
-          setShowQualification(qualification);
+          const formattedJobDescription = job_description.replace(/\n/g, '<br/>');
+          const formattedQualification = qualification.replace(/\n/g, '<br/>');
+          setShowDescription(formattedJobDescription);
+          setShowQualification(formattedQualification);
+          console.log(qualification);
         } else {
           console.error('Failed to upload job description file');
         }
