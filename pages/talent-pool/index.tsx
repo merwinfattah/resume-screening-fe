@@ -673,7 +673,7 @@ export default function TalentPool() {
     const modifiedEmail = email.replace('@', '%40');
 
     try {
-      const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/mailer?email_recipient=${modifiedEmail}&nama_kandidat=${name}&posisi_dilamar=${position}`;
+      const url = `http://ec2-3-87-22-2.compute-1.amazonaws.com:8000/mailer?email_recipient=${modifiedEmail}&nama_kandidat=${name}&posisi_dilamar=${position}`;
 
       const sendEmailResponse = await fetch(url, {
         method: 'POST',
@@ -694,7 +694,7 @@ export default function TalentPool() {
         const position = positionDataList.find((position) => position._id === activeIndex)?.name;
         const email = candidateDataList.find((candidate) => candidate._id === idCandidate)?.email ?? '';
         const modifiedEmail = email.replace('@', '%40');
-        const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/mailer?email_recipient=${modifiedEmail}&nama_kandidat=${name}&posisi_dilamar=${position}`;
+        const url = `http://ec2-3-87-22-2.compute-1.amazonaws.com:8000/mailer?email_recipient=${modifiedEmail}&nama_kandidat=${name}&posisi_dilamar=${position}`;
 
         await fetch(url, {
           method: 'POST',
