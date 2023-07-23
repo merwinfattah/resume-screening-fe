@@ -1287,7 +1287,7 @@ export default function TalentPool() {
               </p>
               <div className={`flex items-center justify-center w-[372px] bg-semantic_blue_50 rounded-[6px] h-[138px]`}>
                 <Link
-                  href="/jobs/add-new-position"
+                  href={`/jobs/add-new-position?departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
                   className={`flex items-center justify-center bg-primary_blue w-[195px] h-[47px]  rounded text-primary_white border hover:border-primary_blue hover:bg-primary_white hover:text-primary_blue hover:transition`}
                 >
                   + Tambah Posisi Baru
