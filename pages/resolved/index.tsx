@@ -962,7 +962,7 @@ export default function TalentPool() {
                         <div className={`flex justify-between  items-center`}>
                           <input
                             type="checkbox"
-                            className={`w-[15.81px] h-[15.81px] `}
+                            className={`w-[15.81px] h-[15.81px] disabled:opacity-50`}
                             checked={
                               activeFilteredListCandidate === 'filtered'
                                 ? idCandidateChecked.length ===
@@ -973,6 +973,7 @@ export default function TalentPool() {
                                   candidateDataList.filter((candidate) => candidate.position === activeIndex).length
                             }
                             onChange={handleCheckAll}
+                            disabled={true}
                           />
                           <p className={`font-normal text-base text-dark_neutral_300`}>
                             <span className={`font-bold`}>{idCandidateChecked.length}</span> dipilih
@@ -1007,9 +1008,10 @@ export default function TalentPool() {
                                   type="checkbox"
                                   className={`group-hover:visible ${
                                     idCandidateChecked.length > 0 ? 'visible' : 'invisible'
-                                  } ml-[19px] mr-[11.69px] w-[13px] h-[13px] mt-[6px]`}
+                                  } ml-[19px] mr-[11.69px] w-[13px] h-[13px] mt-[6px] disabled:opacity-50`}
                                   onChange={(e) => handleCheckedCandidate(e, candidate._id)}
                                   checked={idCandidateChecked.includes(candidate._id)}
+                                  disabled={true}
                                 />
                                 <div className={`flex flex-col gap-[7px] ml-[11.69px]`}>
                                   <p className={`text-dark_neutral_300 text-lg font-semibold`}>{candidate.name}</p>
@@ -1053,13 +1055,16 @@ export default function TalentPool() {
                               <input
                                 type="checkbox"
                                 onChange={(e) => handleCheckedCandidate(e, candidate._id)}
-                                className={`w-[13px] h-[13px] ${idCandidateChecked.length > 0 ? 'visible' : ''}`}
+                                className={`w-[13px] h-[13px] ${
+                                  idCandidateChecked.length > 0 ? 'visible' : ''
+                                } disabled:opacity-50`}
                                 checked={idCandidateChecked.includes(candidate._id)}
+                                disabled={true}
                               />
                               <p className={`visible text-dark_neutral_300 text-lg font-semibold`}>{candidate.name}</p>
                             </div>
                             <div className={`flex items-center gap-2`}>
-                              <button onClick={() => handleQualified(candidate._id)}>
+                              <button onClick={() => handleQualified(candidate._id)} disabled={true}>
                                 {candidate.isQualified ? (
                                   <IoStarSharp
                                     className={`text-semantic_yellow_600 outline-semantic_orange_600 text-2xl `}
@@ -1275,7 +1280,8 @@ export default function TalentPool() {
                         <button
                           type="button"
                           onClick={open}
-                          className={`container mx-auto flex gap-[6px] items-center w-[139px] h-[47px] py-[14px] px-[10px] rounded bg-primary_blue text-primary_white`}
+                          className={`container mx-auto flex gap-[6px] items-center w-[139px] h-[47px] py-[14px] px-[10px] rounded bg-primary_blue text-primary_white disabled:opacity-50`}
+                          disabled={true}
                         >
                           <TfiUpload />
                           Upload Files
