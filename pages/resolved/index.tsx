@@ -473,7 +473,7 @@ export default function TalentPool() {
     console.log('token', token.token);
     setScoringLoading(true);
     try {
-      const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/resume_scoring?positionId=${activeIndex}&token_value=${token.token}`;
+      const url = `http://ec2-3-87-22-2.compute-1.amazonaws.com:8000/resume_scoring?positionId=${activeIndex}&token_value=${token.token}`;
 
       const scoringResponse = await fetch(url, {
         method: 'POST',
