@@ -96,6 +96,7 @@ export default function Trash() {
       console.log(response.data);
       setIsDelete((isDelete) => !isDelete);
       setIsModalOpen(false);
+      setPositionChecked(0);
     } catch (error) {
       console.log(error);
     }
@@ -117,6 +118,7 @@ export default function Trash() {
       console.log(restoreResponse.data);
       setIsRestore((isRestore) => !isRestore);
       setIsModalOpen(false);
+      setPositionChecked(0);
     } catch (error) {
       console.log(error);
     }
