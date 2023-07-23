@@ -91,15 +91,15 @@ export default function Trash() {
       (positionData: PositionData) => !idPositionChecked.includes(positionData._id)
     );
     setPositionDataList(newPositionDataList);
+    setIsDelete((isDelete) => !isDelete);
+    setIsModalOpen(false);
+    setPositionChecked(0);
     const data = {
       ids: [...idPositionChecked],
     };
     try {
       const response = await PositionDataService.delete(data, token.token);
       console.log(response.data);
-      setIsDelete((isDelete) => !isDelete);
-      setIsModalOpen(false);
-      setPositionChecked(0);
     } catch (error) {
       console.log(error);
     }
