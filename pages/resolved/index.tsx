@@ -798,7 +798,7 @@ export default function TalentPool() {
                     )}&selectedDepartment=${encodeURIComponent(departmentParam)}&selectedEducation=${encodeURIComponent(
                       educationParam
                     )}&departmentOptions=${encodeURIComponent(departmentOptionsJson)}`}
-                    className={`flex items-center justify-center text-primary_blue w-[108px] h-[47px] rounded gap-[6px] border border-primary_blue hover:border-2`}
+                    className={`flex items-center justify-center text-primary_blue w-[108px] h-[47px] rounded gap-[6px] border border-primary_blue hover:border-2 pointer-events-none`}
                   >
                     Edit Posisi
                   </Link>
@@ -832,7 +832,8 @@ export default function TalentPool() {
                           <h2 className={`text-[18px]`}>Nilai Ulang CV?</h2>
                           <button
                             onClick={handleScoreCandidate}
-                            className={`mt-[16px] flex justify-center items-center border hover:border-primary_blue bg-primary_blue hover:bg-primary_white text-primary_white hover:text-primary_blue rounded w-[177px] h-[47px]`}
+                            className={`mt-[16px] flex justify-center items-center border hover:border-primary_blue bg-primary_blue hover:bg-primary_white text-primary_white hover:text-primary_blue rounded w-[177px] h-[47px] disabled:opacity-50`}
+                            disabled={true}
                           >
                             {scoringLoading ? (
                               <div className={`flex justify-center items-center`}>
@@ -848,7 +849,8 @@ export default function TalentPool() {
                   ) : (
                     <button
                       onClick={handleScoreCandidate}
-                      className={` w-[161px] h-[47px] flex justify-center items-center rounded bg-primary_white border border-primary_blue text-primary_blue hover:border-2`}
+                      className={` w-[161px] h-[47px] flex justify-center items-center rounded bg-primary_white border border-primary_blue text-primary_blue hover:border-2 disabled:opacity-50`}
+                      disabled={true}
                     >
                       {scoringLoading ? (
                         <div className={`flex justify-center items-center`}>
@@ -875,7 +877,8 @@ export default function TalentPool() {
                   <button
                     className={`flex justify-center  w-[291px] h-[47px] ${
                       isUploading ? 'bg-primary_white text-primary_blue' : 'bg-primary_blue text-primary_white'
-                    }  rounded  hover:text-primary_blue hover:bg-primary_white border border-primary_blue items-center `}
+                    }  rounded  hover:text-primary_blue hover:bg-primary_white border border-primary_blue items-center disabled:opacity-50 `}
+                    disabled={true}
                   >
                     {isUploading ? (
                       <div className={`flex justify-center items-center`}>
@@ -918,7 +921,8 @@ export default function TalentPool() {
                           </button>
                           <button
                             onClick={handleSendMultipleEmail}
-                            className={`w-[24px] h-[24px] flex items-center justify-center`}
+                            className={`w-[24px] h-[24px] flex items-center justify-center disabled:opacity-50`}
+                            disabled={true}
                           >
                             <HiOutlineMail className={`w-full h-full`} />
                           </button>
@@ -926,13 +930,15 @@ export default function TalentPool() {
                         <div className={`flex gap-[20px]`}>
                           <button
                             onClick={handleMultipleQualified}
-                            className={`w-[24px] h-[24px] flex items-center justify-center`}
+                            className={`w-[24px] h-[24px] flex items-center justify-center disabled:opacity-50`}
+                            disabled={true}
                           >
                             <MdPersonAddAlt1 className={`w-full h-full`} />
                           </button>
                           <button
                             onClick={handleDeleteCandidates}
-                            className={`w-[24px] h-[24px] flex items-center justify-center`}
+                            className={`w-[24px] h-[24px] flex items-center justify-center disabled:opacity-50`}
+                            disabled={true}
                           >
                             <BsFillTrashFill className={`w-full h-full`} />
                           </button>
@@ -1019,7 +1025,7 @@ export default function TalentPool() {
                               </div>
 
                               <div className={`flex flex-col items-center gap-2`}>
-                                <button onClick={() => handleQualified(candidate._id)}>
+                                <button onClick={() => handleQualified(candidate._id)} disabled={true}>
                                   {candidate.isQualified ? (
                                     <IoStarSharp
                                       className={`text-semantic_yellow_600 outline-semantic_orange_600 text-2xl `}
@@ -1098,7 +1104,8 @@ export default function TalentPool() {
                                   )?.isQualified
                                     ? 'bg-primary_blue text-primary_white'
                                     : 'bg-primary_white text-primary_blue'
-                                }  `}
+                                } disabled:opacity-50  `}
+                                disabled={true}
                               >
                                 <div className={` rounded-full border border-primary_blue`}>
                                   <MdPersonAddAlt1 />
@@ -1109,7 +1116,8 @@ export default function TalentPool() {
                               </button>
                               <button
                                 onClick={handleSendEmail}
-                                className={`w-[135px] h-[44px] items-center border border-mid_neutral_100 rounded justify-center flex gap-[6px] bg-primary_white text-primary_blue`}
+                                className={`w-[135px] h-[44px] items-center border border-mid_neutral_100 rounded justify-center flex gap-[6px] bg-primary_white text-primary_blue disabled:opacity-50`}
+                                disabled={true}
                               >
                                 <HiOutlineMail />
                                 <p>Kirim Email</p>
