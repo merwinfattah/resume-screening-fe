@@ -890,7 +890,14 @@ export default function TalentPool() {
                           <span className="mr-[6px] text-[19px]">+</span>
                           Tambah Kandidat Baru
                         </p>
-                        <input id="file-upload" type="file" multiple className="hidden" onChange={handleFileUpload} />
+                        <input
+                          id="file-upload"
+                          type="file"
+                          multiple
+                          className="hidden"
+                          onChange={handleFileUpload}
+                          disabled={true}
+                        />
                       </label>
                     )}
                   </button>
