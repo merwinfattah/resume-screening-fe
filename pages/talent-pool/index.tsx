@@ -457,7 +457,7 @@ export default function TalentPool() {
   const handleScoreCandidate = async () => {
     setScoringLoading(true);
     try {
-      const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/resume_scoring?positionId=${activeIndex}&token_value=${token.token}`;
+      const url = `http://ec2-34-238-50-38.compute-1.amazonaws.com:8000/resume_scoring?positionId=${activeIndex}&token_value=${token.token}`;
 
       const scoringResponse = await fetch(url, {
         method: 'POST',
@@ -660,7 +660,7 @@ export default function TalentPool() {
     const modifiedEmail = email.replace('@', '%40');
 
     try {
-      const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/mailer?email_recipient=${modifiedEmail}&nama_kandidat=${name}&posisi_dilamar=${position}`;
+      const url = `http://ec2-34-238-50-38.compute-1.amazonaws.com:8000/mailer?email_recipient=${modifiedEmail}&nama_kandidat=${name}&posisi_dilamar=${position}`;
 
       const sendEmailResponse = await fetch(url, {
         method: 'POST',
@@ -681,7 +681,7 @@ export default function TalentPool() {
         const position = positionDataList.find((position) => position._id === activeIndex)?.name;
         const email = candidateDataList.find((candidate) => candidate._id === idCandidate)?.email ?? '';
         const modifiedEmail = email.replace('@', '%40');
-        const url = `http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/mailer?email_recipient=${modifiedEmail}&nama_kandidat=${name}&posisi_dilamar=${position}`;
+        const url = `http://ec2-34-238-50-38.compute-1.amazonaws.com:8000/mailer?email_recipient=${modifiedEmail}&nama_kandidat=${name}&posisi_dilamar=${position}`;
 
         await fetch(url, {
           method: 'POST',

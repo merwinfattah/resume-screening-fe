@@ -174,7 +174,7 @@ export default function AddNewPosition() {
       formData.append('file', file, file.name);
 
       try {
-        const response = await fetch(`http://ec2-44-202-51-145.compute-1.amazonaws.com:8000/jobdesc_reader`, {
+        const response = await fetch(`http://ec2-34-238-50-38.compute-1.amazonaws.com:8000/jobdesc_reader`, {
           method: 'POST',
           body: formData,
         });
